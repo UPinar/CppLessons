@@ -2,8 +2,8 @@
 
 /*
 	class Myclass {
-		int x;					// data member
-		void func();			// member function
+		int x;			// data member
+		void func();		// member function
 		class NestedClass {};	// nested type, type member, member type
 	};
 */
@@ -86,7 +86,7 @@
 			{
 				auto sz = sizeof(mx);	// legal
 				auto sz = sizeof(my);	// legal
-				val = 5;				// legal
+				val = 5;		// legal
 				// member type(inner class - nested type) can reach enclosing types(outer class) private section.
 				// like in previous example brain can reach body's private section.
 				// but body[enclosing type] can not reach brains[member type] private section.
