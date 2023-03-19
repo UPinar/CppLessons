@@ -1,6 +1,6 @@
 # CppLessons
 
-### [static In Classes](https://github.com/UPinar/CppLessons/blob/main/staticInClass/staticInClass.cpp)
+### [`static` In Classes](https://github.com/UPinar/CppLessons/blob/main/staticInClass/staticInClass.cpp)
   - static member variables
   - static member functions
   - singleton design pattern
