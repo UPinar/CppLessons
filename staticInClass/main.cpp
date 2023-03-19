@@ -95,7 +95,7 @@
 	
 		m1.mx = 5;					// same
 		m2.mx = 5;					// same
-		Myclass::mx = 5;			// same
+		Myclass::mx = 5;            			// same
 	
 		Myclass* p = new Myclass;
 		p->mx = 5;					// same
@@ -166,9 +166,9 @@
 	class Myclass {
 	private:
 		// const and integral type static member variables can be initialized in class definition.
-		static int mx = 10;				// invalid.		integral type but not const
+		static int mx = 10;		// invalid.		integral type but not const
 		const static double md = 1.0;	// invalid.		is not a integral type
-		const static int my = 20;		// valid.		const and integral type
+		const static int my = 20;	// valid.		const and integral type
 		const static bool mb = false;	// valid.		const and integral type
 	
 		enum Color{blue, black, purple};
@@ -220,7 +220,7 @@
 /*
 	======================================
 	| static member functions of classes |
-	|		have an external linkage	 |
+	|      have an external linkage	     |
 	======================================
 		
 	// static global functions have an internal linkage 
@@ -250,11 +250,11 @@
 
 /*
 	-------------------------------------------------------------------------
-	| global(free) functions			|	static member functions			|
+	| global(free) functions	    |     static member functions       |
 	| ----------------------------------|---------------------------------- |
-	| - can not reach classes private	|	- can reach classes private		|	
-	| section							|	section							|
-	| - in the namespace scope			|	- in the class scope			|
+	| - can not reach classes private   |   - can reach classes private     |	
+	| section			    |   section				|
+	| - in the namespace scope	    |   - in the class scope		|
 	-------------------------------------------------------------------------
 */
 
@@ -288,7 +288,7 @@
 	class Myclass {
 	public:
 		static void foo(int);	// declared inside class
-		static void bar()		// defined inside class
+		static void bar()	// defined inside class
 		{
 	
 		}
@@ -506,9 +506,9 @@
 	
 	int main()
 	{
-		int (*fp)(int) = &Myclass::foo;				// sythax error types are not matching
+		int (*fp)(int) = &Myclass::foo;			// sythax error types are not matching
 	
-		auto fp2 = &Myclass::foo;					// member function pointer
+		auto fp2 = &Myclass::foo;			// member function pointer
 		// fp2's type is int(Myclass::*fp2)(int)
 		int (Myclass::*fp3)(int) = &Myclass::foo;	// member function pointer
 	
@@ -675,7 +675,7 @@
 		}
 	
 		std::cout << A::get_live_count() << '\n';		// returns 4
-		std::cout << A::get_ever_lived_count() << '\n'; // returns 6
+		std::cout << A::get_ever_lived_count() << '\n';		// returns 6
 	}
 */
 
@@ -784,7 +784,7 @@
 	
 	int main()
 	{
-		auto p1 = a;	// p is a pointer				int* p1
+		auto p1 = a;	// p is a pointer		int* p1
 		auto p2 = &a;   // p2 is a pointer to array		int(*p2)[5]
 	
 		// *p1 -> first variable in array
@@ -858,19 +858,3 @@
 		// ival = 10 // sythax error. ival declared inside if/else loop.
 	}
 */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
