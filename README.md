@@ -8,6 +8,10 @@
   - range based for loop
   - if with initializer
   
-### [composition / containment](https://github.com/UPinar/CppLessons/tree/main/Containment)
+### [Composition / Containment](https://github.com/UPinar/CppLessons/tree/main/Containment)
   - composition / containment
   - special member functions incomposition
+  
+### [Nested Types](https://github.com/UPinar/CppLessons/tree/main/NestedTypes)
+  - nested types
+  - pimpl idiom
