@@ -15,3 +15,12 @@
 ### [Nested Types](https://github.com/UPinar/CppLessons/tree/main/NestedTypes)
   - nested types
   - pimpl idiom
+ 
+### [`namespace`(s)](https://github.com/UPinar/CppLessons/tree/main/Namespaces)
+  - using decleration
+  - using namespace (directive) decleration
+  - unnamed namespace
+  - namespace alias
+  - argument dependent lookup
+  - inline namespace
+  - versioning with inline namespaces
