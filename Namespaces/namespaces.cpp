@@ -336,7 +336,7 @@
 	{
 		// before declering [using namespace First;]
 		func(4);			// output -> ::func(double) standart conversion from int to double
-		First::func(3.5);	// output -> First::func(int) standart conversion from double to int.
+		First::func(3.5);		// output -> First::func(int) standart conversion from double to int.
 	
 		// after declaring [using namespace First;]
 		func(4);			// output -> First::func(int)
