@@ -1,5 +1,9 @@
 # CppLessons
 
+
+### [`friend`Declerations](https://github.com/UPinar/CppLessons/tree/main/FriendDeclerations)
+
+
 ### [`static` In Classes](https://github.com/UPinar/CppLessons/tree/main/staticInClass)
   - static member variables
   - static member functions
