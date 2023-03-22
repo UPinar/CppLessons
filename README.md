@@ -1,7 +1,7 @@
 # CppLessons
 
 
-### [`friend`Declerations](https://github.com/UPinar/CppLessons/tree/main/FriendDeclerations)
+### [`friend` Declerations](https://github.com/UPinar/CppLessons/tree/main/FriendDeclerations)
 
 
 ### [`static` In Classes](https://github.com/UPinar/CppLessons/tree/main/staticInClass)
