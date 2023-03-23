@@ -34,16 +34,16 @@
 	third pointer points to capacity memory
 
 	
-								---------------------------------
-								| H | E | L | L | O |  |  |  |  |
-								---------------------------------
-								  ^				  ^	           ^
-					              |				  |			   |
-	-----------					  |			      |			   |
-	| pointer |--------------------				  |			   |
-	-----------									  |			   |
-	| pointer |------------------------------------            |
-	-----------                                                |
+				     ---------------------------------
+				     | H | E | L | L | O |  |  |  |  |
+				     ---------------------------------
+				       ^		^	    ^
+				       |		|	    |
+	-----------		       |		|           |
+	| pointer |--------------------			|           |
+	-----------				        |	    |
+	| pointer |-------------------------------------            |
+	-----------                                                 |
 	| pointer |-------------------------------------------------
 	-----------
 	| buffer  |
@@ -115,16 +115,16 @@
 */
 
 /*
-	str.xyz(const char* p) // Null-Terminated Byte String(NTBS)						// CString param
-	str.xyz(const char* p, std::string::size_type)									// data param
-	str.xyz(const char* ps, const char* pe)											// range param
-	str.xyz(const std::string&)														// std::string param
-	str.xyz(std::string&&)															// std::string param
-	str.xyz(const std::string&, std::string::size_type)								// sub-string param
-	str.xyz(const std::string&, std::string::size_type, std::string::size_type)		// sub-string param
-	str.xyz(std::string::size_type, char)											// fill param
-	str.xyz(char)																	// char param
-	str.xyz(std::initializer_list<char>)											// initializer_list param
+	str.xyz(const char* p) // Null-Terminated Byte String(NTBS)			// CString param
+	str.xyz(const char* p, std::string::size_type)					// data param
+	str.xyz(const char* ps, const char* pe)						// range param
+	str.xyz(const std::string&)							// std::string param
+	str.xyz(std::string&&)								// std::string param
+	str.xyz(const std::string&, std::string::size_type)				// sub-string param
+	str.xyz(const std::string&, std::string::size_type, std::string::size_type)	// sub-string param
+	str.xyz(std::string::size_type, char)						// fill param
+	str.xyz(char)									// char param
+	str.xyz(std::initializer_list<char>)						// initializer_list param
 */
 
 /*
@@ -162,9 +162,9 @@
 	{
 		std::string str;
 	
-		std::cout << "str.size() = " << str.size() << '\n';			// str.size() = 0
+		std::cout << "str.size() = " << str.size() << '\n';		// str.size() = 0
 		std::cout << "str.length() = " << str.length() << '\n';		// str.length() = 0
-		std::cout << "str.capacity() = " << str.capacity() << '\n'; // str.capacity() = 15
+		std::cout << "str.capacity() = " << str.capacity() << '\n'; 	// str.capacity() = 15
 	
 		auto len = str.size();
 		std::string::size_type len = str.size();
@@ -263,9 +263,9 @@
 		// range [a, a + 3) [ 2, 4, 6 ]
 	
 		char str[] = "Hello World";
-					//0123456789ABC
-					// B is '\0'
-					// C is 1 more than last char
+		//0123456789ABC
+		// B is '\0'
+		// C is 1 more than last char
 	
 		std::string word;
 	
@@ -345,7 +345,7 @@ int main()
 	auto size = str.size();
 
 	std::cout << "is empty? " << is_empty << '\n';	// output -> 1
-	std::cout << "size =  " << size << '\n';		// output -> 0
+	std::cout << "size =  " << size << '\n';	// output -> 0
 }
 */
 
@@ -584,7 +584,7 @@ int main()
 	
 	int main()
 	{
-		Myclass m1{ 1, 3, 5, 7 };		// output -> initializer_list<int> ctor
+		Myclass m1{ 1, 3, 5, 7 };	// output -> initializer_list<int> ctor
 		Myclass m2 = { 1, 3, 5, 7 };	// output -> initializer_list<int> ctor
 	
 		std::vector<int> ivec{ 2,5,6,7 }; // vector class initializer_list param ctor
@@ -631,7 +631,7 @@ int main()
 		using namespace std;
 	
 	
-		string s1(52, 'A');		// fill ctor
+		string s1(52, 'A');	// fill ctor
 		string s2{ 52,'A' };	// initializer_list ctor<char>
 	
 		std::cout << "s1.size() = " << s1.size() << '\n'; // output -> s1.size() = 52
@@ -925,7 +925,7 @@ int main()
 		string str1{ "helloworld" };
 		string str2{ "hifromistanbul" };
 	
-		str1 = str2;			// copy assignment
+		str1 = str2;		// copy assignment
 		str1 = std::move(str2); // move assignment
 	
 	
