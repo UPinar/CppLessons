@@ -29,7 +29,7 @@
   - inline namespace
   - versioning with inline namespaces
 ### [std::string Class](https://github.com/UPinar/CppLessons/tree/main/StringClass)
-  - std::string class
+  - std::string class iterator and index interface functions
   - std::initializer_list class
   - constexpr static data member string::npos
   - three-way comparison(spaceship) operator [ <=> ]
