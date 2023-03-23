@@ -28,3 +28,10 @@
   - argument dependent lookup
   - inline namespace
   - versioning with inline namespaces
+### [std::string class](https://github.com/UPinar/CppLessons/tree/main/StringClass)
+  - std::string class
+  - std::initializer_list class
+  - constexpr static data member string::npos
+  - three-way comparison(spaceship) operator [ <=> ]
+  - std::string_view class (C++ 17)
+  - remove-erase idiom
