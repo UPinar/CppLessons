@@ -2,6 +2,9 @@
 
 
 ### [`friend` Declerations](https://github.com/UPinar/CppLessons/tree/main/FriendDeclerations)
+  - to a global function
+  - to another classes member function
+  - to another classes all functions(whole class)
 
 
 ### [`static` In Classes](https://github.com/UPinar/CppLessons/tree/main/staticInClass)
