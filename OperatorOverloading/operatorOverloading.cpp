@@ -36,11 +36,11 @@
 /*
 	 operators CAN NOT be overload
 	-------------------------------
-	::			scope resolution operator	
-	.			member selection (dot) operator
+	::		scope resolution operator	
+	.		member selection (dot) operator
 	sizeof()	sizeof operator
-	? :			ternary operator
-	.*			pointer-to-member access operator
+	? :		ternary operator
+	.*		pointer-to-member access operator
 	typeid()	typeid operator
 	noexcept	noexcept operator
 */
@@ -159,11 +159,11 @@
 */
 
 /*
-	 +x			[sign operator]				[unary]
-	 a + b		[addition operator]			[binary]
-	 -x			[sign operator]				[unary]
+	 +x		[sign operator]			[unary]
+	 a + b		[addition operator]		[binary]
+	 -x		[sign operator]			[unary]
 	 a - b		[substraction operator]		[binary]
-	 &x			[address of operator]		[unary]
+	 &x		[address of operator]		[unary]
 	 a & b		[bitwise and operator]		[binary]
 	 *ptr		[dereference operator]		[unary]
 	 a * b		[multiplication operator]	[binary]
@@ -421,20 +421,20 @@
 	{
 		using namespace std;
 	
-		cout << "hello\n";				// output -> hello
+		cout << "hello\n";		// output -> hello
 		operator<<(cout, "hello\n");	// output -> helo
 		// ostream& operator<<(ostream&, const char*);	// global function
 	
-		cout.operator<<("hello\n");		// output -> 009A9CE0
+		cout.operator<<("hello\n");	// output -> 009A9CE0
 		// ostream& operator<<(void *);	// ostream classes member function
 	
 	
 		char c = 'A';
-		cout << c;				// output -> A
+		cout << c;		// output -> A
 		operator <<(cout, c);	// output -> A
 		// ostream& operator<<(ostream&, const char);	// global function
 	
-		cout.operator<<(c);		// output -> 65
+		cout.operator<<(c);	// output -> 65
 		// ostream& operator<<(int); // ostream classes member function
 	}
 */
@@ -532,12 +532,12 @@
 
 /*
 	---------------------------------------
-	==			equality operators
+	==	equality operators
 	!=			
 	---------------------------------------
 	<
-	<=			relational operators(simetric operators)
-	>			it is better overloading global function
+	<=	relational operators(simetric operators)
+	>	it is better overloading global function
 	>= 
 	---------------------------------------
 
@@ -667,7 +667,7 @@
 		ivector(std::size_t size);
 
 		// CONST OVERLOADING
-		int& operator[](std::size_t);				// non-const member function
+		int& operator[](std::size_t);			// non-const member function
 		const int& operator[](std::size_t) const;	// const member function
 	};
 	
@@ -1024,17 +1024,17 @@
 		// Myclass did not have a bool operator overload functoion
 		Myclass m1, m2;
 	
-		auto x = m1 && m2;					// not legal
-		auto x = m1 || m2;					// not legal
-		while (m1) {}						// not legal
-		if (m2) {}							// not legal
+		auto x = m1 && m2;			// not legal
+		auto x = m1 || m2;			// not legal
+		while (m1) {}				// not legal
+		if (m2) {}				// not legal
 	
 		auto x3 = std::cin && std::cout;	// legal
-		if (std::cin){}						// legal
-		while (std::cout){}					// legal
+		if (std::cin){}				// legal
+		while (std::cout){}			// legal
 	
 		std::unique_ptr<int> uptr{ new int };
-		if(uptr.operator bool()){}			// legal
+		if(uptr.operator bool()){}		// legal
 	}
 */
 
@@ -1145,7 +1145,7 @@
 	
 		// postfix
 		auto wd2{ Weekday::Saturday };
-		std::cout << wd2++ << '\n'; // output -> Saturday
+		std::cout << wd2++ << '\n'; 	// output -> Saturday
 		std::cout << wd2 << '\n';	// output -> Sunday
 	}
 */
