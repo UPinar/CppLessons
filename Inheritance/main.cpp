@@ -8,7 +8,7 @@
 
 /*
 	super class			parent class			[BASED CLASS]
-	sub class			child class				[DERIVED CLASS]
+	sub class			child class			[DERIVED CLASS]
 */
 
 /*
@@ -40,11 +40,11 @@
 	
 	class DerClass : Base {};
 	class Der_2_Class : private Base{};
-	// default inheritace specifier is PRIVATE for CLASSES
+	// default inheritance specifier is PRIVATE for CLASSES
 	
 	struct DerStruct : Base {};
 	struct Der_2_Struct : public Base{};
-	// default inheritace specifier is PUBLIC for STRUCTS
+	// default inheritance specifier is PUBLIC for STRUCTS
 
 	// <--- THINK ---> (SIMILAR)
 	// default section inside classes is PRIVATE
@@ -125,13 +125,13 @@
 	// requires no more, promise no less
 	// SOLID's(L) Liskov substitution principle 
 
-	// There is an implicit conversion from Derived class to Base class (up-casting)
+	// There is an implicit conversion from Derived class to Base class (upcasting)
 
 	class Base {
 	public:
 	};
 	
-	class Der :public Base {
+	class Der : public Base {
 	
 	};
 	
@@ -202,15 +202,15 @@
 	int main(void)
 	{
 	
-		// name-lookup will start from derived class scope, than will go to base class scope.
-		// name-hiding can happen between derived and base class.
+		// name-lookup will start from derived class scope, then will go to the base class scope.
+		// name-hiding(shadowing) can happen between derived and base class.
 	
 		Der myder;
 		myder.foo(12);
 	
-		// in Der class scope name was found. It will not go to Base class for continue searching.
-		// [name-hiding]
-		// [myder.foo(12)] int will convert to double[standart conversion] and Der::foo() will invoked
+		// in Der class scope name was found. It will NOT go to Base class for continue searching.
+		// [name-hiding(shadowing)]
+		// [myder.foo(12)] int will convert to double[standart conversion] and Der::foo(double) will invoked
 	}
 */
 
@@ -231,8 +231,8 @@
 		myder.foo(12); // syntax error
 	
 		// name-lookup will found Der::foo()
-		// context control is okay int to double conversion.
-		// access control is not okay because of Der::foo() in private section.
+		// context control is okay, int to double standart conversion.
+		// access control is NOT okay because of Der::foo() in private section.
 		// E0265 function "Der::foo"  is inaccessible
 	}
 */
@@ -257,9 +257,10 @@
 	{
 	
 		Myclass m;
-		// these 2 lines are same
+		
 		m.func();
 		m.Myclass::func();
+		// these 2 lines are same
 	
 		Der myder;
 		myder.Base::foo(12); // calling Base::foo() function with Der class object
@@ -279,11 +280,11 @@
 		{
 			func(1, 1); // syntax error
 			// name-lookup will start from foo() functions block
-			// than Der classes function block and it will find func(int);
+			// then continue with Der class scope and it will find func(int);
 			// context control will throw an error.
 			// process will stop and Base::func(int,int) can not be invoked
 	
-			func(1);			// legal
+			func(1);		// legal
 			Base::func(1, 1);	// legal
 	
 			((Base*)this)->func(1, 1);
@@ -317,10 +318,10 @@
 		{
 			m_base_private = 10; // syntax error
 			// can not reach Base classes private section.
-			// Only can reach with friend decleration
+			// Only can reach Base classes private section with friend decleration.
 	
 			m_base_protected = 12;	// legal
-			bar();					// legal
+			bar();			// legal
 			// derived class can reach base classes protected section
 	
 			m_base_public = 15;
@@ -331,9 +332,9 @@
 	int main()
 	{
 		Base mybase;
-		mybase.m_base_public = 10;
+		mybase.m_base_public = 10;	// legal
 		mybase.m_base_protected = 10;	// syntax error
-		mybase.m_base_private = 10;		// syntax error
+		mybase.m_base_private = 10;	// syntax error
 		// Client codes can not reach classes private and protected sections.
 	}
 */
@@ -379,11 +380,12 @@
 	{
 		Der myder;
 	
-		// output -> Base() default ctor
-		//			 ~Base() dtor
+		// output -> 
+		// Base() default ctor
+		// ~Base() dtor
 	
-		// implicitly declared[compiler] Der's default ctor will invoke Base's default ctor
-		// implicitly declared[compiler] Der's dtor will invoke Base dtor
+		// implicitly declared[by compiler] Der classes default ctor will invoke Base classes default ctor
+		// implicitly declared[by compiler] Der classes dtor will invoke Base classes dtor
 	}
 */
 
@@ -399,12 +401,12 @@
 	int main()
 	{
 		Der myder; // syntax error
-		//E1790	the default constructor of "Der" cannot be referenced -- it is a deleted function
+		// E1790 the default constructor of "Der" cannot be referenced -- it is a deleted function
 	
 	
 		// Der's default ctor will try to invoke Base() default ctor.
-		// Because of there is user declared ctor in Base class,
-		// there is no Base() default ctor.
+		// Because of there is a user declared ctor in Base class,
+		// Base() default ctor is not declared.
 		// When Der's default ctor can not found Base() default ctor.
 		// Compiler will delete Der() default ctor
 	}
@@ -423,9 +425,9 @@
 	int main()
 	{
 		Der myder; // syntax error
-		//E1790	the default constructor of "Der" cannot be referenced -- it is a deleted function
+		// E1790  the default constructor of "Der" cannot be referenced -- it is a deleted function
 	
-		// same error because Base() default ctor is in private section
+		// same error. Because of Base() default ctor is in the private section
 		// Der() can not reach Base classes private section
 		// Compiler will delete Der's default ctor.
 	}
@@ -454,7 +456,7 @@
 	
 	class Der : public Base {
 	public:
-		// Der() : Base(){}		// implicitly declared default ctor acts like this
+		// Der() : Base(){}	// implicitly declared default ctor acts like this
 		// Der() : Base(3) {}	// output -> Base(int)
 		// Der() : Base(3.) {}	// output -> Base(double)
 		Der() : Base{3,4} {}	// output -> Base(int,int)
@@ -487,7 +489,7 @@
 		}
 	};
 	
-	class Der :public Base {
+	class Der : public Base {
 	public:
 		Der() : mx(), Base()
 		{
@@ -504,8 +506,9 @@
 	{
 		Der myder;
 	
-		// output -> Base() default ctor
-		//			 Member() default ctor
+		// output -> 
+		// Base() default ctor
+		// Member() default ctor
 	
 		// first Base class default ctor will invoked.
 		// then Member objects default ctor.
@@ -537,7 +540,7 @@
 	int main()
 	{
 		Der dx;
-		Der dy = dx; // output -> Base copy ctor
+		Der dy = dx; 		// output -> Base copy ctor
 		Der dz = std::move(dx); // output -> Base move ctor
 	}
 */
@@ -566,8 +569,8 @@
 		Der(const Der&)
 		{
 			// because of Der's copy ctor is user declared
-			// and not used initializer list to call Base's copy ctor
-			// Base() default ctor will call to create Base object inside of Der object.
+			// and not used in initializer list to call Base's copy ctor
+			// Base() default ctor will invoked to create Base object inside of Der object.
 		}
 	
 		// Der(const Der& other) : Base(other) {}
@@ -621,8 +624,8 @@
 	int main()
 	{
 		Der dx, dy;
-		dx = dy;			// output -> Base copy asssignment
-		dx = std::move(dy); // output -> Base move asssignment
+		dx = dy;	    	// output -> Base copy asssignment
+		dx = std::move(dy); 	// output -> Base move asssignment
 	}
 */
 
@@ -634,8 +637,6 @@
 
 /*
 	class Base {
-	public:
-	
 	protected:
 		void foo(int);
 		int mx;
@@ -652,7 +653,7 @@
 		Der myder;
 		myder.foo(12);
 		myder.mx;
-		// Client can reach Base classes protected section by using decleration
+		// Client can reach Base classes protected section by using `using` decleration
 	}
 */
 
@@ -686,7 +687,7 @@
 		myder.foo(12);	// output -> Base::foo(int)
 		myder.foo(0.9);	// output -> Der::foo(double)
 	
-		// Base::foo() and Der::foo() acts like function overloading
+		// Base::foo() and Der::foo() acts like function overloads.
 	}
 */
 
@@ -721,9 +722,9 @@
 	{
 		Der myder;
 	
-		myder.foo(.9);			// output -> Der::foo(double)
-		myder.foo(12);			// output -> Base::foo(int)
-		myder.foo(12,12);		// output -> Base::foo(int,int)
+		myder.foo(.9);		// output -> Der::foo(double)
+		myder.foo(12);		// output -> Base::foo(int)
+		myder.foo(12,12);	// output -> Base::foo(int,int)
 		myder.foo(12,12,12);	// output -> Base::foo(int,int,int)
 	}
 */
@@ -766,9 +767,9 @@
 	
 		// before Modern C++
 		// -----------------------------------------------
-		// Der(int x) : Base(x) {};					// 1
-		// Der(int x,int y) : Base(x,y) {};			// 2
-		// Der(double x) : Base(x) {};				// 3
+		// Der(int x) : Base(x) {};			// 1
+		// Der(int x,int y) : Base(x,y) {};		// 2
+		// Der(double x) : Base(x) {};			// 3
 	
 		// after Modern C++
 		using Base::Base;
@@ -777,8 +778,8 @@
 	int main()
 	{
 		Der myder; // syntax error because Der() default ctor was deleted by compiler
-		// Der() tries to call Base() default ctor, because of there is Base(int) ctor
-		// is user declared there is no Base() default ctor. It will cause [Der() = delete;]
+		// Der() tries to call Base() default ctor, because of there is a user declared Base(int) ctor
+		// there is no Base() default ctor. It will cause [Der() = delete;]
 	
 		// when we use [using Base::Base;] expression in Der classes public section
 		Der myder1(12);
@@ -811,6 +812,7 @@
 		Der myder2(1, 2);
 		Der myder3(12.5);
 		// all cause syntax error because Base classes ctors are in protected section
+		// and Client codes can not reach Base classes protected section
 	}
 */
 
@@ -896,7 +898,7 @@
 	public:
 		virtual int foo(int, int)
 		{
-			// inline(can be defined inside .h file)
+			// inline virtual member function (can be defined inside .h file)
 		}
 	};
 	
@@ -922,10 +924,11 @@
 	
 		double foo(int, double); // valid
 		// names are same but signatures are different. This [double foo(int,double)],
-		// IS NOT OVERRIDE the base classes virtual function.
+		// IS NOT AN OVERRIDE of the base classes virtual function.
 	
 		int foo(int, int); // valid
 		// this is an override function of base classes virtual function.
+		// same as [int foo(int, int)override]
 	};
 */
 
@@ -942,15 +945,16 @@
 	
 		int foo(int, int) const; // valid
 		// This is an OVERRIDE FUNCTION of base classes virtual function.
+		// same as [int foo(int, int) const override]
 	};
 */
 
 /*
-	override keyword is CONTEXTUAL KEYWORD (override,final).
+	override keyword is CONTEXTUAL KEYWORD.
 	- can be a keyword
 	- can be an identifier.
 
-	-> for backward compatibility 
+	-> can still be used as an identifier for backward compatibility 
 		coders might wrote a class called `override` before. 
 		For not broking that codes `override` can be used as an identifier.
 */
@@ -1024,7 +1028,9 @@
 		Base* baseptr = &myder;
 	
 		baseptr->func();	// output -> Base::func()
+		// func() is not a virtual function
 		baseptr->bar();		// output -> Der::bar()
+		// bar() is a virtual function
 	}
 */
 
@@ -1060,35 +1066,40 @@
 	
 		Car* p = new Mercedes;
 		car_game_pointer(p);		// Virtual Dispatch is working
-		// output ->	Mercedes has just started
-		//				Mercedes is running
-		//				Mercedes has just stopped
+		// output ->	
+		// Mercedes has just started
+		// Mercedes is running
+		// Mercedes has just stopped
 	
 		car_game_reference(*p);		// Virtual Dispatch is working
-		// output ->	Mercedes has just started
-		//				Mercedes is running
-		//				Mercedes has just stopped
+		// output ->	
+		// Mercedes has just started
+		// Mercedes is running
+		// Mercedes has just stopped
 	
-		car_game_value(*p);			// Virtual Dispatch IS NOT working [object slicing]
-		// output ->	Car has just started
-		//				Car is running
-		//				Car has just stopped
+		car_game_value(*p);		// Virtual Dispatch IS NOT working [object slicing]
+		// output ->	
+		// Car has just started
+		// Car is running
+		// Car has just stopped
 	
 		// --------------------------------------------------------------------------------------
 	
 		Car* p_1 = new VolvoXC90;
 		car_game_pointer(p_1);		// Virtual Dispatch is working
-		// output ->	VolvoXC90 has just started
-		//				VolvoXC90 is running
-		//				VolvoXC90 has just stopped
+		// output ->	
+		// VolvoXC90 has just started
+		// VolvoXC90 is running
+		// VolvoXC90 has just stopped
 	
 		// --------------------------------------------------------------------------------------
 	
 		// IF VolvoXC90 CLASS IS NOT OVERRIDING run() FUNCTION
 		car_game_pointer(p_1);		// Virtual Dispatch is working
-		// output ->	VolvoXC90 has just started
-		//				Volvo is running ----------------------------> PARENT CLASSES run() function
-		//				VolvoXC90 has just stopped
+		// output ->	
+		// VolvoXC90 has just started
+		// Volvo is running ----------------------------> PARENT CLASSES[Volvo] run() function
+		// VolvoXC90 has just stopped
 	}
 */
 
@@ -1104,9 +1115,8 @@
 		p->open_sunroof(); // syntax error
 		// name-lookup will applied for static type.
 		// static type of this argument expression(Car* p) is Car*
-		// and because of Car(Base) class did not have a member function open_sunroof()
-		// only derived class Mercedes has it.
-		// it will throw a syntax error.
+		// and because of Car(Base) class did not have a member function as open_sunroof()
+		// (only derived class Mercedes has it) it will throw a syntax error.
 	}
 */
 
@@ -1168,7 +1178,8 @@
 		// in run-time because of there is no access control phase, virtual dispatch can happen
 	
 		myder.foo(); // syntax error
-		// because static type is Der type and access control error happens.
+		// because static type is Der type and access control error happens
+		// [foo() is in private section of Der class].
 	}
 */
 
@@ -1205,9 +1216,10 @@
 	{
 		p->foo(); // syntax error
 		// static type access control error.
+		// [foo() virtual function is Base class is in private section]
 	
 		p->bar();
-		// non-static member function is public class can call virtual member function in private section.
+		// non-static member function in public section of the class can call virtual member function in private section.
 	}
 */
 
@@ -1228,31 +1240,31 @@
 	
 		// For Volvo::Volvo() -> ctor function
 	
-		// output
+		// output ->
 		// Car has just started
 		// Car is running
 		// Car has just stopped
 	
 		// Virtual dispatch mechanism is not working!!
 		// When a derived class coming to life,
-		// first base class needs to come to life than derived classes then other data members,etc..
+		// first Base class needs to come to life than derived classes other data members,etc..
 		// Virtual dispatch can not be applied inside of base classes constructor because
-		// inside base class constructor function, derived class still is not alive.
+		// when executing Base() classes constructor function, derived class is still not alive.
 	
 	
 		// For Volvo::~Volvo() -> dtor function
 	
-		// output
+		// output ->
 		// Car has just started
 		// Car is running
 		// Car has just stopped
 	
 		// Virtual dispatch mechanism is not working!!
-		// Before derived class objects destroyed
-		// first data members, then base class object inside derived class then derived class object destroyed.
+		// Before derived class objects get destroyed
+		// first data members, then base class object inside derived class then derived class object will get destroyed.
 		// Virtual dispatch can not be applied inside of base classes destructor because
-		// if virtual dispatch happens, we are using destroyed base class object inside derived class object
-		// that will cause undefined behaviour
+		// if virtual dispatch happens, we seem like using destroyed base class object inside derived class object.
+		// That will cause undefined behaviour
 	}
 */
 
@@ -1303,7 +1315,7 @@
 		// output -> sizeof(Base_2) = 16 -> 2 int and still 1 pointer
 	
 		std::cout << "sizeof(Der) = " << sizeof(Der) << '\n';
-		// output -> sizeof(Der) = 16 -> 2 int and still 1 pointer
+		// output -> sizeof(Der) = 16 -> 2 int and 1 pointer
 	
 		// Virtual function table pointer[vptr] is embedded in Base class.
 		// vptr is pointing to(have an address of) virtual function table in heap memory
@@ -1331,22 +1343,22 @@
 	
 	class Myclass {
 	public:
-		virtual void foo(); // legal
-		static virtual void foo(); // not legal
+		virtual void foo(); 		// legal
+		static virtual void foo(); 	// not legal
 	
-		virtual Myclass(int); // not legal
+		virtual Myclass(int); 		// not legal
 	};
 	
-	virtual void gfoo(); // not legal
+	virtual void gfoo(); 			// not legal
 */
 
-/*m
+/*
 	#include "Car_6.h"
 	
 	void car_game(Car* p)
 	{
 		// how to create a copy of, derived class of Car inside this function ?
-		// if Volvo comes i need to create a Volvo
+		// if Volvo comes WE need to create a Volvo
 		p->start();
 	
 		Car* pnewcar = p->clone();
@@ -1370,9 +1382,9 @@
 
 /*
 	=========================
-	| covariance			|
+	| covariance		|
 	| variant return type	|
-	| covariant				|
+	| covariant		|
 	=========================
 */
 
@@ -1397,7 +1409,7 @@
 
 		D& foo_2()override;
 		D func()override; // syntax error
-		// covariance is legal when the return type is pointer or reference !!
+		// covariance is legal ONLY when the return type is a pointer or reference !!
 	};
 */
 
@@ -1423,7 +1435,7 @@
 		Car* v = new Volvo;
 		Car* a = new Audi;
 	
-		// How can we write a function, when we dereference it i will write derived class name
+		// How can we write a function, when we dereference it, it will write derived class name
 		// If Volvo -> "I am a Volvo"
 		// If Audio -> "I am an Audi"
 		// How to make global function virtual ?
@@ -1469,11 +1481,10 @@
 	{
 		Base* baseptr = new Der;
 		foo(baseptr);
-		// undefined behaviour happens because,we are deleting Base object inside derived class
+		// undefined behaviour happens because, we are deleting Base object inside derived class
 		// but not deleting Derived class object itself.
 
-		// output ->
-		// Base dtor
+		// output -> Base dtor
 
 		// When we make base classes dtor virtual, dispatch mechanism started working.
 		// First Base dtor called inside Der dtor function then Der dtor finished executing.
@@ -1525,7 +1536,7 @@
 	
 		Der* derptr = new Der;
 		delete derptr; // no sythax error.
-		// client will reach Base::~Base() from Der::~Der
+		// client will reach Base::~Base() from Der::~Der which is in the public section
 	}
 */
 
@@ -1538,7 +1549,7 @@
 		}
 	};
 	
-	class Der :public Base{
+	class Der : public Base{
 	public:
 		void vfunc(int x = 9) override
 		{
@@ -1550,10 +1561,10 @@
 	{
 		Der myder;
 		Base* p = &myder;
-		p->vfunc();		// output -> Der::vfunc(int x) x = 5
+		p->vfunc();	// output -> Der::vfunc(int x) x = 5
 	
-		// Virtual dispatch works but default argument type is relatic with static type
-		// compiler call the function in compile time [p->vfunc(5)]
+		// Virtual dispatch works but default argument type is related with static type
+		// compiler will call the function in compile time [p->vfunc(5)] with an argument of int(5)
 	
 		myder.vfunc();	// output -> Der::vfunc(int x) x = 9
 		// static type of default argument is 9 in compile time now.
@@ -1670,13 +1681,13 @@
 		Base* baseptr = &myder;
 	
 		Der* derptr = dynamic_cast<Der*>(baseptr);
-		// baseptr needs to be polymorphic class.(needs to have a virtual or pure virtual function.)
+		// baseptr needs to be polymorphic class( have at least 1 virtual or pure virtual function.)
 		// E0698 the operand of a runtime dynamic_cast must have a polymorphic class type
 	}
 */
 
 /*
-	// dynamic_cast operator examines that downcasting can be done securely.
+	// dynamic_cast operator examines that downcasting(casting Base class to Derived class) can be done securely.
 	
 	#include "Car_8.h"
 	
@@ -1717,39 +1728,39 @@
 */
 
 /*
-#include "Car_8.h"
-
-void car_game(Car& car_ref)
-{
-	std::cout << car_ref << '\n';
-	car_ref.start();
-	car_ref.run();
-	car_ref.stop();
-
-	try
+	#include "Car_8.h"
+	
+	void car_game(Car& car_ref)
 	{
-		auto& vr = dynamic_cast<Volvo&>(car_ref);
-		vr.open_sunroof();
+		std::cout << car_ref << '\n';
+		car_ref.start();
+		car_ref.run();
+		car_ref.stop();
+	
+		try
+		{
+			auto& vr = dynamic_cast<Volvo&>(car_ref);
+			vr.open_sunroof();
+		}
+		catch (const std::exception& ex)
+		{
+			std::cout << "exception caught: " << ex.what() << '\n';
+		}
+	
+		std::cout << '\n';
 	}
-	catch (const std::exception& ex)
+	
+	int main()
 	{
-		std::cout << "exception caught: " << ex.what() << '\n';
+		Car* cp = new Volvo;
+		Car* cp_2 = new Audi;
+	
+		car_game(*cp);
+		car_game(*cp_2);
+	
+		delete cp;
+		delete cp_2;
 	}
-
-	std::cout << '\n';
-}
-
-int main()
-{
-	Car* cp = new Volvo;
-	Car* cp_2 = new Audi;
-
-	car_game(*cp);
-	car_game(*cp_2);
-
-	delete cp;
-	delete cp_2;
-}
 */
 
 /*
@@ -1759,7 +1770,7 @@ int main()
 */
 
 /*
-	an expression created with type id operator is in fact 
+	an expression created with typeid operator is in fact 
 	a const reference to an object from std::type_info class
 */
 
@@ -1805,11 +1816,11 @@ int main()
 		Base* baseptr = &myder;
 	
 		// If Base class is not polymorphic class [related to static type]
-		std::cout << (typeid(*baseptr) == typeid(Der)) << '\n'; // output -> 0
+		std::cout << (typeid(*baseptr) == typeid(Der)) << '\n'; 	// output -> 0
 		std::cout << typeid(*baseptr).name() << '\n';			// output -> class Base
 	
 		// If Base class is a polymorphic class [related to dynamic type]
-		std::cout << (typeid(*baseptr) == typeid(Der)) << '\n'; // output -> 1
+		std::cout << (typeid(*baseptr) == typeid(Der)) << '\n'; 	// output -> 1
 		std::cout << typeid(*baseptr).name() << '\n';			// output -> class Der
 	}
 */
@@ -1922,7 +1933,7 @@ int main()
 	
 		Base* baseptr = &myder; // syntax error
 		Base& baseref = myder;	// syntax error
-		// In private inheritance, no implicit conversion from derived class to base class. [no upcasting ]
+		// In private inheritance, no implicit conversion from derived class to base class. [no upcasting]
 	}
 */
 
@@ -1956,9 +1967,9 @@ int main()
 	};
 	
 	// * B class can use A classes public section(function) by its members.
-	//		-> reaching class A's public function from B classes member function[bar()]
+	//	-> reaching class A's public function from B classes member function[bar()]
 	// * B class can add class A's public section to its interface.
-	//		-> B class have a forwarding function to add Class A's public interface to it's interface.
+	//	-> B class have a forwarding function to add Class A's public interface to it's interface.
 	
 	// * We can not reach our member objects protected section.
 	// * It is not valid to override a member objects virtual function.
@@ -1989,16 +2000,16 @@ int main()
 	
 	
 	// * BB class can use AA classes public section(function) by its members.
-	//		-> reaching class AA's public function from BB classes member function[bar()]
+	//	-> reaching class AA's public function from BB classes member function[bar()]
 	// * BB class can add class AA's public section to its interface.
-	//		-> BB class can have a forwarding function to add Class AA's public interface to it's interface.
-	//		-> With using decleration [using AA::AAfoo], BB class added it's base classes private section
-	//		to its interface.
+	//	-> BB class can have a forwarding function to add Class AA's public interface to it's interface.
+	//	-> With using decleration [using AA::AAfoo], BB class added it's base classes private section
+	//	   to its interface.
 	
 	// * We can reach our base classes protected section.
 	// * Overriding our base classes member function is perfectly valid.
 	// * There is an implicit conversion from BB class to its Base class (class AA)
-	//		-> from a friend function or from its member functions.
+	//	-> from a friend function or from its member functions.
 */
 
 /*
@@ -2031,10 +2042,10 @@ int main()
 	int main()
 	{
 		std::cout << "sizeof(Empty) = " << sizeof(Empty) << '\n';	// output -> sizeof(Empty) = 1
-		std::cout << "sizeof(A) = " << sizeof(A) << '\n';			// sizeof(A) = 8
+		std::cout << "sizeof(A) = " << sizeof(A) << '\n';		// output -> sizeof(A) = 8
 		// 3 bytes added for padding.
-		std::cout << "sizeof(B) = " << sizeof(B) << '\n';			// sizeof(B) = 4
-		std::cout << "sizeof(C) = " << sizeof(C) << '\n';			// sizeof(C) = 4
+		std::cout << "sizeof(B) = " << sizeof(B) << '\n';		// output -> sizeof(B) = 4
+		std::cout << "sizeof(C) = " << sizeof(C) << '\n';		// output -> sizeof(C) = 4
 	}
 */
 
@@ -2072,16 +2083,16 @@ int main()
 	void gf_1()
 	{
 		Der myder;
-		foo(myder); // legal because upcasting is valid in global functions, in public inheritace
+		foo(myder); 	// legal because upcasting is valid in global functions, in public inheritace
 	
 		Der_2 myder_2;
-		foo(myder_2); // syntax error because no upcasting is valid in global functions, in private inheritence
+		foo(myder_2); 	// syntax error because no upcasting is valid in global functions, in private inheritence
 	}
 	
 	void gf_2()
 	{
 		Der myder;
-		foo(myder); // legal because upcasting is valid in global functions, in public inheritace
+		foo(myder); 	// legal because upcasting is valid in global functions, in public inheritace
 	
 		Der_2 myder_2;
 		foo(myder_2);
@@ -2172,8 +2183,8 @@ int main()
 	
 	int main()
 	{
-		std::cout << "sizeof(X) = " << sizeof(X) << '\n';			// output -> sizeof(X) = 4
-		std::cout << "sizeof(Y) = " << sizeof(Y) << '\n';			// output -> sizeof(Y) = 4
+		std::cout << "sizeof(X) = " << sizeof(X) << '\n';		// output -> sizeof(X) = 4
+		std::cout << "sizeof(Y) = " << sizeof(Y) << '\n';		// output -> sizeof(Y) = 4
 		std::cout << "sizeof(Der) = " << sizeof(Der) << '\n';		// output -> sizeof(Der) = 8
 	}
 */
@@ -2304,7 +2315,7 @@ int main()
 	
 	void foo(X& xr, Y& yr)
 	{
-		xr.xf(0);		// output -> Der::xf(int)
+		xr.xf(0);	// output -> Der::xf(int)
 		yr.yf(0, 12);	// output -> Der::yf(int,int)
 	}
 	
@@ -2630,7 +2641,7 @@ int main()
 	
 		fm.turn_off();			// Device is closed
 		fm.send_fax();			// fax can not sent because device is closed.
-		fm.recieve_packet();	// packet can not recieved because device is closed.
+		fm.recieve_packet();		// packet can not recieved because device is closed.
 		// When device is closed both Fax and Modem are closed.
 	}
 */
