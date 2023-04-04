@@ -66,7 +66,7 @@
   - `final` (contextual) keyword
   - RTTI Run Time Type Identification(information)
     - `dynamic_cast` operator for RTTI
-    - `typeid` operator for RTTI\
+    - `typeid` operator for RTTI
   - private inheritance
     - EBO (Empty Base Optimization)
   - restricted polymophism
