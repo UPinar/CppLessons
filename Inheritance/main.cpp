@@ -2645,3 +2645,44 @@
 		// When device is closed both Fax and Modem are closed.
 	}
 */
+
+/*
+	class Base {
+	public:
+		Base(const char* p)
+		{
+			std::cout << p << '\n';
+		}
+	};
+	
+	class DerX : virtual public Base {
+	public:
+		DerX() : Base {"DerX"} {}
+	};
+	
+	class DerY : virtual public Base {
+	public:
+		DerY() : Base{ "DerY" } {}
+	};
+	
+	class DerZ : public DerX, public DerY {
+	public:
+		DerZ() : Base{ "DerZ" } {}
+	};
+	
+	class DerA : public DerZ {
+	public:
+		DerA() : Base{ "DerA" } {}
+	};
+	
+	class DerB : public DerA {
+	public:
+		DerB() : Base{ "DerB" } {}
+	};
+	
+	
+	int main()
+	{
+		DerB a;
+	}
+*/
