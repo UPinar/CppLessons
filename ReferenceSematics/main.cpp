@@ -29,15 +29,15 @@
 	
 	int main()
 	{
-		10;			// PR Value expression
+		10;		// PR Value expression
 	
 		int x = 10;
-		x;			// L Value expression
+		x;		// L Value expression
 	
-		+x;			// PR Value expression
+		+x;		// PR Value expression
 		++x;		// L value expression
 		x++;		// R value expression
-		&x;			// L value expression
+		&x;		// L value expression
 	
 		nullptr;	// PR value expression
 	
@@ -48,13 +48,13 @@
 */
 
 /*
-						C				C++
+				C		C++
 	------------------------------------------
-	++x					R				L
-	--x					R				L
-	a = b				R				L
-	x, y				R				L	[if right operand is L value]
-	x > y ? a : b		R				L
+	++x			R		L
+	--x			R		L
+	a = b			R		L
+	x, y			R		L	[if right operand is L value]
+	x > y ? a : b		R		L
 
 	// For more information about comma operator
 	// https://necatiergin2019.medium.com/cde-virg%C3%BCl-operat%C3%B6r%C3%BC-comma-operator-in-c-177a0193deac
@@ -390,7 +390,7 @@
 /*
 	using T = int;
 	
-	void mutator_func(T&);			// SET function
+	void mutator_func(T&);		// SET function
 	void accessor_func(const T&);	// GET function
 	
 	int main()
@@ -429,7 +429,7 @@
 		int& r = x; // syntax error
 	
 		const int* cptr = &x;	// legal
-		const int& cr = x;		// legal
+		const int& cr = x;	// legal
 	}
 */
 
@@ -471,13 +471,13 @@
 */
 
 /*
-	pointer semantics						reference semantics
+	pointer semantics			reference semantics
 	---------------------------------------------------------------------
-	- can be default initialized			- can not default initialized
+	- can be default initialized		- can not default initialized
 	- can hold different objects addresses	- can not rebind to another object
 	- array object types can be pointers	- array object types can not be reference
-	- null pointer is valid					- null reference is not valid
-	- pointer to pointer is valied			- reference to reference is not valid
+	- null pointer is valid			- null reference is not valid
+	- pointer to pointer is valied		- reference to reference is not valid
 */
 
 /*
