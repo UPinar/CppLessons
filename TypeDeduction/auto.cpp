@@ -165,7 +165,7 @@
 	int (*p)(int) = &foo;
 	// These 2 lines are same
 
-	auto fp = foo;			// implicit function to pointer conversion
+	auto fp = foo;		// implicit function to pointer conversion
 	// fp is not function type 
 	// fp is function pointer type 
 	// int (*fp)(int)
@@ -250,7 +250,7 @@
 	using FUNCTION = int(int);
 	using FPTR = int(*)(int);
 
-	FUNCTION* fp1 = foo; // function to function pointer conversion (decay)
+	FUNCTION* fp1 = foo; 	// function to function pointer conversion (decay)
 	FUNCTION* fp1 = &foo;
 	// These 2 lines are same 
 
