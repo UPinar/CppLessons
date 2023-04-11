@@ -78,4 +78,14 @@
 	  - DDD (Dreadful Diamond on Derivation)
 	  - virtual inheritance
 
+### [Exception Handling](https://github.com/UPinar/CppLessons/tree/main/ExceptionHandling)
+  - stack unwinding
+  - rethrow statement
+  - exception dispatcher
+  - translating an exception
+  - exception guarantees
+  - `noexcept` keyword
+  - constructors & exceptions
+  - function try block
+
 
