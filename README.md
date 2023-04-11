@@ -4,6 +4,19 @@
   - L value references
   - differences between pointer semantics and reference semantics
   
+### [Type Deduction](https://github.com/UPinar/CppLessons/tree/main/TypeDeduction)
+  - `auto`
+  	- auto x   = expr
+	- auto& y  = expr
+	- auto&& z = expr -> forwarding reference
+		- reference collapsing
+	- trailing return type
+	- auto return type
+  - `decltype`
+  	- decltype(identifier)
+	- decltype(expression)
+  - unevaluated context
+  
 ### [`friend` Declerations](https://github.com/UPinar/CppLessons/tree/main/FriendDeclerations)
   - to a global function
   - to another classes member function
