@@ -28,8 +28,8 @@
 	
 	int main()
 	{
-		func(2);			// syntax error
-		func(2, 2);			// legal
+		func(2);		// syntax error
+		func(2, 2);		// legal
 		func(2, 2, 2);		// legal
 		func(2, 2, 2, 2);	// legal
 	}
