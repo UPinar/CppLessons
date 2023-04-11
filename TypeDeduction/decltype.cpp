@@ -132,9 +132,9 @@
 /*
 	// type of decltype(expr), depends on the operand's "value category"
 	
-		PR Value        T
-		L  Value		T&
-		X  Value		T&&
+	PR Value        T
+	L  Value	T&
+	X  Value	T&&
 */
 
 /*
@@ -184,13 +184,13 @@
 */
 
 /*
-	int foo();   // function return type is int
-	int& bar();	 // function return type is int&[L value reference]
-	int&& baz(); // function return type is int&&[R value reference]
+	int foo();   	// function return type is int
+	int& bar();	// function return type is int&[L value reference]
+	int&& baz(); 	// function return type is int&&[R value reference]
 
-	foo(); // calling foo function's value category PR Value
-	bar(); // calling bar function's value category L  Value
-	baz(); // calling baz function's value category X  Value
+	foo(); 		// calling foo function's value category PR Value
+	bar(); 		// calling bar function's value category L  Value
+	baz(); 		// calling baz function's value category X  Value
 
 	decltype(foo());
 	// foo() -> foo() is PR value expression
