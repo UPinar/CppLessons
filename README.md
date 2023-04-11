@@ -17,6 +17,16 @@
 	- decltype(expression)
   - unevaluated context
   
+### [Default Arguments](https://github.com/UPinar/CppLessons/tree/main/DefaultArguments)
+  - Default arguments
+  - maximal munch
+### [Typecast Operators]
+  - (target type) Cstyle cast
+  - static_cast
+  - const_cast
+  - reinterpret_cast
+  - dynamic_cast
+  
 ### [`friend` Declerations](https://github.com/UPinar/CppLessons/tree/main/FriendDeclerations)
   - to a global function
   - to another classes member function
