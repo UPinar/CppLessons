@@ -1,0 +1,26 @@
+Type Deduction
+-> Compile Time 
+-> No runtime cost.
+
+-> If the type includes a lot of tokens, type deduction makes it easier.
+std::vector<std::pair<std::list<std::vector::iterator>, std::list<std::vector::iterator>>>
+
+
+AUTO
+====================
+| auto x   = expr; |
+====================
+| auto &y  = expr; |
+====================
+| auto &&z = expr; | -> forwarding reference
+====================
+
+DECLTYPE
+========================
+| decltype(identifier) |
+========================
+| decltype(expression) |
+========================
+
+------------------------------
+unevaluated context
