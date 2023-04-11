@@ -28,7 +28,7 @@
 	int x = 356;
 
 	auto t = a[67]; // undefined behavior.(array bound overflow)
-	*p = 4;			// undefined behavior.(null pointer dereferencing)
+	*p = 4;		// undefined behavior.(null pointer dereferencing)
 	x << 45;        // undefined behavior.
 
 	sizeof(*p) + sizeof(a[67]) + sizeof(x << 8765)  
@@ -80,4 +80,3 @@
 		// (a[20]) is an L value expression decltype(a[20])'s type is int&
 	}
 */
-
