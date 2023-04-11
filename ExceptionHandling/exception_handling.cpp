@@ -102,7 +102,7 @@
 */
 
 /*
-	throw expr; // throw statement
+	throw expr; 	// throw statement
 	throw;		// rethrow statement
 */
 
@@ -1045,7 +1045,7 @@
 	void insert(int key, string value)
 	{
 		auto newKeys = keys;
-		auto newValues = values;		// can throw, but object is not modified yet.
+		auto newValues = values;	// can throw, but object is not modified yet.
 		newKeys.push_back(key);
 		newValues.push_back(value);
 
@@ -1098,7 +1098,7 @@
 	char* noSafety(const A& a)
 	{
 		char* buffer = new char[100];	// memory allocated.
-		a->fill(buffer);				// if throw (resource leak) 
+		a->fill(buffer);		// if throw (resource leak) 
 		return buffer;
 	}
 	
@@ -1244,7 +1244,7 @@
 		// Dtor called ->
 		// 1. at the end of objects life.
 		// 2. an exception thrown then caugth in try-catch block,
-		//		stack unwinding phase started and dtor called. (CAN NOT THROW ANY ERROR)
+		// stack unwinding phase started and dtor called. (CAN NOT THROW ANY ERROR)
 	
 		// In Dtor we can catch if error thrown inside try-catch block.
 		// But if we can not caught it(uncaught error), error will try to propagated (CAN NOT BE HAPPEN!!)
@@ -1682,6 +1682,3 @@
 		}
 	}
 */
-
-
-
