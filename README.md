@@ -27,9 +27,14 @@
   - const_cast
   - reinterpret_cast
   - dynamic_cast
+  
 ### [Enumeration Types](https://github.com/UPinar/CppLessons/tree/main/EnumerationTypes)
   - scoped & unscoped enums
   - incomplete & complete types
+  
+### [`constexpr` Keyword](https://github.com/UPinar/CppLessons/tree/main/ConstexprKeyword)
+  - constexpr variables
+  - constexpr functions
   
 ### [`friend` Declerations](https://github.com/UPinar/CppLessons/tree/main/FriendDeclerations)
   - to a global function
