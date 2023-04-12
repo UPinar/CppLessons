@@ -27,6 +27,9 @@
   - const_cast
   - reinterpret_cast
   - dynamic_cast
+### [Enumeration Types](https://github.com/UPinar/CppLessons/tree/main/EnumerationTypes)
+  - scoped & unscoped enums
+  - incomplete & complete types
   
 ### [`friend` Declerations](https://github.com/UPinar/CppLessons/tree/main/FriendDeclerations)
   - to a global function
