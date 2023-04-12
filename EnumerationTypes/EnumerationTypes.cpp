@@ -261,7 +261,7 @@
 */
 
 /*
-	enum Directions { Up, Down, Left, Right };			// enscoped enums
+	enum Directions { Up, Down, Left, Right };		// enscoped enums
 	enum class TrafficLight { Red, Yellow, Green };		// scoped enums
 	
 	int main()
