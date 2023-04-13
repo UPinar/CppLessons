@@ -36,6 +36,11 @@
   - constexpr variables
   - constexpr functions
   
+### [Inline Functions](https://github.com/UPinar/CppLessons/tree/main/InlineFunctions)
+  - inline expansion optimization
+  - One Definition Rule (ODR)
+  - inline variables
+  
 ### [`friend` Declerations](https://github.com/UPinar/CppLessons/tree/main/FriendDeclerations)
   - to a global function
   - to another classes member function
@@ -119,5 +124,3 @@
   - `noexcept` keyword
   - constructors & exceptions
   - function try block
-
-
