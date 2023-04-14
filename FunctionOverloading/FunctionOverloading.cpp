@@ -129,7 +129,7 @@
 */
 
 /*
-	void func(char);			// implementation defined.
+	void func(char);		// implementation defined.
 	void func(signed char);
 	void func(unsigned char);
 
@@ -222,7 +222,7 @@
 		int a[10]{};
 		func(&a);		// legal [sending int(*)[16]]
 		func(a);		// syntax error [sending int*]
-		func(&a[0]);	// syntax error [sending int*]
+		func(&a[0]);		// syntax error [sending int*]
 
 		int x = 12;
 		int* p = &x;
@@ -301,8 +301,8 @@
 
 /*
 
-	void func(int, int = 0); // 2 parameters
-	void func(int);			 // 1 parameter
+	void func(int, int = 0);	// 2 parameters
+	void func(int);			// 1 parameter
 	// 2 overloads
 */
 
@@ -367,14 +367,14 @@
 	Q. Implicit conversion is possible ?
 
 	scoped enum		--> int			[NO]
-	unscoped enum	--> int			[YES]
+	unscoped enum		--> int			[YES]
 	double			--> char		[YES]
 	int*			--> void*		[YES]
 	void*			--> int*		[NO]
 	int*			--> bool		[YES]
 	bool			--> int*		[NO]
 	nullptr_t		--> int*		[YES]
-	int*			--> nullptr_t	[NO]
+	int*			--> nullptr_t		[NO]
 	nullptr_t		--> bool		[NO]	// In logic context Yes
 */
 
@@ -480,7 +480,7 @@
 	int main()
 	{
 		int a[5]{};
-		func(a);		// exact match (array decay)
+		func(a);	// exact match (array decay)
 		func(&a[0]);	// exact match (array decay)
 		// These 2 lines are same
 	}
@@ -509,7 +509,7 @@
 
 	int main()
 	{
-		func(&foo); // exact match
+		func(&foo); 	// exact match
 
 		func(foo);	// exact match
 		// (foo -> foo* ) function to pointer conversion
@@ -552,7 +552,7 @@
 
 /*
 	void func(int);         // integral promotion
-	void func(double);		// conversion
+	void func(double);	// conversion
 	void func(long double); // conversion
 
 	
@@ -565,7 +565,7 @@
 
 /*
 	void func(int);         // integral promotion
-	void func(double);		// conversion
+	void func(double);	// conversion
 	void func(long double); // conversion
 
 	int main()
@@ -577,8 +577,8 @@
 */
 
 /*
-	void func(unsigned long); // conversion
-	void func(long);		  // conversion
+	void func(unsigned long); 	// conversion
+	void func(long);		// conversion
 	
 	int main()
 	{
@@ -693,7 +693,7 @@
 */
 
 /*
-	void func(int*);    // from 0 to int* (null pointer conversion)
+	void func(int*);   	// from 0 to int* (null pointer conversion)
 	void func(double);	// from int to double // conversion
 
 	
@@ -705,7 +705,7 @@
 */
 
 /*
-	void func(int*);    // from nullptr_t to int* conversion
+	void func(int*);    	// from nullptr_t to int* conversion
 	void func(double*);	// from nullptr_t to double* conversion
 
 	
@@ -717,9 +717,9 @@
 */
 
 /*
-	void func(std::nullptr_t);  // exact match
-	void func(int*);			// conversion
-	void func(double*);			// conversion
+	void func(std::nullptr_t);  	// exact match
+	void func(int*);		// conversion
+	void func(double*);		// conversion
 	
 	int main()
 	{
@@ -833,8 +833,8 @@
 */
 
 /*
-	void func(float,  double,	int);		// 1
-	void func(int  ,  long,		unsigned);	// 2
+	void func(float, double, int);			// 1
+	void func(int, long, unsigned);			// 2
 	void func(double, unsigned, float);		// 3
 
 	// Overload's 1 parameter needs to be better than other overloads, but other parameters can not be worse.
@@ -844,17 +844,17 @@
 	{
 		func(3.4f, 12, true);
 		// func() paramaters		[float, int, bool]
-		// 1st func() overload 	->  [exact match, conversion , promotion ]
+		// 1st func() overload 	->  	[exact match, conversion , promotion ]
 		// 2nd func() overload	->	[conversion , conversion , conversion]
-		// 3rd func() overload	->  [conversion , conversion , conversion]
+		// 3rd func() overload	->  	[conversion , conversion , conversion]
 	
 		// 1'st func overload will be called.
 
 		func(3.4f, 12, 5.3f);
 		// func() paramaters		[float, int, bool]
-		// 1st func() overload 	->  [exact match, conversion , promotion ]
+		// 1st func() overload 	->  	[exact match, conversion , promotion ]
 		// 2nd func() overload	->	[conversion , conversion , conversion]
-		// 3rd func() overload	->  [conversion , conversion , exact match]
+		// 3rd func() overload	->  	[conversion , conversion , exact match]
 
 		// in 1st parameter 1st func overload is better 
 		// in 3rd parameter 3rd func overload is better
@@ -862,25 +862,25 @@
 
 		func(true, 12, 4.5);
 		// func() paramaters		[bool, int, double]
-		// 1st func() overload 	->  [conversion, conversion , conversion]
+		// 1st func() overload 	->  	[conversion, conversion , conversion]
 		// 2nd func() overload	->	[promotion , conversion , conversion]
-		// 3rd func() overload	->  [conversion, conversion , conversion]
+		// 3rd func() overload	->  	[conversion, conversion , conversion]
 
 		// 2nd func overload will be called.
 
 		func(12, 13, 3.5);
 		// func() paramaters		[int, int, double]
-		// 1st func() overload 	->  [conversion , conversion , conversion]
+		// 1st func() overload 	->  	[conversion , conversion , conversion]
 		// 2nd func() overload	->	[exact match, conversion , conversion]
-		// 3rd func() overload	->  [conversion , conversion , conversion]
+		// 3rd func() overload	->  	[conversion , conversion , conversion]
 
 		// 2'nd func overload will be called.
 
 		func(12, 6u, 3.5);
 		// func() paramaters		[int, unsigned int, double]
-		// 1st func() overload 	->  [conversion , conversion , conversion]
+		// 1st func() overload 	->  	[conversion , conversion , conversion]
 		// 2nd func() overload	->	[exact match, conversion , conversion]
-		// 3rd func() overload	->  [conversion , exact match, conversion]
+		// 3rd func() overload	->  	[conversion , exact match, conversion]
 
 		// in 1st parameter 2nd func overload is better 
 		// in 2nd parameter 3rd func overload is better
@@ -888,9 +888,9 @@
 
 		func(12, 15, true);
 		// func() paramaters		[int, int, bool]
-		// 1st func() overload 	->  [conversion , conversion , promotion ]
+		// 1st func() overload 	-> 	[conversion , conversion , promotion ]
 		// 2nd func() overload	->	[exact match, conversion , conversion]
-		// 3rd func() overload	->  [conversion , conversion , conversion]
+		// 3rd func() overload	->  	[conversion , conversion , conversion]
 
 		// in 1st parameter 2nd func overload is better 
 		// in 3rd parameter 1st func overload is better
