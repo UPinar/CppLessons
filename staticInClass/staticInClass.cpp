@@ -555,7 +555,7 @@
 		Donly(const Donly&) = delete;
 		Donly& operator=(const Donly&) = delete;
 		// if one of the copy members(copy ctor or copy assignment) declared.
-		// move members are implicitly deleted by the compiler.
+		// move members are implicitly not declared by the compiler.
 		
 	private:
 		Donly();
