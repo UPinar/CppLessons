@@ -9,11 +9,11 @@
 
 /*
 	class Myclass {
-		Myclass();							// default constructor
-		~Myclass();							// destructor
+		Myclass();				// default constructor
+		~Myclass();				// destructor
 	
-		Myclass(const Myclass&);			// copy ctor
-		Myclass(Myclass&&);					// move ctor
+		Myclass(const Myclass&);		// copy ctor
+		Myclass(Myclass&&);			// move ctor
 	
 		Myclass& operator=(const Myclass&);	// copy assignment
 		Myclass& operator=(Myclass&&);		// move assignment	
@@ -87,7 +87,7 @@
 		}
 	};
 	
-	void foo(Myclass param)		// call by value
+	void foo(Myclass param)	// call by value
 	{
 		std::cout << "inside foo()..\n";
 	}
@@ -101,9 +101,9 @@
 	
 		// output ->
 		//	default ctor this = 00F5FCE7
-		//	copy ctor this = 00F5FC00		param variable -> copy ctor
+		//	copy ctor this = 00F5FC00	param variable -> copy ctor
 		//	inside foo()..
-		//	destructor this = 00F5FC00		param variable dtor.
+		//	destructor this = 00F5FC00	param variable dtor.
 		//	inside main()..
 		//	destructor this = 00F5FCE7
 	}
@@ -390,7 +390,7 @@
 			// p_name and p_surname parameters to our data members.
 		}
 	
-		Person(const char* p_name, const char* p_surname)	: m_name{p_name}, m_surname{p_surname}
+		Person(const char* p_name, const char* p_surname): m_name{p_name}, m_surname{p_surname}
 		{
 			// In this code we are initializing our data members with parameters.
 			// We are calling string classes ctor with a parameter(const char*).
@@ -419,7 +419,7 @@
 
 	int main()
 	{
-		Myclass m1;			// default ctor
+		Myclass m1;		// default ctor
 		Myclass m2 = m1;	// copy ctor
 		Myclass m3(m1);		// copy ctor
 		Myclass m4{ m1 };	// copy ctor
@@ -427,7 +427,7 @@
 		auto m6(m1);		// copy ctor
 		auto m7{ m1 };		// copy ctor
 
-		Myclass m;			// default ctor
+		Myclass m;		// default ctor
 		foo(m);  // copy ctor will call for functions parameter variable
 	}
 */
@@ -815,16 +815,16 @@
 		func(m);	// m is an L value expression
 		// output -> func(const Myclass&) 
 
-		func(Myclass{});	// Myclass{} is a temp object which is an R value expression
+		func(Myclass{});			// Myclass{} is a temp object which is an R value expression
 		// output -> func(Myclass&&)
 
-		func(static_cast<Myclass&&>(m));  // static_cast<Myclass&&>(m) is X value R value expression
+		func(static_cast<Myclass&&>(m));  	// static_cast<Myclass&&>(m) is X value R value expression
 		// output -> func(Myclass&&)
 
-		func(std::move(m));	// std::move(m) change L value expression to R value expression
+		func(std::move(m));			// std::move(m) change L value expression to R value expression
 		// output -> func(Myclass&&)
 
-		func(std::move(Myclass{}));	// R value expression Myclass{} still will be an R value expression
+		func(std::move(Myclass{}));		// R value expression Myclass{} still will be an R value expression
 		// output -> func(Myclass&&)
 
 		// if L value goes into std::move(Lvalue expression) goes out as an R value
@@ -860,7 +860,7 @@
 	int main()
 	{
 		int&& r = 10;
-		func(r);			// output -> const LVALUE REF
+		func(r);		// output -> const LVALUE REF
 		func(std::move(r));	// output -> RVALUE REF
 	}
 */
@@ -1157,20 +1157,20 @@
 	int main()
 	{
 		std::thread t1;
-		std::thread t2 = t1;	// syntax error(copy ctor is deleted)
-		std::thread t3 = std::thread{};	// valid (move ctor)
-		t2 = std::move(t1);		// valid (move assignment)
+		std::thread t2 = t1;				// syntax error(copy ctor is deleted)
+		std::thread t3 = std::thread{};			// valid (move ctor)
+		t2 = std::move(t1);				// valid (move assignment)
 	
 	
 		std::unique_ptr<int> uptr{ new int };
-		std::unique_ptr<int> x = uptr;	// syntax error(copy ctor is deleted)
+		std::unique_ptr<int> x = uptr;			// syntax error(copy ctor is deleted)
 		std::unique_ptr<int> x = std::move(uptr);	// valid
 
 		Myclass m1, m2;
 		m1 = m2;					// syntax error
-		Myclass m3 = m1;			// syntax error
-		Myclass m4 = std::move(m1);	// valid
-		m2 = std::move(m1);			// valid
+		Myclass m3 = m1;				// syntax error
+		Myclass m4 = std::move(m1);			// valid
+		m2 = std::move(m1);				// valid
 	}
 */
 
@@ -1188,14 +1188,14 @@
 	int main()
 	{
 		Myclass m1;
-		Myclass m2 = m1;	// syntax error
+		Myclass m2 = m1;		// syntax error
 		// copy ctor is deleted.
 	
 		Myclass m3;
-		m1 = m3;	// syntax error
+		m1 = m3;			// syntax error
 		// copy assignment deleted
 	
-		m2 = std::move(m1);	// syntax error
+		m2 = std::move(m1);		// syntax error
 		// move assignment not declared
 		// copy assignment called and its deleted.
 	
