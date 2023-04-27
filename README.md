@@ -46,6 +46,45 @@
   - Function Overload Resolution
   - name decoration(mangling)
   
+### [Classes](https://github.com/UPinar/CppLessons/tree/main/Classes)
+  - qualified & unqualified names
+  - non-static data members
+  - member functions
+  - access specifiers
+  - `this` pointer
+  - const member functions
+  - `mutable` keyword
+  - constructor & destructor
+  - RAII idiom
+  - Storage Classes(Lifetime)
+     - Static storage classes
+     	 - global variables,
+	 static initialization fiasco,
+	 static local variables
+     - Automatic storage classes
+     - Dynamic storage classes (new/delete keyword)
+     
+### [Special Member Functions](https://github.com/UPinar/CppLessons/tree/main/SpecialMemberFunctions)
+  - copy constructor
+  - constructor(member) initializer list [MIL]
+  - implicitly declared defaulted copy ctor
+  - copy assignment
+  - move ctor and move assignment
+  - implicitly declared move members
+  
+### [Terms For Classes](https://github.com/UPinar/CppLessons/tree/main/TermsForClasses)
+  - moved-from state
+  - default member initializer
+  - delegated constructor
+  - temporary objects
+  - conversion constructor
+  - explicit constructor
+  - copy elision
+     - Mandatory copy elision scenerios
+     - Named Return Value Optimization [NRVO]
+  - pessimistic move
+  - reference qualifiers
+  
 ### [`friend` Declerations](https://github.com/UPinar/CppLessons/tree/main/FriendDeclerations)
   - to a global function
   - to another classes member function
