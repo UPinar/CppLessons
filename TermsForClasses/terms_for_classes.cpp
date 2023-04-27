@@ -154,7 +154,7 @@
 	class Myclass {
 	public:
 		// Myclass(const Myclass&other): mx(other.mstr)	....
-		// Myclass(Myclass&&): mstre(std::move(other.mstr))	....
+		// Myclass(Myclass&&): mstre(std::move(other.mstr)) ....
 	private:
 		std::string mstr;
 		int mx, my, mz;
@@ -213,11 +213,11 @@
 	int main()
 	{
 		Myclass m1;
-		Myclass m2 = m1; // sythax error
+		Myclass m2 = m1; 		// sythax error
 		// Myclasses copy ctor is implicitly declared deleted.
 
 		Myclass m3, m4;
-		m3 = m4;	// sythax error
+		m3 = m4;			// sythax error
 		// Myclasses copy assignment is implicitly declared deleted.
 
 		Myclass m5;
@@ -344,16 +344,19 @@
 			std::cout << "Myclass() default ctor.\n";
 		}
 		// this ctor delegated 3 parameter ctor.
+		
 		Myclass(int x) : Myclass(x, x, x)
 		{
 			std::cout << "Myclass(int)\n";
 		}
 		// this ctor delegated 3 parameter ctor
+		
 		Myclass(int x, int y) : Myclass(x + y)
 		{
 			std::cout << "Myclass(int, int)\n";
 		}
 		// this ctor delegated 1 parameter ctor.
+		
 		Myclass(int a, int b, int c) : ma(a), mb(b), mc(c)
 		{
 			std::cout << "Myclass(int, int, int)\n";
@@ -499,9 +502,9 @@
 	
 	int main()
 	{
-		Myclass();			// temp object	-> direct initialize
+		Myclass();		// temp object	-> direct initialize
 		Myclass(10, 20);	// temp object constructed with its 2 parameter constructor
-		Myclass{};			// temp object	-> value initialize
+		Myclass{};		// temp object	-> value initialize
 	}
 */
 
@@ -514,7 +517,7 @@
 	{
 		Myclass& r = Myclass{};			// syntax error.
 		// L value reference can not bind to R value expression.
-		const Myclass& cr = Myclass{};	// legal
+		const Myclass& cr = Myclass{};		// legal
 		Myclass&& rr = Myclass{};		// legal
 	}
 */
@@ -636,7 +639,7 @@
 		// output ->
 		//	Myclass default ctor this = 00AFF80F
 		//	Myclass(int x) x = 35 this = 00AFF80E	-> temporary object
-		//	Myclass destructor this = 00AFF80E		-> temporary objects dtor
+		//	Myclass destructor this = 00AFF80E	-> temporary objects dtor
 		//	Myclass destructor this = 00AFF80F
 	}
 */
@@ -679,13 +682,13 @@
 	
 		// output ->
 		//	Myclass default ctor this = 012FF71F	-> m objects ctor
-		//	&m = 012FF71F							-> m objects address
+		//	&m = 012FF71F				-> m objects address
 		//	Myclass(int x) x = 35 this = 012FF71E	-> conversion ctor called, temporary object came alive.
 		//	Myclass copy assignment this = 012FF71F	-> copy assignment called, temporary objects value assign to m object.
-		//	&other = 012FF71E						-> temporary objects address
-		//	Myclass destructor this = 012FF71E		-> temporary object destroyed.
+		//	&other = 012FF71E			-> temporary objects address
+		//	Myclass destructor this = 012FF71E	-> temporary object destroyed.
 		//	main continues
-		//	Myclass destructor this = 012FF71F		-> m object destroyed end of the main scope.
+		//	Myclass destructor this = 012FF71F	-> m object destroyed end of the main scope.
 	}
 */
 
@@ -696,7 +699,7 @@
 
 	Standart Conversion + UDC	-> LEGAL
 	UDC + Standart Conversion	-> LEGAL
-	UDC + UDC					-> NOT LEGAL
+	UDC + UDC			-> NOT LEGAL
 */
 
 /*
@@ -787,8 +790,8 @@
 	
 		Myclass m1, m2, m3;
 		m1 = static_cast<Myclass>(ival);	// output -> explicit ctor called
-		m2 = (Myclass)ival;					// output -> explicit ctor called
-		m3 = Myclass(ival);					// output -> explicit ctor called
+		m2 = (Myclass)ival;			// output -> explicit ctor called
+		m3 = Myclass(ival);			// output -> explicit ctor called
 	}
 */
 
@@ -819,16 +822,16 @@
 	
 		std::vector<int> ivec = 123;		// NOT VALID
 		// std::vector<int> classes int parameter ctor -> Vector(std::size_t) is explicit!!
-		std::vector<int> ivec(123);			// VALID(direct initialization)
+		std::vector<int> ivec(123);		// VALID(direct initialization)
 	
 	
 		std::runtime_error ex = "error!!";	// NOT VALID
 		// std::runtime_error classes Cstring parameter ctor
 		// -> Runtime_error(const char*) is explicit!!
-		std::runtime_error ex("error!!");		// VALID(direct initialization)
+		std::runtime_error ex("error!!");	// VALID(direct initialization)
 	
 	
-		std::unique_ptr<int> uptr = new int; // NOT VALID
+		std::unique_ptr<int> uptr = new int; 	// NOT VALID
 		// UniquePtr(int*) int* parameter ctor is explicit!! 
 		std::unique_ptr<int> uptr(new int);	// VALID(direct initialization)
 	}
@@ -1362,8 +1365,8 @@
 		std::unique_ptr<int> up1{ new int };
 		std::unique_ptr<int> up2{ new int };
 	
-		up1 = up2;		// copy assignment deleted
-		auto up3 = up1;	// copy constructor deleted
+		up1 = up2;			// copy assignment deleted
+		auto up3 = up1;			// copy constructor deleted
 		// SMART POINTERS ARE MOVE ONLY TYPES!!!
 	
 		up1 = std::move(up2);		// move assignment legal
@@ -1395,7 +1398,7 @@
 		}
 	
 		auto x = ofs;				// no copy constructor
-		auto y = std::move(ofs);	// move constructor is valid.
+		auto y = std::move(ofs);		// move constructor is valid.
 		// std::ofstream IS MOVE ONLY TYPE
 	
 		std::ofstream fs;
@@ -1505,13 +1508,13 @@
 	int main()
 	{
 		Myclass x;
-		x.set();					// valid
-		Myclass{}.set();			// valid
+		x.set();			// valid
+		Myclass{}.set();		// valid
 	
 		Myclass y;
-		(x = y).set();				// valid
+		(x = y).set();			// valid
 	
-		x.set_lref();				// valid
+		x.set_lref();			// valid
 		Myclass{}.set_lref();		// not valid
 		std::move(x).set_lref();	// not valid
 	
@@ -1536,8 +1539,8 @@
 	int main()
 	{
 		Myclass m;
-		m.foo();			// legal
-		m.bar();			// not valid
+		m.foo();		// legal
+		m.bar();		// not valid
 	
 		Myclass{}.foo();	// not valid
 		Myclass{}.bar();	// legal
@@ -1568,12 +1571,12 @@
 	int main()
 	{
 		Myclass m;
-		m.foo();				// output -> foo() for L values
+		m.foo();			// output -> foo() for L values
 	
 		Myclass{}.foo();		// output -> foo() for R values
 		std::move(m).foo();		// output -> foo() for R values
 
 		const Myclass cm;
-		cm.foo();				// output -> foo() for const L values
+		cm.foo();			// output -> foo() for const L values
 	}
 */
