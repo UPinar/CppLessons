@@ -33,13 +33,13 @@
 
 /*
 	class Data {
-		int mx, my;					// non-static data members
+		int mx, my;			// non-static data members
 		static double msval 		// static data member
 
-		void foo(int)				// non-static member function
+		void foo(int)			// non-static member function
 		static void func(int,int)	// static member function
 
-		class Nested{};				// member type
+		class Nested{};			// member type
 		using integer = int;		// member type(type alias)
 	};
 */
@@ -116,9 +116,9 @@
 	qualified name	[nitelenmis isim]
 	unqualified name [nitelenmemis isim]
 	---------------------------------------
-	a.x			-> member selection operator ('.')			[name lookup in a's class scope]
-	ptr->x		-> member selection operator ('->')			[name lookup in ptr's class scope]
-	::x			-> unary scope resolution operator ('::')	[name lookup in global namespace scope]
+	a.x		-> member selection operator ('.')		[name lookup in a's class scope]
+	ptr->x		-> member selection operator ('->')		[name lookup in ptr's class scope]
+	::x		-> unary scope resolution operator ('::')	[name lookup in global namespace scope]
 	Myclass::x	-> binary scope resolution operator ('::')	[name lookup in Myclass's(class/namespace) scope]
 */
 
@@ -218,7 +218,7 @@
 	// C++ Code
 	class Myclass {
 	public:
-		void func(int);				// class scope
+		void func(int);		// class scope
 		// hidden parameter is Myclass*
 		// void func(Myclass* p, int)
 	};
@@ -248,7 +248,7 @@
 
 	void gfoo(Myclass* p)
 	{
-		p->foo();			// legal
+		p->foo();		// legal
 		auto var = p->mx;	// syntax error
 		// we can not reach Myclass's private section (member variable) from global function
 		// access control phase will not be succeed.
@@ -256,7 +256,7 @@
 
 	void gbar(Myclass& r)
 	{
-		r.foo();			// legal
+		r.foo();		// legal
 		auto var = r.mx;	// syntax error
 		// we can not reach Myclass's private member variable from global function
 		// access control phase will not be succeed.
@@ -301,20 +301,20 @@
 		Myclass m;
 
 		Myclass::NestedPublic public_nested;		// legal
-		auto var = m.mx;							// legal
-		m.foo();									// legal
+		auto var = m.mx;				// legal
+		m.foo();					// legal
 		// public_nested class inside Myclass is in public section.
 		// Can be accesible from client side.
 
 		Myclass::NestedPrivate private_nested;		// syntax error
-		auto var = m.my;							// syntax error
-		m.bar();									// syntax error
+		auto var = m.my;				// syntax error
+		m.bar();					// syntax error
 		// private_nested class inside Myclass is in private section.
 		// Can not be accesible from client side.
 
 		Myclass::NestedProtected protected_nested;	// syntax error
-		auto var = m.mz;							// syntax error
-		m.baz();									// syntax error
+		auto var = m.mz;				// syntax error
+		m.baz();					// syntax error
 		// protected_nested class inside Myclass is in protected section.
 		// Can not be accesible from client side.
 	}
@@ -329,7 +329,7 @@
 			// implicitly inline member function definition.
 		}
 	
-		void func(int x);	// member function decleration
+		void func(int x);		// member function decleration
 		void foo(double x);
 	
 		inline void baz(float x);	// inline member function decleration
@@ -583,7 +583,7 @@
 		{
 			int mx{};
 	
-			mx = 5;				// local variable
+			mx = 5;			// local variable
 			Myclass::mx = 5;	// data member
 		}
 		int mx;
@@ -635,7 +635,7 @@
 	void Myclass::foo()
 	{
 		Myclass mx;
-		this = &mx;			// syntax error.
+		this = &mx;		// syntax error.
 		auto x = &this;		// syntax error
 		// this is a PR value expression.
 	}
@@ -743,7 +743,7 @@
 		std::cout << ival << dval;
 		std::cout.operator<<(ival).operator<<(dval);	// Chaining
 	
-		std::cout.operator<<(ival);						// returns std::ostream&
+		std::cout.operator<<(ival);			// returns std::ostream&
 		std::cout.operator<<(ival).operator<<(dval);	// returns std::ostream&
 		// There is function overloading in functions	[int, double]
 	}
@@ -792,7 +792,7 @@
 /*
 	class Myclass {
 	public:
-		void foo();			// non-const member function
+		void foo();		// non-const member function
 		void bar()const;	// const member function
 		// const makes this pointer const.
 
@@ -805,29 +805,29 @@
 
 	void Myclass::bar()const
 	{
-		mx = 20;			// syntax error
+		mx = 20;		// syntax error
 		this->mx = 20;		// syntax error
 		Myclass::mx = 20;	// syntax error
 		// These 3 lines are same.
 		// We are trying to change data members of the Myclass object, that this pointer points to.
 
 		Myclass m;
-		*this = m;			// syntax error
+		*this = m;		// syntax error
 
-		gx.mx = 15;			// legal
+		gx.mx = 15;		// legal
 		// this pointer points to the address of Myclass object 
 		// which is calling bar() const member function.
 
 		// changing gx objects(different object)(this pointer is not pointing gx)
 		// is perfectly legal.
 
-		foo();				// syntax error.
+		foo();			// syntax error.
 		// hidden parameter(this pointer) is const Myclass* 
 		// when we call foo() function which is non-const member function 
 		// and its hidden parameter is Myclass*
 		// we are forcing conversion from const T* to T*, which is syntax error.
 
-		baz();				// legal
+		baz();			// legal
 		// baz() is const member function so 
 		// sending const T*(hidden parameter)(this pointer) to const T* is legal.
 	}
@@ -854,10 +854,10 @@
 	
 		// &cm -> const Myclass* (we are sending &cm to function's hidden variable)
 		cm.foo();	// syntax error. sending (const T*) to (T*) is		NOT LEGAL.
-		cm.bar();	// legal	sending (constT*) to (const T*)			LEGAL
+		cm.bar();	// legal	sending (constT*) to (const T*)		LEGAL
 	
 		Myclass m;
-		m.foo();	// legal	sending (T*) to (T*)					LEGAL
+		m.foo();	// legal	sending (T*) to (T*)			LEGAL
 		m.bar();	// legal	sending (T*) to (const T*) [conversion]	LEGAL
 	}
 */
@@ -1065,8 +1065,8 @@
 		Myclass m;
 		Myclass* p = &m;
 	
-		m.func();		// valid
-		p->func();		// valid
+		m.func();	// valid
+		p->func();	// valid
 	
 		m.Myclass();	// sytax error
 		p->Myclass();	// syntax error
@@ -1146,7 +1146,7 @@
 /*
 	class Myclass{
 	public:
-		Myclass();				//default ctor
+		Myclass();			//default ctor
 	};
 
 	class Yourclass{
@@ -1333,7 +1333,7 @@
 	};
 
 
-	Myclass m;		// global variable
+	Myclass m;	// global variable
 	Yourclass y;	// global variable
 
 	// global variables will be created from top to bottom.
@@ -1351,7 +1351,7 @@
 	// int main() scope starts
 	// int main() scope ends
 	// Yourclass dtor.. this : 0048F139
-	// Myclass dtor.. this : 0048F138			-> LAST OUT
+	// Myclass dtor.. this : 0048F138		-> LAST OUT
 */
 
 /*
@@ -1718,7 +1718,7 @@
 	  =========================
 	  | DYNAMIC STORAGE CLASS |
 	  =========================
-	  |	new / delete keyword  |
+	  | new / delete keyword  |
 	  -------------------------
 */
 
@@ -1796,12 +1796,12 @@
 	----------pseudo code-----------
 
 	auto p = new Fighter;
-	void* vp = operator new(sizeof(Fighter));				// call operator new
+	void* vp = operator new(sizeof(Fighter));			// call operator new
 	Fighter* p = (static_cast<Fighter*>(vp))->Figher();		// call constructor
 
 	delete p;
-	p->~Fighter();											// call destructor
-	operator delete(p);										// call operator delete
+	p->~Fighter();							// call destructor
+	operator delete(p);						// call operator delete
 */
 
 /*
@@ -1821,14 +1821,14 @@
 	int main()
 	{
 	
-		Myclass m0;			// default initialization.
+		Myclass m0;	// default initialization.
 		// classes default ctor will be called.
 		//	-> if default ctor is in private section	-> syntax error
-		//	-> if default ctor is deleted				-> syntax error
-		//	-> if default ctor is not declared			-> syntax error
+		//	-> if default ctor is deleted			-> syntax error
+		//	-> if default ctor is not declared		-> syntax error
 		// classes data members have intedermined values.
 	
-		Myclass m1{};		// value initialization
+		Myclass m1{};	// value initialization
 		// classes default ctor will be called.
 		// first zero init apllied for class data members.
 	
