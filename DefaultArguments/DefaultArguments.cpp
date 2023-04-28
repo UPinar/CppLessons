@@ -259,9 +259,9 @@
 	
 	int main()
 	{
-		process_date(12, 5, 1993);
-		process_date(12, 5);
-		process_date(12);
-		process_date();
+		process_date(12, 5, 1993);	// output -> 12-5-1993
+		process_date(12, 5);		// output -> 12-5-2023
+		process_date(12);		// output -> 12-4-2023
+		process_date();			// output -> 28-4-2023
 	}
 */
