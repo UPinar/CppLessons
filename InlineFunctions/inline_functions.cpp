@@ -143,7 +143,7 @@
 
 /*
 	some.h
-		extern int x;				// global variable decleration
+		extern int x;			// global variable decleration
 		int func(int x, int y);		// function decleration
 
 	one.cpp
