@@ -186,7 +186,7 @@
 
 /*
 	some.h
-		inline int func(int x,int y) {return x * x - y;}		// inline function
+		inline int func(int x,int y) {return x * x - y;}		// inline function definition
 
 	one.cpp
 	two.cpp
