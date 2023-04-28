@@ -198,7 +198,7 @@
 
 	decltype(bar());
 	// bar() -> bar() is an L value expression
-	// decltype(foo())'s type is int&
+	// decltype(bar())'s type is int&
 
 	decltype(baz());
 	// baz() -> baz() is X value expression
