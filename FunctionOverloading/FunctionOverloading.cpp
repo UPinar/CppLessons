@@ -402,8 +402,8 @@
 
 	void func(int, ...);
 	void func(int,int, ...);
-	void func(...);	
-	// is not possible in C but possible in C++
+	void func(...);		// is not possible in C but possible in C++
+	
 	void func(double);
 
 	int main()
