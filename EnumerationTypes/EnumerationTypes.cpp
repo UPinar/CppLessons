@@ -95,8 +95,6 @@
 */
 
 /*
-	class Myclass;
-	
 	struct Data {
 		struct Data x;		// not legal
 		struct Data* ptr;	// legal
