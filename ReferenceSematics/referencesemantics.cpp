@@ -327,20 +327,20 @@
 	
 	int main()
 	{
-		std::cout << "g = " << g << '\n';
+		std::cout << "g = " << g << '\n';	// output -> 50
 		++*foo();
-		std::cout << "g = " << g << '\n';
+		std::cout << "g = " << g << '\n';	// output -> 51
 		*foo() = 999;
-		std::cout << "g = " << g << '\n';
+		std::cout << "g = " << g << '\n';	// output -> 999
 	
 		int* p = foo();
 		*p = -1;
-		std::cout << "g = " << g << '\n';
-	
+		std::cout << "g = " << g << '\n';	// output -> -1
+		
 		bar() = 888;
-		std::cout << "g = " << g << '\n';
+		std::cout << "g = " << g << '\n';	// output -> 888
 		++bar();
-		std::cout << "g = " << g << '\n';
+		std::cout << "g = " << g << '\n';	// output -> 889
 	}
  */
 
