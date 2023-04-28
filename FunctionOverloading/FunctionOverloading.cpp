@@ -677,7 +677,7 @@
 */
 
 /*
-	void func(int*);    // from 0 to int* (null pointer conversion)
+	void func(int*);    	// from 0 to int* (null pointer conversion)
 	void func(int);		// exact match
 
 	int main()
@@ -820,7 +820,7 @@
 	int main()
 	{
 		Myclass m;
-		 func(m);
+		func(m);
 		// 1st and 2nd overloads are viable, but 1st overload will be called.
 
 		const Myclass cm;
