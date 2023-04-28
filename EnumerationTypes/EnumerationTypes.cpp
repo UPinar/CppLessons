@@ -55,7 +55,7 @@
 	enum Color { Red = 2834723, Silver = 3844634, Blue = 902383 };
 
 	// In C default underlying type is int.
-	// but in C++ there is not a default underlying type.
+	// but in C++ there is no default underlying type.
 	// compilers underlying types are different.
 	// Some can hold them as an int, some hold as a long.
 */
