@@ -334,9 +334,9 @@
 */
 	
 /*
-	// auto&& r = expr;
-	// if expr is L value ==> auto type is T&
-	// if expr is R value ==> auto type is T
+	auto&& r = expr;
+	-> if expr is L value ==> auto type is T&
+	-> if expr is R value ==> auto type is T
 */
 
 /*
