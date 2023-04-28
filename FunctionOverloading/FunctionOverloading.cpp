@@ -12,7 +12,7 @@
 */
 
 /*
-	For funtion overloading
+	For function overloading
 	-----------------------
 
 	1. funtions names should be same.
