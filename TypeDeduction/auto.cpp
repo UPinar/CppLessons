@@ -177,7 +177,7 @@
 
 	const auto p = ptr;
 	// const [const auto p = ptr;] in expression make p TOP-LEVEL const
-	// p type is int* const ptr (constant pointer to int)
+	// p type is int*, the statement is const ptr (constant pointer to int)
 */
 
 /*
