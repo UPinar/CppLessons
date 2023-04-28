@@ -342,10 +342,11 @@
 /*
 	int x = 10;
 	auto&& y = x;
-	// x is L value expression , auto's type is int&(T&)
-	// int& && is reference collapsing
-	// y's type will be int&
+	// x is an L value expression, auto's type is int&
+	// int& && -> reference collapsing
 	// 2. T&    &&   -> T&
+	// y's type will be int&
+	
 
 	auto&& y = x;
 	int& y = x; 
