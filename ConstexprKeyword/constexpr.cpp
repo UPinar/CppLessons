@@ -61,7 +61,7 @@
 
 		decltype(x) y = 5; // y's type is const int.
 		// constexpr is not a type. 
-		// When we declare a variable with a constexpr keyword it's type is const int.
+		// When we declare an int variable with a constexpr keyword it's type is const int.
 
 		x = 12; // syntax error.
 		// x's type is const int.
