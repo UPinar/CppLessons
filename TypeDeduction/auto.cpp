@@ -201,8 +201,7 @@
 /*
 	int x = 10;
 	auto& y = x + 5; // syntax error
-	// initializing L value reference with an R value expression 
-	// is not legal.
+	// initializing L value reference with an R value expression is not legal.
 */
 
 /*
