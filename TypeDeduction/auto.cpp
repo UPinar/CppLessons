@@ -153,7 +153,7 @@
 	int&& r = 10;
 	// r variables data type is int&&
 	r;
-	// r expressions type is int an it is an L value expression.
+	// r expressions type is int and it is an L value expression.
 */
 
 /*
