@@ -492,7 +492,7 @@
 		// const int& cr = t_obj;
 	
 		int x = 10;
-		double& dr = x;			// syntax error
+		double& dr = x;		// syntax error
 		const double& cdr = x;	// legal
 	
 		// created implicit conversion from x(int) to double.
