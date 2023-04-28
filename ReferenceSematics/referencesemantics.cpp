@@ -362,12 +362,12 @@
 		int x = 10;
 		int* p = fooptrfunc(&x);
 		++* p;
-		std::cout << "x = " << x << '\n';
+		std::cout << "x = " << x << '\n';	// output -> x = 21
 	
 		int y = 10;
 		int& r = fooreffunc(y);
 		++r;
-		std::cout << "y = " << y << '\n';
+		std::cout << "y = " << y << '\n';	// output -> y = 21
 	}
 */
 
