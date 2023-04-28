@@ -154,8 +154,8 @@
 	int main()
 	{
 		int x = 9;
-		int* p{ &x };	//  p is a pointer to x
-		int*& r = p;	//	r is a reference to p (r = p)
+		int* p{ &x };	// p is a pointer to x
+		int*& r = p;	// r is a reference to p (r = p)
 	
 		++* r; // *r = *p = x  ------> ++x
 	
