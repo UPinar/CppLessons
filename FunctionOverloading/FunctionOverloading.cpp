@@ -119,7 +119,7 @@
 
 	void foo(int*);
 	void foo(const int*);
-	//const overloading, 2 overloads here
+	// const overloading, 2 overloads here
 */
 
 /*
