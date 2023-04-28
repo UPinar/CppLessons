@@ -355,7 +355,8 @@
 
 /*
 	auto&& y = 10;
-	// 10(expression) is R value, auto type is int(T);
+	// 10 is an R value expression, auto type is int(T);
+	// 4. T&& && -> T&&
 	// auto's type will be int
 	// y's type is int&&
 
