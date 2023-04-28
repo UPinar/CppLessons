@@ -42,7 +42,7 @@
 	int main()
 	{
 		// To check an expression is a constant expression or not, we can use constexpr keyword.
-		// Declare a constexpr variable and initialize with the expression you want to check.\
+		// Declare a constexpr variable and initialize with the expression you want to check.
 
 		const int x = 5;
 		int y = 12;
