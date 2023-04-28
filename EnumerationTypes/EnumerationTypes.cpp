@@ -189,6 +189,12 @@
 	// Because in scoped enums, Enumerators are in different scope.
 	// Color and TrafficLight are in the global scope but
 	// Color::Red, and TrafficLight::Red are in different scopes.
+	
+	int main()
+	{
+		auto mycolor = Color::Red;
+		auto lightcolor = TrafficLight::Red;
+	}
 */
 
 /*
@@ -202,24 +208,6 @@
 	unqualified name
 	-----------------
 	-> y
-*/
-
-/*
-	// #include "color.h"
-	enum class Color { Red, Silver, Blue };
-	// #incluce "traffic.h"
-	enum class TrafficLight { Red, Yellow, Green };
-	
-	// when we compile it will not create a syntax error.
-	// Because in scoped enums, Enumerators are in different scope.
-	// Color and TrafficLight are in the global scope but
-	// Color::Red, and TrafficLight::Red are in different scopes.
-	
-	int main()
-	{
-		auto mycolor = Color::Red;
-		auto lightcolor = TrafficLight::Red;
-	}
 */
 
 /*
