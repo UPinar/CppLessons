@@ -107,10 +107,10 @@
 	
 	int main()
 	{
-		func(1, 2, 3);
-		func(1, 2);
-		func(1);
-		func();
+		func(1, 2, 3);		// output -> a = 1 b = 2 c = 3
+		func(1, 2);		// output -> a = 1 b = 2 c = 30
+		func(1);		// output -> a = 1 b = 20 c = 30
+		func();			// output -> a = 10 b = 20 c = 30
 	}
 */
 
