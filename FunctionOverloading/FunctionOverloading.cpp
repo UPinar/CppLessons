@@ -438,14 +438,14 @@
 /*
 	// standart conversion - LEVEL 2
 
-	void func(int);
+	void func(unsigned int);	
 	void func(float);
 	void func(double);
 
 	int main()
 	{
 		func(10 > 5);
-		// bool can impilictly convert to int, float and double
+		// bool can impilictly convert to unsigned int, float and double
 		// 3 functions are both standart conversion
 	}
 */
