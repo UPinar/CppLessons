@@ -218,7 +218,7 @@
 	
 	// Can we send same argument for the 2nd parameter in client code?
 	
-	void func_(int x, int z, int y = 0)
+	void func_wrapper(int x, int z, int y = 0)
 	{
 		func(x, y, z);
 	}
