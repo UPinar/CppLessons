@@ -33,8 +33,7 @@
 		auto y = std::operator==(str, "Hello World");
 	
 		// Because of global functions can not reach classes private section.
-		// If we want to do this comparison between strings we need to use
-		// friend decleration.
+		// If we want to do this comparison between strings we need to use friend decleration.
 	}
 */
 
@@ -141,7 +140,7 @@
 */
 
 /*
-* // Friend decleration to another classes member function
+	// Friend decleration to another classes member function
 
 	class First {
 	public:
