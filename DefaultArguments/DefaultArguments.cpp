@@ -23,7 +23,7 @@
 	
 	// ... -> ellipsis
 	
-	// variadic paramter nees to be last parameter.
+	// variadic parameter neesd to be the last parameter.
 	// only 1 variadic parameter is valid.
 	
 	int main()
