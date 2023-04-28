@@ -187,6 +187,7 @@
 	int func(int x, int y, int z = 10);
 	
 	// client.cpp
+	// #include "function.h"
 	int func(int x, int y = 20, int z);
 	// redecleration for the second parameter
 	// but in redecleration we can not use default argument of 3rd parameter again.
