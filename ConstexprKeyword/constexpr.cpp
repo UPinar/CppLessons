@@ -86,7 +86,8 @@
 		// constexpr nesnenin kendisinin const'lugunu ifade ediyor.
 		constexpr const int* p1 = &g;
 		const int* p2 = &g;
-		// These 2 lines ARE NOT EQUAL.
+		// These 2 lines ARE NOT EQUAL!
+		
 		// constexpr makes (p1 expression) const and p1's type is const int* 
 		// so, [const int*] (pointer to const int) will become,
 		// [const int * const] (const pointer to const int)
