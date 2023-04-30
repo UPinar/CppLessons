@@ -286,7 +286,7 @@
 	{
 	
 		auto list = { 1,3,5,6 };	// valid
-		func({ 1,3,5,6 });			// syntax error
+		func({ 1,3,5,6 });		// syntax error
 		// only exception that is different between
 		// auto type deduction and template type deduction is std::initialzer_list.
 	}
@@ -327,7 +327,7 @@
 		func(10, 20);	// no syntax error
 	
 		int x{ 1 };
-		func(x, x);		// syntax error
+		func(x, x);	// syntax error
 	
 		// 1st parameter -> T is int
 		// 2nd parameter -> T is int&
@@ -417,11 +417,11 @@
 	
 	int main()
 	{
-		func(12);			// output -> int
-		func('A');			// output -> char
-		func(true);			// output -> bool
+		func(12);		// output -> int
+		func('A');		// output -> char
+		func(true);		// output -> bool
 	
-		func(12);			// output -> int
+		func(12);		// output -> int
 		func<int>('A');		// output -> int
 		func<int>(true);	// output -> int
 	}
@@ -455,12 +455,12 @@
 	int main()
 	{
 		// 1.
-		func(bar);					// output -> bar() called
+		func(bar);			// output -> bar() called
 		compilerWrotefunc(bar);		// output -> bar() called
 		// These 2 function calls are same.
 	
 		// 2.
-		func(Myclass{});			// output -> Myclass::operator()() called
+		func(Myclass{});		// output -> Myclass::operator()() called
 	}
 */
 
@@ -760,17 +760,17 @@
 	{
 		foo(2.3);	// output -> template type T is double
 		// void foo<double>(double)		-> exact match
-		// void foo(int)				-> conversion
+		// void foo(int)			-> conversion
 		// 2 overloads are viable.
 	
 		foo('A');	// output -> template type T is char
 		// void foo<char>(char)			-> exact match
-		// void foo(int)				-> promotion
+		// void foo(int)			-> promotion
 		// 2 overloads are viable.
 	
 		foo(12);	// output -> foo(int)
 		// void foo<int>(int)			-> exact match
-		// void foo(int)				-> exact match	[Real function will be chosen]
+		// void foo(int)			-> exact match	[Real function will be chosen]
 		// 2 overloads are viable.
 	}
 */
@@ -956,7 +956,7 @@
 		// r objects data type is R value reference
 		// r expression is an L value expression.
 	
-		foo(r);				// output -> const Myclass& called
+		foo(r);			// output -> const Myclass& called
 		foo(std::move(r));	// output -> Myclass&& called
 	}
 */
@@ -999,16 +999,16 @@
 	
 		int a[] = { 1,5,7,8,3,4 };
 	
-		Print(a, a + 6);					// output -> 1 5 7 8 3 4
+		Print(a, a + 6);				// output -> 1 5 7 8 3 4
 		Print(a + 2, a + 6);				// output -> 7 8 3 4
 		// Pos type will be int* (array decay)
 	
 		vector<int> ivec{ 4,6,5,3,2,3,5,6,4 };
-		Print(ivec.begin(), ivec.end());	// output -> 4 6 5 3 2 3 5 6 4
+		Print(ivec.begin(), ivec.end());		// output -> 4 6 5 3 2 3 5 6 4
 	
 		list<int> ilist{ 4,6,7,2,1,5 };
 		// DoublyLink List(std::list) Data structure.
-		Print(ilist.begin(), ilist.end());	// output -> 4 6 7 2 1 5
+		Print(ilist.begin(), ilist.end());		// output -> 4 6 7 2 1 5
 	}
 */
 
@@ -1026,7 +1026,7 @@
 	
 	int main()
 	{
-		Myclass m;		// syntax error.
+		Myclass m;	// syntax error.
 		// No specialization.
 	
 		Myclass<int> x;	// legal
@@ -1447,7 +1447,7 @@
 		int l = 15;
 		static int s = 20;
 
-		Myclass<&l> m3; // syntax error	->	automatic storage duration object
+		Myclass<&l> m3; // syntax error		->	automatic storage duration object
 		Myclass<&s> m4; // legal		->	static storage duration object 
 	
 		Yourclass<x> y1;
@@ -1601,9 +1601,9 @@
 	
 	int main()
 	{
-		Data mydata = { 1,4,6 };	// aggregate initialization
+		Data mydata = { 1,4,6 };		// aggregate initialization
 	
-		Data_2 mydata = { 1,4,6 };	// syntax error
+		Data_2 mydata = { 1,4,6 };		// syntax error
 		// because of Data_2 has private data member it is not an aggregate type
 		// aggregate initialization is not valid.
 
@@ -1646,13 +1646,13 @@
 	int main()
 	{
 		std::pair<int, double> x;
-		std::cout << x.first << '\n';	// output -> 0
-		std::cout << x.second << '\n';	// output -> 0
+		std::cout << x.first << '\n';			// output -> 0
+		std::cout << x.second << '\n';			// output -> 0
 		// default ctor is value initializing data members
 	
 		std::pair <int, std::string> p;
 		std::cout << p.first << '\n';			// output -> 0
-		std::cout << p.second.size() << '\n';	// output -> 0
+		std::cout << p.second.size() << '\n';		// output -> 0
 		// string's default ctor will be called
 		// when second data member(std::string) is value initialized 
 		// in std::pair's default ctor.
@@ -1848,14 +1848,14 @@
 		x.first *= 10;
 		x.second += " world";
 	
-		std::cout << "a = " << a << '\n';			// output -> a = 45
+		std::cout << "a = " << a << '\n';		// output -> a = 45
 		std::cout << "name = " << name << '\n';		// output -> name = hello
 	
 		pair<int&, string&> y{ a,name };
 		y.first *= 10;
 		y.second += " world";
 	
-		std::cout << "a = " << a << '\n';			// output -> a = 450
+		std::cout << "a = " << a << '\n';		// output -> a = 450
 		std::cout << "name = " << name << '\n';		// output -> name = hello world
 	}
 */
@@ -1939,18 +1939,18 @@
 		const Myclass cx;
 		const Myclass ccx;
 	
-		foo(mx);					// output -> foo(Myclass&)
-		foo(cx);					// output -> foo(const Myclass&)
-		foo(Myclass{});				// output -> foo(Myclass&&)
+		foo(mx);			// output -> foo(Myclass&)
+		foo(cx);			// output -> foo(const Myclass&)
+		foo(Myclass{});			// output -> foo(Myclass&&)
 		foo(std::move(ccx));		// output -> foo(const Myclass&&)
 	
-		// call_foo(mx);			// output -> foo(Myclass&)
-		// call_foo(cx);			// output -> foo(const Myclass&)
+		// call_foo(mx);		// output -> foo(Myclass&)
+		// call_foo(cx);		// output -> foo(const Myclass&)
 		// call_foo(Myclass{});		// output -> foo(Myclass&&)
 		// call_foo(std::move(cx));	// output -> foo(const Myclass&&)
 	
-		forward_foo(mx);			// output -> foo(Myclass&)
-		forward_foo(cx);			// output -> foo(const Myclass&)
+		forward_foo(mx);		// output -> foo(Myclass&)
+		forward_foo(cx);		// output -> foo(const Myclass&)
 		forward_foo(Myclass{});		// output -> foo(Myclass&&)
 		forward_foo(std::move(cx));	// output -> foo(const Myclass&&)
 	}
@@ -1979,18 +1979,18 @@
 		int x{};
 		int y{};
 	
-		m.foo(x);				// syntax error -> x' is not an R value.
+		m.foo(x);		// syntax error -> x' is not an R value.
 		m.foo(std::move(x));	// legal
-		m.func(y);				// legal
+		m.func(y);		// legal
 	}
 */
 
 /*
 	template <typename T>
-	void bar(T&&);				// forwarding(universal) reference
+	void bar(T&&);			// forwarding(universal) reference
 	
 	template <typename T>
-	void baz(const T&&);		//	NOT universal reference
+	void baz(const T&&);		// NOT universal reference
 	
 	template <typename T>
 	class Myclass {};
@@ -2001,9 +2001,9 @@
 	int main()
 	{
 		Myclass<int> x;
-		func(x);	// syntax error
+		func(x);		// syntax error
 	
-		auto&& x = 10;			// forwarding(universal) reference
+		auto&& x = 10;		// forwarding(universal) reference
 	}
 */
 
@@ -2324,11 +2324,11 @@
 	
 	int main()
 	{
-		Myclass<int> m1;		// output -> Myclass primary template for type int
-		Myclass<long> m2;		// output -> Myclass primary template for type long
-		Myclass<char*> m3;		// output -> Myclass partial specialization for<T*>
-		Myclass<int**> m4;		// output -> Myclass partial specialization for<T*>
-		Myclass<int[]> m5;		// output -> Myclass partial specialization for<T[]>
+		Myclass<int> m1;	// output -> Myclass primary template for type int
+		Myclass<long> m2;	// output -> Myclass primary template for type long
+		Myclass<char*> m3;	// output -> Myclass partial specialization for<T*>
+		Myclass<int**> m4;	// output -> Myclass partial specialization for<T*>
+		Myclass<int[]> m5;	// output -> Myclass partial specialization for<T[]>
 		Myclass<long[5]> m7;	// output -> Myclass partial specialization for<T[5]>
 	}
 */
@@ -2353,17 +2353,17 @@
 	{
 		using namespace std;
 	
-		cout << ValCat<int>::p << '\n';		// output -> PR value
-		cout << ValCat<int&>::p << '\n';	// output -> L value
-		cout << ValCat<int&&>::p << '\n';	// output -> X value
+		cout << ValCat<int>::p << '\n';			// output -> PR value
+		cout << ValCat<int&>::p << '\n';		// output -> L value
+		cout << ValCat<int&&>::p << '\n';		// output -> X value
 	
 		cout << ValCat<decltype((12))>::p << '\n';	// output -> PR value
 	
 		int x{};
 		int* ptr = &x;
-		cout << ValCat<decltype((x))>::p << '\n';		// output -> L value
-		cout << ValCat<decltype(ptr)>::p << '\n';		// output -> PR value
-		cout << ValCat<decltype(*ptr)>::p << '\n';		// output -> L value
+		cout << ValCat<decltype((x))>::p << '\n';	// output -> L value
+		cout << ValCat<decltype(ptr)>::p << '\n';	// output -> PR value
+		cout << ValCat<decltype(*ptr)>::p << '\n';	// output -> L value
 	}
 */
 
@@ -2597,7 +2597,7 @@
 	{
 		using namespace std;
 	
-		gset<int>;		// std::set<int, std::greater<int>>;
+		gset<int>;	// std::set<int, std::greater<int>>;
 		lset<double>;	// std::set<double, std::less<double>>;
 	}
 */
@@ -2632,7 +2632,7 @@
 		add_pointer<int>::type;		// int*
 		add_pointer<double>::type;	// double*
 	
-		AddPointer_t<int>;			// int*
+		AddPointer_t<int>;		// int*
 		AddPointer_t<double>;		// double*
 	}
 */
@@ -2652,16 +2652,16 @@
 	{
 		std::integral_constant<int, 5>::value;	// 5
 	
-		IntegralConstant<int, 5>::value;		// 5
+		IntegralConstant<int, 5>::value;	// 5
 		IntegralConstant<bool, true>::value;	// true
 		IntegralConstant<bool, false>::value;	// true
 	
 		std::integral_constant<int, 5>::type;	// std::integral_constant<int, 5>
 	
-		std::true_type x;						// std::integral_constant<bool,true>
+		std::true_type x;			// std::integral_constant<bool,true>
 		std::cout << typeid(x).name() << '\n';
 	
-		std::false_type x;						// std::integral_constant<bool,false>
+		std::false_type x;			// std::integral_constant<bool,false>
 		std::cout << typeid(x).name() << '\n';
 	}
 */
@@ -2944,9 +2944,9 @@
 	{
 		using namespace std;
 	
-		EnableIf<true, double>::type;	// double
-		EnableIf<true, char>::type;		// char
-		EnableIf<false, char>::type;	// syntax error no type
+		EnableIf<true, double>::type;				// double
+		EnableIf<true, char>::type;				// char
+		EnableIf<false, char>::type;				// syntax error no type
 	
 		EnableIf<is_pointer_v<int*>, double>::type;		// true.
 		// is_pointer_v<int*> is true
@@ -2955,7 +2955,7 @@
 	
 		std::enable_if<is_pointer_v<int*>>::type;
 		std::enable_if_t<is_pointer_v<int*>>;			// void
-		std::enable_if_t<is_pointer_v<int*>,double>;	// double
+		std::enable_if_t<is_pointer_v<int*>,double>;		// double
 		// These 2 lines are same
 		// enable_if_t is an alias template.
 	}
@@ -2994,7 +2994,7 @@
 	
 	int main()
 	{
-		func(12);		// func() is SFINAE'd out. No more overloads -> syntax error
+		func(12);	// func() is SFINAE'd out. No more overloads -> syntax error
 	
 		int ival{};
 		func(&ival);	// valid
@@ -3028,9 +3028,9 @@
 	int main()
 	{
 		func(12.43);	// syntax error
-		func(12);		// valid
-		func(true);		// valid
-		func('a');		// valid
+		func(12);	// valid
+		func(true);	// valid
+		func('a');	// valid
 	
 		// if std::is_integral_v<T> is true
 		// std::enable_if_t<true> will not be a syntax error becuase it has ::type
@@ -3067,7 +3067,7 @@
 		func(12);	// valid
 	
 		IsSame_v<int,double>;	// false
-		IsSame_v<int, int>;		// true
+		IsSame_v<int, int>;	// true
 	}
 */
 
@@ -4492,26 +4492,17 @@
 	
 	int main()
 	{
-		std::cout << tostr("hello") << '\n';					// output -> hello
+		std::cout << tostr("hello") << '\n';				// output -> hello
 		std::cout << tostr(std::string{"world"}) << '\n';		// output -> world
-		std::cout << tostr(13) << '\n';							// output -> 13
-		std::cout << tostr(5.9) << '\n';						// output -> 5.900000
-		std::cout << tostr(true) << '\n';						// output -> true
+		std::cout << tostr(13) << '\n';					// output -> 13
+		std::cout << tostr(5.9) << '\n';				// output -> 5.900000
+		std::cout << tostr(true) << '\n';				// output -> true
 	
 	
-		std::cout << Tostr("hello") << '\n';					// output -> hello
+		std::cout << Tostr("hello") << '\n';				// output -> hello
 		std::cout << Tostr(std::string{ "world" }) << '\n';		// output -> world
-		std::cout << Tostr(13) << '\n';							// output -> 13
-		std::cout << Tostr(5.9) << '\n';						// output -> 5.900000
-		std::cout << Tostr(true) << '\n';						// output -> 1
+		std::cout << Tostr(13) << '\n';					// output -> 13
+		std::cout << Tostr(5.9) << '\n';				// output -> 5.900000
+		std::cout << Tostr(true) << '\n';				// output -> 1
 	}
 */
-
-
-
-
-
-
-
-
-
