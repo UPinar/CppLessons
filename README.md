@@ -168,3 +168,25 @@
   - `noexcept` keyword
   - constructors & exceptions
   - function try block
+  
+### [Templates](https://github.com/UPinar/CppLessons/tree/main/Templates)
+  - template parameters
+  - template argument deduction
+  - function templates
+  - trailing return type int templates
+  - class templates
+  - class template argument deduction
+  - perfect forwarding
+  - explicit(full) specialization 
+  - partial specialization
+  - alias templates
+     - typedef declerations
+     - using declerations
+  - variable templates
+  - variadic templates
+  - pack expansion
+  - Using variadic parameters one by one
+     - compile time recursivity
+     - init_list
+     - fold expressions (C++17)
+     - static if
