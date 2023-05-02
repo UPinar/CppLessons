@@ -597,7 +597,7 @@
 */
 
 /*
-	this is a keyword and it value category is PR value expression
+	this is a keyword and its value category is PR value expression
 	this is a pointer.
 	using this pointer in classes static member function is syntax error.
 	using this pointer in global function is syntax error.
@@ -745,7 +745,7 @@
 	
 		std::cout.operator<<(ival);			// returns std::ostream&
 		std::cout.operator<<(ival).operator<<(dval);	// returns std::ostream&
-		// There is function overloading in functions	[int, double]
+		// There is function overloading in operator<< functions	[int, double]
 	}
 */
 
@@ -809,14 +809,14 @@
 		this->mx = 20;		// syntax error
 		Myclass::mx = 20;	// syntax error
 		// These 3 lines are same.
-		// We are trying to change data members of the Myclass object, that this pointer points to.
+		// We are trying to change data member(mx) of the Myclass object that, this pointer points to.
 
 		Myclass m;
 		*this = m;		// syntax error
 
 		gx.mx = 15;		// legal
 		// this pointer points to the address of Myclass object 
-		// which is calling bar() const member function.
+		// which called bar() const member function.
 
 		// changing gx objects(different object)(this pointer is not pointing gx)
 		// is perfectly legal.
@@ -830,12 +830,16 @@
 		baz();			// legal
 		// baz() is const member function so 
 		// sending const T*(hidden parameter)(this pointer) to const T* is legal.
+		
+		CALLING NON CONST MEMBER FUNCTION INSIDE CONST MEMBER FUNCTION IS NOT LEGAL!!
 	}
 
 	void Myclass::foo()	// non-const member function
 	{
 		bar();	// const member function
 		// conversion from const T*(hidden parameter)(this pointer) to T* is legal.
+		
+		CALLING CONST MEMBER FUNCTION INSIDE NON CONST MEMBER FUNCTION IS LEGAL!!
 	}
 */
 
@@ -853,12 +857,12 @@
 		const Myclass cm;
 	
 		// &cm -> const Myclass* (we are sending &cm to function's hidden variable)
-		cm.foo();	// syntax error. sending (const T*) to (T*) is		NOT LEGAL.
-		cm.bar();	// legal	sending (constT*) to (const T*)		LEGAL
+		cm.foo();	// syntax error. 	sending (const T*) to (T*) is		NOT LEGAL
+		cm.bar();	// legal		sending (constT*) to (const T*)		LEGAL
 	
 		Myclass m;
-		m.foo();	// legal	sending (T*) to (T*)			LEGAL
-		m.bar();	// legal	sending (T*) to (const T*) [conversion]	LEGAL
+		m.foo();	// legal		sending (T*) to (T*)			LEGAL
+		m.bar();	// legal		sending (T*) to (const T*) [conversion]	LEGAL
 	}
 */
 
@@ -866,7 +870,7 @@
 	 
 	1. const member functions can not change non-static data members.
 	2. const member functions can not call non-const member functions.
-	3. we can not assign *this object any value in const member functions.
+	3. we can not assign *this object to any value in const member functions.
 	4. const class objects can only call const member functions. 
 */
 
@@ -882,7 +886,7 @@
 		{
 			std::cout << "void Myclass::foo()const\n";
 		}
-		// These are function overloads.(const overload)
+		// These functions are overloads(const overload)
 	};
 	
 	int main()
@@ -963,10 +967,10 @@
 
 	// In problem domain changing debug_call_count is not changing the state of the object.
 	// Its only purpose is increasing the call_count in every call to member functions.
-	// But because of debug_call_count is a data member of our Fighter, 
+	// But because of debug_call_count is a data member of our Fighter class, 
 	// in const member functions we can not change data member's value
 	// for these kind of situations we use MUTABLE keyword.
-	// mutable variable is indepent from other data members of this class.
+	// mutable data member is independent from other data members of this class.
 
 	class Date {
 		int m_day;
@@ -1002,7 +1006,8 @@
 		{
 			auto val = eng.generate();
 			eng.discard(1);
-			// const function have to change eng state too..
+			// if const function have to change eng state too..
+			// we can use mutable keyword in our RandomEngine data member.
 		}
 	private:
 		mutable RandomEngine eng;
@@ -1031,6 +1036,8 @@
 	{
 		const RandomEngine eng;
 		eng.generate();	// syntax error
+		// calling non const member function with const RandomEngine object
+		// trying to force conversion from hidden parameter (const T*) to (T*)
 	}
 */
 
@@ -1146,7 +1153,7 @@
 /*
 	class Myclass{
 	public:
-		Myclass();			//default ctor
+		Myclass();		//default ctor
 	};
 
 	class Yourclass{
@@ -1190,7 +1197,7 @@
 	}
 
 	// If you not declare a function instead of deleting it,
-	// it is still a syntax error but because of namelookup(undefined identifier).
+	// it is still a syntax error but it is because of namelookup phase(undefined identifier).
 */
 
 /*
@@ -1254,8 +1261,8 @@
 	
 	class C {
 		C() = delete;
-		// delete decleration means, calling this user declared
-		// ctor will be syntax error.
+		// delete decleration means, calling this user declared ctor
+		// will be a syntax error.
 	};
 */
 
@@ -1265,7 +1272,7 @@
 		// -> Implicitly declared defaulted
 	class Myclass {
 	public:
-		// all 6 special member functions are implicitly declared.
+		// all 6 special member functions are implicitly declared defaulted.
 	};
 
 		// -> Implicitly declared deleted
@@ -1280,6 +1287,8 @@
 		Yourclass y;	// syntax error
 		// C2280 'Yourclass::Yourclass(void)': attempting to reference a deleted function
 		// default ctor is, implicitly declared deleted special member function.
+		// because of const data member can not be default initialize default ctor will throw sythax error
+		// compiler will implicitly delete default constructor.
 	}
 */
 
@@ -1337,7 +1346,7 @@
 	Yourclass y;	// global variable
 
 	// global variables will be created from top to bottom.
-	// FIRST IN LAST OUT prinsible happens
+	// FIRST IN LAST OUT prinsible applied.
 
 	int main()
 	{
@@ -1796,12 +1805,12 @@
 	----------pseudo code-----------
 
 	auto p = new Fighter;
-	void* vp = operator new(sizeof(Fighter));			// call operator new
+	void* vp = operator new(sizeof(Fighter));			// call operator new	-> resource allocation
 	Fighter* p = (static_cast<Fighter*>(vp))->Figher();		// call constructor
 
 	delete p;
 	p->~Fighter();							// call destructor
-	operator delete(p);						// call operator delete
+	operator delete(p);						// call operator delete	-> resource deallocation
 */
 
 /*
@@ -1857,6 +1866,7 @@
 		Myclass m2{ 2 };	// direct list initialization
 		// can not send 2.3(dobule) in direct list initalization  -> narrowing conversion IS NOT VALID
 		// output -> Myclass(int x) x = 2 this = 004FFE7B
+		// Myclass m2{2.3}; will be syntax error
 
 		Myclass m3 = 3;		// copy initialization
 		// output -> Myclass(int x) x = 3 this = 004FFE6F
