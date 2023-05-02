@@ -202,7 +202,7 @@
 
 	// when we compile this code. There won't be any syntax error.
 	// because delete special member functions, in this case default ctor
-	// is not creating any syntax error
+	// is not creating any syntax error because it has not been called.
 */
 
 /*
@@ -215,7 +215,7 @@
 
 	int main()
 	{
-		Myclass m;
+		Myclass m;	// syntax error
 	}
 
 	// default ctor is deleted by compiler 
@@ -236,7 +236,7 @@
 
 	int main()
 	{
-		Myclass mx;
+		Myclass mx;	// syntax error
 
 	}
 
@@ -261,10 +261,10 @@
 
 	int main()
 	{
-		Myclass mx;
+		Myclass mx;	// syntax error
 	}
 
-	// when any ctor declared, default ctor will not be declared by compiler.
+	// when any constructor declared, default ctor will not be declared by compiler.
 	// Myclass's default ctor will default initialize m_a data member.
 	// For m_a's default initialization A() default ctor needs to be called.
 	// Because of there is user declared ctor A(int), A() is not declerad.
@@ -272,9 +272,9 @@
 */
 
 /*
-	---------------------------------------------
-	| constructor(member) initializer list [MIL]| 
-	---------------------------------------------
+	----------------------------------------------
+	| constructor(member) initializer list [MIL] | 
+	----------------------------------------------
 */
 
 /*
@@ -300,6 +300,7 @@
 	public:
 		Myclass() : mx(10), my(20) //  this is initialization
 		{ 
+			// initialization of const data members in constructor initializer list.
 		}
 	private:
 		const int mx, my;
@@ -324,7 +325,7 @@
 
 	int main()
 	{
-		A ax;
+		A ax;	// syntax error
 	}
 
 	// When we call A classes default ctor, its data members will be default initialized.
@@ -333,6 +334,9 @@
 	// its default ctor is not declared. So it was a syntax error.
 
 	// ERROR : no default constructor exists for class "B"
+	// compiler will not delete default ctor like the examples before! 
+	// Because default ctor A() is declared by the user.
+	// The errors reason is different!
 */
 
 /*
@@ -386,7 +390,7 @@
 	
 			// In this code data members(m_name, m_surname) first default initialized.
 			// Their(std::string) default ctor have been called.
-			// Then we use assignment functions to assign,
+			// Then we use their assignment functions to assign,
 			// p_name and p_surname parameters to our data members.
 		}
 	
@@ -460,7 +464,7 @@
 			m_b(other.m_b),
 			m_c(other.m_c)
 		{
-	
+			// Implicitly declared defaulted copy ctor code is like this.
 		}
 	private:
 		A m_a;
@@ -468,7 +472,7 @@
 		C m_c;
 	};
 	
-	// Implicitly declared defaulted copy ctor code is like this.
+	
 	// if A,B,C are primitive types, it will copy the data members.
 	// if A,B,C are pointer types, it will copy the data members.
 	// if A,B,C are classes, their copy constructors will be called too..
@@ -486,7 +490,7 @@
 			// this pointer's value is the address of the object will be created by copy constructor.
 
 			std::cout << "&other " << &other << '\n';
-			// object that will bind to Date&(other) is the object that its data members will be copied.
+			// object that will bind to Date&(other) is the object that its data members will be copied from.
 		}
 	private:
 		int m_day;
@@ -564,12 +568,12 @@
 		// COPY CONSTRUCTOR IS DONE SHALLOW COPY
 
 		str.print();
-		// str object needs to reach its member variable `char* mp`, in print() member function.
+		// str object needs to reach its data member `char* mp`, in print() member function.
 		// Because of the memory in heap, that copiedStr.mp is deleted(free'd) at the end of the func() functions scope,
 		// and because of both objects char* mp (str.mp && copiedStr.mp) points to the same string literal in heap.
-		// Memory that str objects (char *)mp variable points to can have some other(garbage) values in it. 
+		// Memory that str objects (char *)mp variable points to, now can have garbage value in it. 
 		// Might already been used for any other purpose because of it is free'd.
-		// str.mp became a dangling pointer. Reaching str.mp is Undefined Behaviour now.
+		// str.mp became a dangling pointer. Reaching str.mp is Undefined Behaviour.
 	}
 */
 
@@ -584,10 +588,12 @@
 			std::strcpy(mp, p);
 		}
 	
-		// COPY CONSTRUCTOR THAT DONE DEEP COPY
+		// COPY CONSTRUCTOR THAT DOES DEEP COPY
 		String(const String& other) : mlen(other.mlen), mp{ static_cast<char*>(std::malloc(mlen + 1)) }
 		{
 			std::strcpy(mp, other.mp);
+			// Allocate new memory for copy constructed object.
+			// Then copy the memory that other objects pointer points to.
 		}
 	
 		~String()
@@ -625,7 +631,7 @@
 		String str{ "Hello world" };
 
 		str.print();
-		func(str);
+		func(str);	// does not create a dangling pointer.
 		str.print();
 	}
 */
@@ -661,7 +667,7 @@
 	
 			return *this;
 			// *this returns the assigned object itself.
-			// assigned object is L value expression
+			// assigned object is an L value expression
 		}
 	
 	private:
@@ -713,8 +719,9 @@
 		(dx = dy).print();
 		// dx.operator=(dy).print();	// chaining
 
-		// because of copy assignment operator returns an L value and dx object itself.
+		// because of copy assignment operator returns an L value, dx object itself.
 		// dx = dy;
+		
 		// dx.print() 
 		// AND 
 		// (dx = dy).print();
@@ -743,17 +750,18 @@
 			// SELF ASSIGNMENT
 			if(this == &other)
 				return *this;
-			// if this copy operator function called for same objects.
-			// we are controling their addresses to check if their equal or not.
-			// str.operator=(str); will return
+			// if this copy operator function called for same object(Object assigned to itself).
+			// we need to control objects addresses to find out if they are same or not.
+			// str.operator=(str);
 			// str = str;
 
 			mlen = other.mlen;
-			// mp = other.mp; -> implicitly declared copy operator function does.
-
+			// mp = other.mp; -> implicitly declared copy assingment does.
+			
 			std::free(mp);
 			mp = static_cast<char*>(std::malloc(mlen + 1));
 			std::strcpy(mp, other.mp);
+			// implicitly declared copy assignment did not do these lines.
 
 			return *this;
 		}
@@ -779,7 +787,7 @@
 
 		if(true)
 		{
-			String s2{ "I am robot" };
+			String s2{ "I am a robot" };
 			s2.print();
 			s2 = s1;
 			s2.print();
@@ -818,13 +826,13 @@
 		func(Myclass{});			// Myclass{} is a temp object which is an R value expression
 		// output -> func(Myclass&&)
 
-		func(static_cast<Myclass&&>(m));  	// static_cast<Myclass&&>(m) is X value R value expression
+		func(static_cast<Myclass&&>(m));  	// static_cast<Myclass&&>(m) is X value, R value expression
 		// output -> func(Myclass&&)
 
 		func(std::move(m));			// std::move(m) change L value expression to R value expression
 		// output -> func(Myclass&&)
 
-		func(std::move(Myclass{}));		// R value expression Myclass{} still will be an R value expression
+		func(std::move(Myclass{}));		// R value expression Myclass{}, still will be an R value expression
 		// output -> func(Myclass&&)
 
 		// if L value goes into std::move(Lvalue expression) goes out as an R value
@@ -899,7 +907,7 @@
 		C m_c;
 	};
 
-	// If A, B, C are classes their move assignment operator or move ctor will be called too.
+	// If A, B, C are classes their move assignment or move ctor will be called too.
 */
 
 /*
@@ -914,24 +922,26 @@
 		}
 
 		// move constructor
-		String(String&& other) :mlen(other.mlen), mp(other.mp)
+		String(String&& other) : mlen(other.mlen), mp(other.mp)
 		{
-			// When we use mp(other.mp) in constructor initializer list 
+			// When we use, mp(other.mp) statement in constructor initializer list 
 			// we basically copy other objects pointer data member(other.mp) to our
-			// string objects pointer variable(mp)
+			// string objects pointer data member(mp) -----> mp(other.mp)
 			
-			// After move ctor, other object will be deleted because its an R value object.
-			// Because of R value objects dtor will be called, its data member pointer will be free'd. 
+			// After move ctor executed, other object(datas stolen) will be deleted because its an R value object.
+			// Its dtor will be called and the resource that its data member pointer points to will be free'd. 
 			// So because of both string objects have a data member pointer that points to the same address.
-			// This will make our string objects pointer data member a dangling pointer. 
-			// When data has been moved we need to secure ourselves.
+			// This will make our string objects pointer data member, a dangling pointer after other objects dtor was called. 
+			// When data has been moved(stole) from other object we need to secure ourselves.
 			// In destructor we need to declare a condition by adding if 
-			// objects data was stolen do not delete data member pointer.
+			// objects data was stolen do not free the memory that its data member pointer points to.
 
 			other.mp = nullptr;		// for our condition in destructor. 
-			// Now our string object(this->mp) have the address.
-			// We can set nullptr to other.mp because we won't use it anymore.
+			// Now our string object(this->mp) is pointing the same address of other->mp points to.
+			// We need to set nullptr to other.mp because we won't use it anymore and we don't want its resource to be free'd.
 			other.mlen = 0;
+			
+			// CHECK DESTRUCTOR FOR THE CONDITION!!
 		}
 		// move assignment
 		String& operator=(String&& other)
@@ -957,7 +967,8 @@
 		{
 			if (mp)   // If data member mp pointer is not nullptr, give its resource back.
 				std::free(mp);
-			// Else do not give its resource back for not making our objects pointer(this->mp) dangling
+			// Else do not give its resource back for not making our objects(objects that move ctor was called) 
+			// data member pointer(this->mp) dangling.
 		}
 
 	private:
@@ -1067,8 +1078,9 @@
 */
 
 /*
-	// if user declared a copy asssignment operator function to Myclass.
+	// if user declared a copy asssignment to Myclass.
 	// move members are not declared.
+	// copy constructor is defaulted. 
 	class Myclass {
 	public:
 		Myclass& operator=(const Myclass&);
