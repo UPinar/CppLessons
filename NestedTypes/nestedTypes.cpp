@@ -55,13 +55,14 @@
 		A::NestedA ma; // sythax error
 		// name lookup will start in class A's scope. It will find NestedA class
 		// but in access control phase, because class NestedA is in private section of class A
-		// we can not reach A::NestedA from outside.
+		// we can not reach A::NestedA from client side.
 		// E0265 class "A::NestedA" is inaccessible
 	}
 */
 
 /*
 	class A {
+	private:
 		class NestedA {
 			int a, b, c, d;
 		};
@@ -128,31 +129,31 @@
 	
 	int main()
 	{
-		// A::Nested x; // not legal -> A::Nested is in private section
+		// A::Nested x; 		// not legal -> A::Nested is in private section
 
-		// A::Nested y = A::foo(); // not legal -> A::Nested is in private section
+		// A::Nested y = A::foo(); 	// not legal -> A::Nested is in private section
 	
-		auto z = A::foo();
+		auto z = A::foo();		// legal
 		std::cout << typeid(z).name() << '\n'; 	output -> class A::Nested
 	
-		// if there is no name, is source code like (A::Nested)
-		// no access control will applied to that [auto]
+		// If we use auto keyword to create a variable it does not have a name.
+		// Access control won't be applied nameless variables.
 	}
 */
 
 /*
 	class A {
-		void func() // implicitly inline function
+		void func() // implicitly inline member function
 		{
 			mx = 5;
-			// if a function INLINE
+			// if a function is INLINE
 			// name-lookup will check all the class scope from top to bottom.
 		}
-		int mx;
+		int mx;	
 	
-		Nested mx; // Nested class is undefined yet..
-		// name-lookup will start from top of the class A to [Nested mx;] expression
-		// will not check all of the class scope
+		Nested mx; // syntax error
+		// name-lookup will start from top of the class A to [Nested mx;] statement
+		// Nested class is undefined yet..
 
 		class Nested {
 		};
@@ -165,18 +166,18 @@
 	class Myclass {
 		type mx; // mx is double type
 		// name-lookup will check from Myclass class's top to [type mx;] expression to find definition of type
-		// than will check global scope from top to Myclass definition
+		// then will check global scope from top to Myclass definition
 	
 		using type = int;
-		type my; // mt is int type
-		// name-lookup will find type definition inside Myclass's class scope.
+		type my; // my is int type
+		// name-lookup will find type definition inside Myclass's class scope when checking 
+		// from top of class Myclass scope to [type my;] statement.
 	};
 */
 
 /*
 	// .h
 	class Enclosing {
-
 		class Nested {
 	
 		};
@@ -191,26 +192,25 @@
 	
 	// .cpp
 	Nested Enclosing::func(Nested x) {} // sythax error
-	// functions return type can not find in any scope
+	// functions return type(Nested) can not find in any scope
 	
 	Enclosing::Nested Enclosing::func(Nested x) {}
-	// it needs to be used with Enclosing type
+	// it needs to be used qualified with Enclosing class name
 */
 
 /*
 	class Enclosing {
-	
 		class Nested {
 		public:
 			int foo(int x) { return x + 5; }
-			// int foo(int) is inline function
+			// int foo(int) is inline member function
 	
 			int func(int);
 		};
 	
 		int Nested::func(int x) { return x + 6; }
 		// can not define a member function in Enclosing class scope, which is declared in Nested class, 
-		// Nested types member functions, needs to define inline in Nested class scope, or in .cpp namespace scope.
+		// Nested types member functions, needs to define INLINE in Nested class scope, or in .cpp namespace scope.
 	};
 */
 
@@ -230,9 +230,9 @@
 		// code
 		return *this;
 	}
-	// Enclosing::Nested& return type
-	// Enclosing::Nested::operator=() function name
-	// const Nested& r parameter and namelookup starts in Class scope.
+	// Enclosing::Nested& is the return type
+	// Enclosing::Nested::operator=() is the function name
+	// const Nested& r is the parameter and namelookup starts in Enclosing::Nested class scope.
 */
 
 /*
@@ -242,7 +242,7 @@
 */
 
 /*
-	class Myclass {}; // namesapce scope forward decleration
+	class Myclass {}; // forward decleration in namespace scope
 	
 	class Enclosing {
 		class Nested{}; // Nested type forward decleration
@@ -268,7 +268,7 @@
 		A ax; // if you want to use A class in Myclass you need to include header file of A class
 	};
 	
-	// Every code that includes Myclahh.h will also include A.h
+	// Every code that includes Myclass.h will also include A.h
 	// and also include every header file that A.h includes...
 	// this will increase compile time
 */
@@ -288,7 +288,7 @@
 	
 	// If we change members positions for example, ax and bx. We need to compile the project again.
 	// Binary incompatibility happens.
-	// If we did not see the private section, binary compatibility will continiue...
+	// If we did not see the private section, binary compatibility will continues...
 */
 
 /*
@@ -302,7 +302,7 @@
 		pimpl* mp;
 	};
 	
-	//myclass.cpp
+	// myclass.cpp
 	
 	// #include "A.h"
 	// #include "B.h"
