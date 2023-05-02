@@ -81,7 +81,7 @@
 		std::string str(20'000, '!');
 
 		func(std::move(str));
-		std::cout << "str.size() = " << str.size() << '\n'; // output -> str.size() = 20000
+		std::cout << "str.size() = " << str.size() << '\n'; 	// output -> str.size() = 20000
 		// str's resource has been copied.
 
 		foo(std::move(str));
@@ -137,8 +137,8 @@
 /*
 	class Myclass {
 	public:
-		// Myclass(const Myclass&other): mx(other.mx)	....
-		// Myclass(Myclass&&): mx(std::move(other.mx))	....
+		// Myclass(const Myclass& other): mx(other.mx)	....
+		// Myclass(Myclass&& other): mx(std::move(other.mx))	....
 	private:
 		int mx, my, mz;
 		int a[10];
@@ -146,15 +146,15 @@
 		int* p2;
 	};
 	
-	// There is no difference between copy constructor and move constructor.
+	// There is no difference between copy constructor and move constructor for this example.
 	// If data members are not classes there is no difference between move and copy ctors.
 */
 
 /*
 	class Myclass {
 	public:
-		// Myclass(const Myclass&other): mx(other.mstr)	....
-		// Myclass(Myclass&&): mstre(std::move(other.mstr)) ....
+		// Myclass(const Myclass& other): mx(other.mstr)	....
+		// Myclass(Myclass&& other): mstr(std::move(other.mstr)) ....
 	private:
 		std::string mstr;
 		int mx, my, mz;
@@ -162,10 +162,10 @@
 
 	};
 
-	// There is difference between copy and move constructors.
+	// There is a difference between copy and move constructors.
 	// One of its data member is std::string class,
 	// because of std::string classes copy and move ctor's are different.
-	// Myclass's copy and move ctor's are different
+	// Myclass's copy and move ctor's are different too.
 */
 
 /*
@@ -206,9 +206,9 @@
 
 	// When we call Myclasses copy ctor it will call MoveOnly's copy ctor
 	// and because MoveOnly classes copy ctor is deleted it will be syntax error
-	// Because of the syntax error Myclasses copy ctor will be deleted by the compiler.
+	// This will cause, Myclasses copy ctor will be deleted by the compiler.
 	// Same also applied in copy assignment.
-	// Compiler will delete Myclasses copy assignment too.
+	// Compiler will delete Myclasses copy assignment too when it is being called.
 
 	int main()
 	{
@@ -385,8 +385,8 @@
 /*
 	class Myclass {
 	public:
-		Myclass() : Myclass(111, 2222){}
-		Myclass(int a, int b) : ma(a), mb(b){}
+		Myclass() : Myclass(111, 2222) {}
+		Myclass(int a, int b) : ma(a), mb(b) {}
 	
 		void print() const
 		{
@@ -426,9 +426,9 @@
 	}
 	
 	There are 2 problems in swap functions code.
-		1. T can be a std::string and we are using copy ctor and copy assignment for std::string
-			it is not efficient.
-		2. T can be move only type e.g., unique_ptr
+		1. T can be a std::string and using copy ctor or copy assignment for std::string
+			is not efficient.
+		2. T can be move only type e.g., unique_ptr so it can cause syntax error.
 
 	void better_swap(T& r1, T& r2)
 	{
@@ -450,6 +450,11 @@
 /*
 	class Myclass {
 	public:
+		Myclass(int x)
+		{
+			std::cout << "Myclass(int x) ctor x = " << x << " this : " << this << '\n';
+		}
+		
 		Myclass()
 		{
 			std::cout << "Myclass() default ctor this : " << this << '\n';
@@ -458,11 +463,6 @@
 		~Myclass()
 		{
 			std::cout << "~Myclass() destructor this : " << this << '\n';
-		}
-	
-		Myclass(int x)
-		{
-			std::cout << "Myclass(int x) ctor x = " << x << " this : " << this << '\n';
 		}
 	};
 	
@@ -474,11 +474,11 @@
 	
 	
 		// output ->
-		//	Myclass() default ctor this : 008FF92F
-		//	Myclass(int x) ctor x = 19 this : 008FF863	-> Temp object
+		//	Myclass() default ctor this : 008FF92F		-> Default ctor called for local object
+		//	Myclass(int x) ctor x = 19 this : 008FF863	-> Ctor called for Temp object
 		//	~Myclass() destructor this : 008FF863		-> Temp object destroyed.
 		//	main continues..
-		//	~Myclass() destructor this : 008FF92F
+		//	~Myclass() destructor this : 008FF92F		-> Dtor called for local object
 	}
 */
 
@@ -502,9 +502,9 @@
 	
 	int main()
 	{
-		Myclass();		// temp object	-> direct initialize
+		Myclass();		// temp object	-> direct initialization
 		Myclass(10, 20);	// temp object constructed with its 2 parameter constructor
-		Myclass{};		// temp object	-> value initialize
+		Myclass{};		// temp object	-> value initialization
 	}
 */
 
@@ -518,7 +518,9 @@
 		Myclass& r = Myclass{};			// syntax error.
 		// L value reference can not bind to R value expression.
 		const Myclass& cr = Myclass{};		// legal
+		// const L value reference can bind to R value expression.
 		Myclass&& rr = Myclass{};		// legal
+		// R value reference can bind to R value expression.
 	}
 */
 
@@ -555,17 +557,17 @@
 	
 		// In statement1 temporary object Myclass{} is not alive.
 		// In statement2 temporary object Myclass{} is not alive,
-		// its destructor is already called and executed.
+		// its destructor has already been called and executed.
 	
 	
 		Myclass mx;
 		baz(mx);
-		// If we want to send an object will not used after baz() functions execution.
-		// creating mx object will cause a scope leakage.
+		// If we want to send an object that will not used after baz() functions execution.
+		// creating local Myclass(mx) object will cause a scope leakage in this scenerio.
 	
 		{
 			std::string str(10'000, 'A');
-		}	// nested block for scope leakage.
+		}	// using a nested block for scope leakage.
 	}
 */
 
@@ -637,10 +639,10 @@
 		m = 35;
 	
 		// output ->
-		//	Myclass default ctor this = 00AFF80F
-		//	Myclass(int x) x = 35 this = 00AFF80E	-> temporary object
-		//	Myclass destructor this = 00AFF80E	-> temporary objects dtor
-		//	Myclass destructor this = 00AFF80F
+		//	Myclass default ctor this = 00AFF80F	-> local Myclass object constructed by default ctor.
+		//	Myclass(int x) x = 35 this = 00AFF80E	-> temporary Myclass object constructed.
+		//	Myclass destructor this = 00AFF80E	-> temporary Myclass objects destroyed by destructor.
+		//	Myclass destructor this = 00AFF80F	-> local Myclass object destroyed by destructor.
 	}
 */
 
@@ -683,12 +685,12 @@
 		// output ->
 		//	Myclass default ctor this = 012FF71F	-> m objects ctor
 		//	&m = 012FF71F				-> m objects address
-		//	Myclass(int x) x = 35 this = 012FF71E	-> conversion ctor called, temporary object came alive.
-		//	Myclass copy assignment this = 012FF71F	-> copy assignment called, temporary objects value assign to m object.
-		//	&other = 012FF71E			-> temporary objects address
-		//	Myclass destructor this = 012FF71E	-> temporary object destroyed.
+		//	Myclass(int x) x = 35 this = 012FF71E	-> conversion ctor called, temporary Myclass object came alive.
+		//	Myclass copy assignment this = 012FF71F	-> copy assignment called, temporary Myclass objects values assign to local Myclass(m) object.
+		//	&other = 012FF71E			-> temporary Myclass objects address
+		//	Myclass destructor this = 012FF71E	-> temporary Myclass object destroyed.
 		//	main continues
-		//	Myclass destructor this = 012FF71F	-> m object destroyed end of the main scope.
+		//	Myclass destructor this = 012FF71F	-> local Myclass(m)object destroyed end of the main scope.
 	}
 */
 
@@ -714,7 +716,7 @@
 		Myclass m;
 		double dval{ 2.3 };
 	
-		m = dval;
+		m = dval;	// valid
 		// double ==> int ==> Myclass
 		// Standart conversion + UDC
 	}
@@ -733,7 +735,7 @@
 		double dval{ 2.3 };
 		auto pd = &dval;
 	
-		m = pd;	// valid
+		m = pd;		// valid
 	
 		// double* ==> bool ==> Myclass
 		// Standart conversion + UDC
@@ -967,6 +969,7 @@
 		// ax object can be convert to B object with B(A) ctor -> [UDC] and
 		// B object can be convert to C object with C(B) ctor ->  [UDC]
 		// BUT implicitly 2 User Defined Conversion IS NOT VALID!!!
+		// UDC + UDC -> NOT VALID
 	}
 */
 
@@ -1006,8 +1009,8 @@
 	->	after C++17 some compiler optimization copy elisions, 
 		become mandatory copy elision.
 
-	-> If copy elision is not mandatory, and user deleted copy ctor
-		it will be syntax error. But if it is a mandatory copy ellision, 
+	-> If copy elision is not mandatory, and if user delete the copy ctor
+		it will cause syntax error. But if it is a mandatory copy ellision, 
 		copy ctor is not needed so deleted copy ctor will not be syntax error.
 */
 
@@ -1057,6 +1060,8 @@
 		// for function parameter variable move or copy ctor will be called.
 	
 		// output -> Myclass(int) ctor
+		
+		// Because of mandatory copy ellision move or copy ctor will not be called.
 	}
 */
 
@@ -1100,7 +1105,7 @@
 		Myclass m1;
 		foo(m1);		// no copy elision.	[Default ctor and copy ctor]
 
-		foo(Myclass{});	// copy ellision [only default ctor]
+		foo(Myclass{});	// copy ellision [only default ctor will be called for temp object]
 	}
 */
 
@@ -1109,7 +1114,7 @@
 	| Scenerio 2 (Return Value Optimization)[RVO] |
 	-----------------------------------------------
 	If a functions return value type is a class type,
-	and this function will return PR value expression.
+	and this function is returning a PR value expression.
 	Mandatory Copy Ellision will be applied.
 */
 
@@ -1183,7 +1188,7 @@
 		Myclass m1 = foo();		// output -> Myclass default ctor
 		Myclass m2 = bar();		// output -> Myclass(int) ctor
 	
-		// No syntax error when user delete the copy ctor.
+		// No syntax error when user deletes the copy ctor.
 		// Because this copy elision becomes mandatory copy elision with C++17.
 	}
 */
@@ -1203,7 +1208,7 @@
 	std::string get_str()
 	{
 		std::string str;
-		// code... (string manuplations)
+		// code... (string manipulations)
 		return str;
 	}
 	
@@ -1264,7 +1269,7 @@
 		// output ->
 		//	Myclass(int) ctor
 		//	m_x = 23
-		// Only int parameter ctor called!!	-> NRVO
+		// Only int parameter ctor called!!	-> NRVO(Named Return Value Optimization)
 	}
 */
 
@@ -1275,7 +1280,7 @@
 		{
 			std::cout << "Myclass default ctor\n";
 		}
-		Myclass(int x) :m_x(x)
+		Myclass(int x) : m_x(x)
 		{
 			std::cout << "Myclass(int) ctor\n";
 		}
@@ -1367,7 +1372,7 @@
 	
 		up1 = up2;			// copy assignment deleted
 		auto up3 = up1;			// copy constructor deleted
-		// SMART POINTERS ARE MOVE ONLY TYPES!!!
+		// UNIQUE POINTERS ARE MOVE ONLY TYPES!!!
 	
 		up1 = std::move(up2);		// move assignment legal
 		auto up3 = std::move(up2);	// move constructor legal
@@ -1386,7 +1391,8 @@
 			throw std::runtime_error{ filename + "can not be created!" };
 		}
 	
-		return ofs;	// move only type but compiler convert L value ofs to X value..
+		return ofs;	// move only type 
+		// because compiler convert L value ofs to X value it won't be a syntax error.
 	}
 	
 	int main()
@@ -1416,7 +1422,6 @@
 	
 	int main()
 	{
-	
 		std::string str(100'000, 'A');
 	
 		foo(str);
