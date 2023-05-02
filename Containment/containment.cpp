@@ -44,7 +44,7 @@
 	{
 		B bx;
 		// when we default initialize bx(class B) object, its member type A will call its constructor.
-		// A::A() will call in default initialization of bx's A member type
+		// A::A() will be called in default initialization of bx's A member type.
 	}
 */
 
@@ -64,12 +64,12 @@
 	int main()
 	{
 		B bx;
-		// when we try to create an object from class B,
-		// we need to default initialize its member type ax(class A).
-		// for default initialize ax we need to use default ctor in class A
+		// when we try to create an object from class B and default initalize it,
+		// we need to default initialize its member type ax(class A) too.
+		// In ax objects default initialization class A's default ctor will be called..
 		// because of there is no default ctor in class A [when A(int) ctor user declared, no default ctor A()]
-		// it will throw a sythax error because of context control.
-		// when an error occurs in initialization process
+		// it will be an error.
+		// when an error occurs in initialization process of member type.
 		// class B's default ctor will be deleted by the compiler.
 	}
 */
@@ -89,10 +89,10 @@
 	int main()
 	{
 		B bx;
-		// because of class A's default ctor needed to call, for member type variable of class B (A ax)
+		// because of class A's default ctor need to call, for member type variable of class B (A ax)
 		// we need to reach A's private section from B.
-		// because of that is not possible without a friend decleration
-		// compiler will end up deleting B() [class B's default ctor].
+		// It is not possible without a friend decleration so
+		// compiler will end up deleting B::B() [class B's default ctor].
 	}
 */
 
@@ -118,7 +118,7 @@
 	
 	int main()
 	{
-		B bx;
+		B bx;	// syntax error
 	}
 */
 
@@ -139,7 +139,7 @@
 	};
 	
 	// Member classes interface is not include in Owner's interface.
-	// Owner class can reach Members interface by using its Member class member type variables.
+	// Owner class can reach Member classes interface by using its member type(mx) object.
 */
 
 /*
@@ -149,16 +149,16 @@
 	public:
 	private:
 		Member mx;
-		// a class needs to be complete type, to be a member type.
-		// it's size is not known when it is incomplete type.
+		// A class needs to be complete type to be a member type of another class.
+		// It's size is not known when a class is an incomplete type.
 	
 		Member* mpx;
-		// a pointer to class, can be a member variable of a class.
-		// pointers size is known even the class itself is incomplete or not.
+		// A pointer to class(Member*), can be a data member of another class.
+		// Pointers size is known even the class itself is an incomplete type or a complete type.
 	
 		Member& mrx;
-		// a reference to class, can be a member variable of a class.
-		// references size is same as pointer and also known by the compiler.
+		// A reference to a class(Member&), can be a data member of another class.
+		// References size is same as pointers. So it is not important that a class is an incomplete or a complete type.
 	};
 */
 
@@ -174,10 +174,10 @@
 	class B {
 	public:
 	private:
-		A ax = { 2,3,7 };		// -> works
-		// A ay{ 2,3,5 };		// -> works
-		// A az(1,2,3);			// -> not works
-		// A al = (2,3,4);		// -> not works
+		A ax = { 2,3,7 };		// -> works 	(copy list initialization)
+		// A ay{ 2,3,5 };		// -> works	(direct list initalization)
+		// A az(1,2,3);			// -> not works	-> acts like a function decleration
+		// A al = (2,3,4);		// -> not works	-> same as [A al = 4;] no 1 parameter ctor.
 	};
 	
 	int main()
@@ -198,10 +198,13 @@
 	class C {};
 	
 	class Myclass {
-		Myclass() :ax(), bx(),cx() {}
 		// default ctor
-		Myclass(const Myclass& other) : ax(other.ax), bx(other.bx), cx(other.cx){}
+		Myclass() : ax(), bx(),cx() {}
+		
 		// copy ctor
+		Myclass(const Myclass& other) : ax(other.ax), bx(other.bx), cx(other.cx){}
+		
+		// copy assignment
 		Myclass& operator=(const Myclass& other)
 		{
 			ax = other.ax;
@@ -209,10 +212,12 @@
 			cx = other.cx;
 			return *this;
 		}
-		// copy assignment
+		
+		// move ctor
 		Myclass(Myclass&& other) : ax(std::move(other.ax)), bx(std::move(other.bx)),
 			cx(std::move(other.cx)) {}
-		// move ctor
+			
+		// move assignment
 		Myclass& operator=(Myclass&& other)
 		{
 			ax = std::move(other.ax);
@@ -220,7 +225,6 @@
 			cx = std::move(other.cx);
 			return *this;
 		}
-		// move assignment
 	private:
 		A ax;
 		B bx;
@@ -247,7 +251,9 @@
 		B() = default;
 		B(const B& other) : mval(other.mval) {}
 		// we did not initialize ax member type varible object in initializer list.
-		// so it will use A() [class A's default ctor] to initialize ax object.
+		// so it will use A::A() [class A's default ctor] to initialize ax object.
+		
+		// B(const B & other) : mval(other.mval), ax(other.ax) {}
 	private:
 		int mval;
 		A ax;
@@ -260,18 +266,18 @@
 	
 		// B(const B& other) : mval(other.mval) {}
 		// output -> 
-		// A class default ctor
-		// A class default ctor
+		// 	A class default ctor
+		// 	A class default ctor
 
-		// because we did not initialize A member type inside copy constructor
-		// default ctor of A, will be called.
+		// Because of we did not initialize A member type inside copy constructor
+		// default ctor of class A will be called.
 	
 		// B(const B & other) : mval(other.mval), ax(other.ax) {}
 		// output ->
-		// A class default ctor
-		// A class copy ctor
+		// 	A class default ctor
+		// 	A class copy ctor
 
-		// because we initialize A member type inside copy constructor
-		// copy ctor of A, will be called.
+		// Because of we initialize A member type inside copy constructor
+		// copy ctor of class A will be called.
 	}
 */
