@@ -84,7 +84,7 @@
 	{
 		x = 5; // not valid
 		Nspace::x = 5; // valid [qualified name]
-		// we need to qualify the name with its namespace to use it outside of the namespace scope
+		// we need to qualify the name with its namespace name to use it outside of the namespace scope
 	}
 */
 
@@ -139,7 +139,7 @@
 	
 		Myclass foo();
 		// Nspace::Myclass foo(); -> no need to qualify the function
-		// we don't need to qualified name for Myclass when using inside same namespace.
+		// we don't need to qualify the name for Myclass when using inside same namespace.
 	}
 */
 
@@ -162,19 +162,19 @@
 	void foo()
 	{
 		using std::cout;
-		cout; // can used cout
+		cout; // we can use cout
 	}
 	
 	void bar()
 	{
-		cout; // can not used cout
+		cout; // we can not use cout
 	}
 
-	using std::cout; // this is a decleration and it has a scope.
+	// using std::cout; -> this is a decleration and it depend on the scope that decleration is done.
 */
 
 /*
-	// in modern cpp we declare using decleration with commas.
+	// in modern cpp we can declare different using declerations with commas.
 	using std::cout, std::endl;
 */
 
@@ -216,6 +216,7 @@
 
 	namespace Nspace {
 		using ::x;
+		// we inject global variable [int x] to namespace Nspace
 	}
 
 	int main()
@@ -236,7 +237,7 @@
 		int x = 57; // no sythax error
 
 		::x = 34; // unary scope resolution operator.
-		// x is injected in global scope [using Nspace::x]
+		// x is injected in global namespace scope [using Nspace::x]
 
 		std::cout << x << '\n';		// 57
 		std::cout << ::x << '\n';	// 34
@@ -272,7 +273,7 @@
 	using Nspace::x;
 	int x = 5; // sythax error because we inject [int x] to global scope
 	// we can not declare a new variable named x in global scope
-	// C2086	'int Nspace::x': redefinition
+	// C2086 'int Nspace::x': redefinition
 */
 
 /*
@@ -287,11 +288,11 @@
 	
 	int main()
 	{
-		x = 5;
+		x = 5;	// syntax error
 		// ambiguity because there is 2 int variable [x] is defined in global scope
-		// when we use [using namespace Nspace] decleration.
+		// when we use [using namespace Nspace;] decleration.
 	
-		std::cout << ::x << '\n';			// 35
+		std::cout << ::x << '\n';		// 35
 		std::cout << Nspace::x << '\n';		// 44
 	}
 */
@@ -334,7 +335,7 @@
 	
 	int main()
 	{
-		// before declering [using namespace First;]
+		// before declaring [using namespace First;]
 		func(4);			// output -> ::func(double) standart conversion from int to double
 		First::func(3.5);		// output -> First::func(int) standart conversion from double to int.
 	
@@ -376,17 +377,18 @@
 	
 	void foo()
 	{
-		a = 4;
-		// sythax error because [using namespace Nspace;] decleration after foo() function
-		// C2065 'a': undeclared identifier
-		// using namespace decleration has also a scope.
+		a = 4;	// syntax error
+		// [using namespace Nspace;] decleration after foo() function
+		// C2065 'a': undeclared identifier.
 	}
 	
 	using namespace Nspace;
 	
 	void bar()
 	{
-		b = 45;
+		b = 45;	// legal 
+		// because of [using namespace Nspace;] decleration 
+		// Nspace::b can be used as b.
 	}
 */
 
@@ -412,7 +414,7 @@
 
 /*
 	static int foo(int);	// internal linkage
-	static int g = 10;		// internal linkage
+	static int g = 10;	// internal linkage
 	
 	// internal linkage
 	namespace {
@@ -571,7 +573,7 @@
 		sort(begin(ivec), end(ivec));
 	
 		// all [sort], [begin] and [end] names are in std namespace
-		// ADL occur for all of them.
+		// ADL occurs for all of them because std::vector is in std namespace.
 	}
 */
 
@@ -597,6 +599,7 @@
 		// will start to context control phase then access control..
 		// if it can not find in main function scope
 		// 2 way road starts 1-ADL 2-global scope as in previous example.
+		// In this example context control phase error.
 	}
 */
 
@@ -607,6 +610,7 @@
 	
 		std::operator<<(std::cout, "Hello World");
 		operator<<(std::cout, "Hello World");	// ADL
+		// do not need to qualify `operator` with std because std::cout lets ADL.
 	}
 */
 
@@ -635,8 +639,8 @@
 		void h(A::Y y)
 		{
 			h(y);  
-			// calls B::h (endless recursion): ADL examines the A namespace but finds no A::h,
-			// so only B::h from ordinary lookup is used
+			// calls B::h (endless recursion): ADL examines the A namespace but there is no A::h() function,
+			// so only B::h() from ordinary lookup is used.
 		}
 	}
 */
@@ -668,7 +672,7 @@
 	{
 		std::cout << A::B::C::x << '\n';	// output -> 4
 		std::cout << A::B::y << '\n';		// output -> 10
-		std::cout << A::z << '\n';			// output -> 5
+		std::cout << A::z << '\n';		// output -> 5
 	}
 */
 
@@ -700,8 +704,8 @@
 	int main()
 	{
 		X::ival = 4; // sythax error because ival is in X::Y::ival
-		// when we use [using namepace Y;] inside X namespace we can reach ival from X
-		// when we make namespace Y inline we can also reach ival from X.
+		// If we use [using namepace Y;] decleration in X namespace we can reach X::Y::ival from X.
+		// IF we make namespace Y inline we can also reach ival from X.
 	}
 */
 
@@ -721,15 +725,20 @@
 	{
 		outer::inner::A x;
 		func(x); // ADL is not viable
-	
-		// we create a tunnel from main() functions block to outer::inner::A
-		// [using namespace inner;] namespace decleration in outer namespace
-		// is creating a door between them but it can only open from
-		// outer namespace to inner.
-	
-		// but when we make inner namespace inline that door
-		// will be open from both sides
-		// from outer to inner and from inner to outer.
+		
+		// ----THINK----
+		// We create a tunnel from main() functions block to outer::inner::A with ADL.
+		// [using namespace inner;] -> using namespace decleration in outer namespace and it
+		// is creating a door between them but it can only open from outer namespace to inner.
+		// Because we create a tunnel to outer::inner, to find the func(x) function we need to
+		// go out to outer namespace. With using decleration it is not possible. (One way door)
+		// but when we make inner namespace inline that door will be open from both sides
+		// from outer to inner and from inner to outer. (Two way door)
+		
+		// If func(x) function was located in outer::inner namespace because of ADL -> func(outer::inner::A x)
+		// we can reach that function from main block scope.
+		// We can reach outer::inner but can not reach outer namespace now.
+		// If inner namespace becomes inline we can reach outer namespace from outer::inner namespace with ADL!
 	}
 */
 
@@ -773,10 +782,9 @@
 		// there will not a an ambiguity between [int x] variables
 
 		// ---THINK---
-		// we find Outer::x and because [Inner::x] variable can not open the door from Inner to Outer
-		// and Outer namespace is not opening the door because it find [Outer::x]
+		// we find Outer::x and but not Inner::x because [Inner::x] variable can not open the door from Inner to Outer
+		// and Outer namespace is not opening the door because it finds [Outer::x] already
 		// no ambiguity will be between them.
-
 	}
 */
 
@@ -794,8 +802,8 @@
 		std::cout << Outer::x << '\n';
 		// if we make Inner namespace inline there will be an ambiguity error
 	
-		//---THINK---
-		// we find a variable named [x] in Outer namespace's scope.
+		// ---THINK---
+		// we find a variable Outer::x in Outer namespace's scope.
 		// but because of Inner namespace can open the door from Inner to Outer
 		// Inner::x is opening the door and name-lookup will see [Inner::x] too.
 	}
@@ -816,7 +824,7 @@
 			double z;
 		};
 	}
-	// if we change any of the member variables position
+	// if we change any of the data members position
 	// object code will change (ABI brackage)
 */
 
