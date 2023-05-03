@@ -1498,7 +1498,7 @@ int main()
 	
 		std::cout << "hello"s + " world"s << '\n';	// output -> hello world
 		// adding 2 std::string objects
-		std::cout << "hello "s + p << '\n';			// output -> hello galaxy
+		std::cout << "hello "s + p << '\n';		// output -> hello galaxy
 		// adding pointer(const char*)[CString] to std::string object
 	}
 */
@@ -1571,7 +1571,7 @@ int main()
 		std::cout << sv_1 << '\n';
 	
 		str_1.append(300, 'A');
-		// reallocatio happens to str_1
+		// reallocation happens in str_1
 		std::cout << sv_1 << '\n'; // undefined behaviour
 		// when reallocation happens std::string objects place
 		// will change so pointers in std::string_view object
