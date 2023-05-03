@@ -341,7 +341,7 @@
 		std::unique_ptr<pimpl> mp;
 	};
 	
-	//myclass.cpp
+	// myclass.cpp
 	// #include "A.h"
 	// #include "B.h"
 	// #include "C.h"
