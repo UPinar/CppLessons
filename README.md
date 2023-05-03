@@ -182,6 +182,7 @@
   - alias templates
      - typedef declerations
      - using declerations
+  - default template parameter
   - variable templates
   - variadic templates
   - pack expansion
