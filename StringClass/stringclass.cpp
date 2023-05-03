@@ -51,6 +51,9 @@
 */
 
 /*
+	// x64 release mode
+	----------------------
+	
 	void* operator new(std::size_t sz)
 	{
 		std::cout << "operator new called for the size of : " << sz << '\n';
@@ -76,7 +79,7 @@
 		// output -> ..
 	
 		std::string str_2{ "Hello World we are live from Istanbul" };
-		// because of the string size is long
+		// because of the string size is longer, needs an heap allocation.
 		// output -> operator new called for the size of : 48
 		// output -> operator delete called for the address of : 000001B541546EF0
 	
@@ -85,9 +88,11 @@
 		// string object can also be created in heap
 	
 		auto ps = new std::string(100, 'A');
-		// output -> operator new called for the size of : 32		-> string object
-		// output -> operator new called for the size of : 112		-> char's in heap
+		// output -> operator new called for the size of : 32		-> string object(3 pointers and a buffer) in heap
+		// output -> operator new called for the size of : 112		-> char's(resource) in heap
 		delete ps;
+		// operator delete called for the address of : 000001F103CDED70
+		// operator delete called for the address of : 000001F103CD57F0
 	}
 */
 
@@ -141,11 +146,11 @@
 		std::string name{ str };
 	
 		std::cout << str; // undefined behaviour
-		// str is not a NTBS
+		// str is not a NTBS(Null Terminated Byte String)
 	
 	
 		std::string name{ "Hello World" };
-		//string_literal is static storage duration NTBS and its type is (const char[])
+		// string_literal is static storage duration NTBS and its type is (const char[])
 	}
 */
 
@@ -201,7 +206,7 @@
 		}
 	}
 	
-	// without reserve()
+	// without reserve() function
 	// 1 size = 48 capacity = 70
 	// 2 size = 71 capacity = 105
 	// 3 size = 106 capacity = 157
@@ -263,7 +268,8 @@
 		// range [a, a + 3) [ 2, 4, 6 ]
 	
 		char str[] = "Hello World";
-		//0123456789ABC
+		// 0123456789ABC
+		// Hello World
 		// B is '\0'
 		// C is 1 more than last char
 	
@@ -271,7 +277,7 @@
 	
 		word.assign(str + 6, 5);		// data param
 		std::cout << word << '\n';		// output -> World
-		word.assign(str + 6, str + 12);	// range param
+		word.assign(str + 6, str + 12);		// range param
 		std::cout << word << '\n';		// output -> World
 	}
 */
@@ -284,10 +290,10 @@
 		std::string s;
 	
 		s.assign(str, 3);
-		std::cout << "s = " << s << '\n'; // output -> s = loWorld! || sub-string param
+		std::cout << "s = " << s << '\n'; // output -> s = loWorld! 	|| sub-string param
 	
 		s.assign(str, 3, 5);
-		std::cout << "s = " << s << '\n'; // output -> s = loWor || sub-string param
+		std::cout << "s = " << s << '\n'; // output -> s = loWor 	|| sub-string param
 	}
 */
 
@@ -307,7 +313,7 @@
 	{
 		std::string str{ "Zbam" };
 	
-		std::cout << '|' << str << "|\n";
+		std::cout << '|' << str << "|\n";	// output -> |Zbam|
 	
 		str.assign({'W','o','r','l','d'});	// initializer_list param
 		std::cout << '|' << str << "|\n";	// output -> |World|
@@ -377,10 +383,9 @@ int main()
 		// output -> str.size() = 100
 	
 		string s = { std::move(str) };
-		// str becomes moves from state
-		std::cout << str << s << '\n'; // output -> " "
-		std::cout << "str.size() = " << str.size() << '\n';
-		// output -> str.size() = 0
+		// str becomes moved from state
+		std::cout << str << s << '\n'; 				// output -> ""
+		std::cout << "str.size() = " << str.size() << '\n';	// output -> str.size() = 0
 		std::cout << "str.capacity() = " << str.capacity() << '\n';
 		// output -> str.capacity() = 15 (buffer inside string)
 	}
@@ -469,15 +474,10 @@ int main()
 		initializer_list<double> y{ .2, 14.2, 8.2, .7, .9, 10.1 };
 		initializer_list<Myclass> z{ Myclass{}, Myclass{}, Myclass{} };
 	
-		std::cout << "sizeof(Myclass) = " << sizeof(Myclass) << '\n';
-		std::cout << "sizeof(x) = " << sizeof(x) << '\n';
-		std::cout << "sizeof(y) = " << sizeof(y) << '\n';
-		std::cout << "sizeof(z) = " << sizeof(z) << '\n';
-	
-		// output -> sizeof(Myclass) = 1024
-		// output -> sizeof(x) = 16
-		// output -> sizeof(y) = 16
-		// output -> sizeof(z) = 16
+		std::cout << "sizeof(Myclass) = " << sizeof(Myclass) << '\n';	// output -> sizeof(Myclass) = 1024
+		std::cout << "sizeof(x) = " << sizeof(x) << '\n';		// output -> sizeof(x) = 16
+		std::cout << "sizeof(y) = " << sizeof(y) << '\n';		// output -> sizeof(y) = 16
+		std::cout << "sizeof(z) = " << sizeof(z) << '\n';		// output -> sizeof(z) = 16
 	}
 */
 
@@ -561,7 +561,7 @@ int main()
 		auto iter = x.begin();
 		std::cout << *iter << '\n'; // output -> 1 (first int variable in array)
 		++iter;
-		std::cout << *iter << '\n'; // output -> 4 (second int variable in array)
+		std::cout << *iter << '\n'; // output -> 3 (second int variable in array)
 	
 		// variables of array that reached with initializer_list are const variables
 		// they can not be modified
@@ -618,10 +618,10 @@ int main()
 	
 	int main()
 	{
-		Myclass m1(12, 24);		// Myclass(int,int)
+		Myclass m1(12, 24);	// Myclass(int,int)
 		Myclass m2{ 12, 34 };	// Myclass(std::initializer_list<int>)
-		Myclass m3(20);			// Myclass(int)
-		Myclass m4{ 20 };		// Myclass(std::initializer_list<int>)
+		Myclass m3(20);		// Myclass(int)
+		Myclass m4{ 20 };	// Myclass(std::initializer_list<int>)
 	}
 */
 
@@ -646,19 +646,19 @@ int main()
 		using namespace std;
 	
 		char str[] = "uygar";
-		string s1(str, 20); // undefined behavior
+		string s1(str, 20); 		// undefined behavior
 	
-		string s2(str, str + 20); // undefined behavior in range ctor.
+		string s2(str, str + 20); 	// undefined behavior in range ctor.
 	
 		string s3{ "HelloWorld" };
 	
-		string s4(s3, 5); // substring ctor
-		std::cout << s4 << '\n'; // output -> World
+		string s4(s3, 5); 		// substring ctor
+		std::cout << s4 << '\n'; 	// output -> World
 	
-		string s5(s3, 2, 3);	// substring ctor
-		string s6(s3, 5, 65);	// substring ctor -> NO UNDEFINED BEHAVIOUR IN SUBSTRING CTOR.
-	
-		std::cout << s6 << '\n'; // output -> World
+		string s5(s3, 2, 3);		// substring ctor
+		
+		string s6(s3, 5, 65);		// substring ctor -> NO UNDEFINED BEHAVIOUR IN SUBSTRING CTOR.
+		std::cout << s6 << '\n'; 	// output -> World
 	}
 */
 
@@ -693,10 +693,11 @@ int main()
 	
 		string s{ "helloworld!" };
 	
-		// 3 are same
+		
 		auto idx = s.find('r');
 		// size_t idx = s.find('r');
 		// string::size_type idx = s.find('r');
+		// These 3 lines are same
 	
 		if (idx != string::npos)
 		{
@@ -740,9 +741,9 @@ int main()
 		auto s5 = str.substr(0 , std::string::npos);
 		std::cout << s5 << '\n';	// output -> Helloworld
 	
-		// 2 lines are same
 		std::string s6(str, 3);
 		std::string s7(str, 3, std::string::npos);
+		// These 2 lines are same
 	}
 */
 
@@ -753,14 +754,12 @@ int main()
 	
 		str[0] = '!';
 		str.operator[](0) = '!';
-		// these lines are same
+		// These 2 lines are same
 	
 		for (size_t i{}; i < str.size(); ++i)
 		{
 			std::cout << str[i] << ' '; // output -> ! e l l o   W o r l d
 		}
-	
-		// giving non-valid index to operator[] -> undefined behaviour
 	
 		try {
 			auto c = str[250];
@@ -769,9 +768,10 @@ int main()
 		{
 			std::cout << "exception caught: " << ex.what() << '\n';
 		}
-		// no exception undefined behaviour
-	
+		// giving non-valid index to operator[] -> undefined behaviour
+		// no exception thrown, it is undefined behaviour
 		// operator[] is not throwing exception but at() member function does
+		
 		try {
 			auto c = str.at(250);
 		}
@@ -807,11 +807,11 @@ int main()
 		std::initializer_list<int> x{ 2,4,5,6,1 };
 	
 		auto y = x;
-		// copying pointers inside initializer_list<int>
+		// copying pointers(2 pointers) inside initializer_list<int>
 	
 		std::cout << &*x.begin() << '\n';	// output -> 00000085E0F6FBD8
 		std::cout << &*y.begin() << '\n';	// output -> 00000085E0F6FBD8
-		// address of first variable in array
+		// address of first variable in initializer_list<int>
 	}
 */
 
@@ -824,7 +824,7 @@ int main()
 	std::string bar()
 	{
 		return "Istanbul";
-		// conversion from CString to std::string
+		// implicit conversion from CString to std::string
 	}
 	
 	void func(const char* p) // wants CString as a parameter
@@ -845,13 +845,10 @@ int main()
 		puts(str); // sythax error
 		// conversion from std::string to CString is not valid!
 	
-	
-		// c_str() and data() functions are converting std::string type to CString type
-	
 		func(str.c_str());
 		func(str.data());
+		// c_str() and data() functions are converting std::string type to CString type
 		// conversion from std::string to CString
-	
 	
 		std::string str_2{ "We are live from Taksim" };
 		auto p = str.c_str();
@@ -954,11 +951,10 @@ int main()
 		string str{ "helloworld" };
 		std::cout << str << '\n'; // output -> helloworld
 	
-		str.assign(12, 'a');
+		str.assign(12, 'a');					// fill assign
 		std::cout << str << '\n'; // output -> aaaaaaaaaaaa
 	
 		string str2{ "stringLessons" };
-	
 		str.assign(str2, 6);
 		std::cout << str << '\n'; // output -> Lessons
 	
@@ -970,17 +966,11 @@ int main()
 		str.assign(ar + 6, 3);
 		std::cout << str << '\n'; // output -> nic
 	
-		str.assign(ar, ar + 3); // range assign
+		str.assign(ar, ar + 3); 				// range assign
 		std::cout << str << '\n'; // output -> and
 	
-		str.assign({ 'k','o','s','i','n','s','k','i' });
+		str.assign({ 'k','o','s','i','n','s','k','i' });	// initializer_list assign
 		std::cout << str << '\n'; // output -> kosinski
-	
-		// CString assign
-		// data assign
-		// fill assign
-		// range assign
-		// initializer_list assign
 	}
 */
 
@@ -1009,7 +999,7 @@ int main()
 		// str[9] = 0
 	
 		str = { "hello" };
-		str.resize(10, '!');
+		str.resize(10, '!');	// default argument is not used for second argument.
 		std::cout << str << '\n'; // output -> hello!!!!!
 	}
 */
@@ -1223,7 +1213,7 @@ int main()
 	
 		std::cout << "str.size() = " << str.size() << '\n';
 	
-		// deleting every char in str
+		// Ways to delete every char in a string?
 	
 		str = "";
 		str = std::string{};
@@ -1251,11 +1241,11 @@ int main()
 		// starting from 10th index delete 5 chars, index interface
 	
 		str = { "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" };
-		str.erase(10);
+		str.erase(10); 
 		cout << "lenght() = " << str.length() << '\n';		// output -> lenght() = 10
 		cout << "capacity() = " << str.capacity() << '\n';	// output -> capacity() = 63
 		// starting from 10th index delete all chars, index interface
-		// second argument is default and it is string::npos
+		// second argument is default and it is string::npos -> str.erase(10, std::string::npos)
 	
 		str = { "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" };
 		str.erase(10,1);
