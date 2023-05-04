@@ -11,7 +11,7 @@ public:
 		return os;
 	}
 
-	virtual void print(std::ostream& os) const = 0;
+	virtual void print(std::ostream& os) const = 0;		// pure virtual function
 
 	virtual void start()
 	{
@@ -68,6 +68,3 @@ public:
 		std::cout << "Audi has just stopped\n";
 	}
 };
-
-
-
