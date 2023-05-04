@@ -1699,7 +1699,7 @@
 		Base* baseptr = &myder;
 	
 		Der* derptr = dynamic_cast<Der*>(baseptr);
-		// baseptr needs to be polymorphic class( have at least 1 virtual or pure virtual function.)
+		// baseptr NEEDS TO BE A POLYMORPHIC CLASS( have at least 1 virtual or pure virtual function.)
 		// E0698 the operand of a runtime dynamic_cast must have a polymorphic class type
 	}
 */
@@ -1729,16 +1729,18 @@
 	int main()
 	{
 		Car* cp = new Volvo;
-		Car* cp_2 = new Audi;
-		Car* cp_3 = new VolvoXC90;
-	
 		car_game(cp);
+		// dynamic cast succeeds. Downcasting applied.
+		
+		Car* cp_2 = new Audi;
 		car_game(cp_2);
-	
-		// dynamic cast can make an upcasting too.
-		// from VolvoXC90 to Volvo
+		// dynamic cast fails.
+		
+		Car* cp_3 = new VolvoXC90;
 		car_game(cp_3);
-	
+		// dynamic cast succeeds. Upcasting applied.
+		// from VolvoXC90 to Volvo
+		
 		delete cp;
 		delete cp_2;
 		delete cp_3;
@@ -1774,7 +1776,9 @@
 		Car* cp_2 = new Audi;
 	
 		car_game(*cp);
+		// cast succeeds.
 		car_game(*cp_2);
+		// bad_cast exception
 	
 		delete cp;
 		delete cp_2;
@@ -1908,7 +1912,7 @@
 
 	--> Upcasting is no valid in global functions.
 	--> Upcasting is valid in derived classes member functions
-	--> Upcastring is valid is frind functions of derived class.
+	--> Upcasting is valid in friend functions of derived class.
 */
 
 /*
@@ -1931,7 +1935,7 @@
 			// upcasting is legal in derived classes member functions
 		}
 	
-		friend void func();
+		friend void func();	// global friend function.
 	};
 	
 	void func()
@@ -1947,11 +1951,11 @@
 		Der myder;
 		myder.foo(); // not legal
 		// In private inheritance, Base classes public interface added to
-		// Derived classes private interface.
+		// derived classes private interface.
 	
 		Base* baseptr = &myder; // syntax error
 		Base& baseref = myder;	// syntax error
-		// In private inheritance, no implicit conversion from derived class to base class. [no upcasting]
+		// In private inheritance, no implicit conversion from derived class to base class in client code. [no upcasting]
 	}
 */
 
@@ -1971,12 +1975,12 @@
 		void bar()
 		{
 			ma.Afoo();
-			ma.protectedAfunc(); // not possible reaching A classes protected section
+			ma.protectedAfunc(); // not possible to reach class A's protected section, no inheritance
 		}
 	
 		void afoo() // forwarding function
 		{
-			ma.Afoo();
+			ma.Afoo();	// possible to reach class A's public section.
 		}
 	
 		virtual void virtualAFoo() override; // not valid to override a member objects virtual function
@@ -1989,9 +1993,9 @@
 	// * B class can add class A's public section to its interface.
 	//	-> B class have a forwarding function to add Class A's public interface to it's interface.
 	
-	// * We can not reach our member objects protected section.
-	// * It is not valid to override a member objects virtual function.
-	// * There is no implicit conversion from B class to member object class(class A)
+	// * A class can not reach its member objects protected section.
+	// * It is not valid for a class to override its member objects virtual function.
+	// * There is no implicit conversion from B class to its member object class(class A)
 	
 	
 	
@@ -2008,8 +2012,10 @@
 	public:
 		void bar()
 		{
-			AAfoo();
-			protectedAAfunc(); // we can reach our base classes protected section.
+			AAfoo();		// legal	
+			// we can reach our base classes public section
+			protectedAAfunc(); 	// legal
+			// we can reach our base classes protected section.
 		}
 		using AA::AAfoo; // using decleration for BB to add AA classes private interface to itself.
 	
@@ -2018,7 +2024,7 @@
 	
 	
 	// * BB class can use AA classes public section(function) by its members.
-	//	-> reaching class AA's public function from BB classes member function[bar()]
+	//	-> reaching class AA's member function in public section from BB classes member function[bar()]
 	// * BB class can add class AA's public section to its interface.
 	//	-> BB class can have a forwarding function to add Class AA's public interface to it's interface.
 	//	-> With using decleration [using AA::AAfoo], BB class added it's base classes private section
@@ -2055,7 +2061,7 @@
 	class C : private Empty {
 	private:
 		int mval;
-	};	// Empty Base Optimization created by using private inheritance.
+	};	// Empty Base Optimization applied when using private inheritance.
 	
 	int main()
 	{
@@ -2101,20 +2107,23 @@
 	void gf_1()
 	{
 		Der myder;
-		foo(myder); 	// legal because upcasting is valid in global functions, in public inheritace
+		foo(myder); 	// legal 
+		// upcasting is valid in global functions, in public inheritace
 	
 		Der_2 myder_2;
-		foo(myder_2); 	// syntax error because no upcasting is valid in global functions, in private inheritence
+		foo(myder_2); 	// syntax error 
+		// upcasting is NOT valid in global functions, in private inheritence
 	}
 	
 	void gf_2()
 	{
 		Der myder;
-		foo(myder); 	// legal because upcasting is valid in global functions, in public inheritace
+		foo(myder); 	// legal 
+		// upcasting is valid in global functions, in public inheritace
 	
 		Der_2 myder_2;
-		foo(myder_2);
-		// gf_2 function lets virtual dispatch mechanism, upcasting happens in global functions with friend decleration
+		foo(myder_2);	// legal
+		// upcasting is valid in global functions with a friend decleration
 	}
 */
 
@@ -2274,7 +2283,7 @@
 		void yf();
 	};
 	
-	class Der : public X, public Y{
+	class Der : public X, public Y {
 	
 	};
 	
