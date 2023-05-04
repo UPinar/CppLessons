@@ -88,20 +88,20 @@
 	template <typename T>
 	void func(T x)
 	{
-		foo(x);		// legal
 		baz();		// syntax error
+		foo(x);		// legal
 		x.bar();	// legal
 	
-		// baz() is not dependent to any template parameter(T's) type.
+		// baz() is not dependent to template parameter(T's) type.
 		// namelookup applied for baz() function before T's deduction happens.
 	
-	
-		// foo(x) and x.bar() are dependent to T type, because x's type is T.
+		// foo(x) and x.bar() are dependent to T type, because x's type is T's type.
 		// Even if namelookup has been failed for foo(x) function.
 		// Argument Dependent Lookup[ADL] rules applied.
 		// T might be a type that inside a namespace and
 		// there might be a function called foo() in that namespace.
-		// Based on this probabilities they will throw syntax error.
+		// Based on this probabilities they will throw syntax error in runtime
+		// But in compile time they won't be a syntax error.
 	}
 */
 
@@ -149,9 +149,11 @@
 	{
 		const int c = 24;
 		func(c);	// T is int
+		// const drops 
 	
 		int a[10]{};
 		func(a);	// T is int*
+		// array to pointer conversion
 	
 		const int b[10]{};
 		func(b);	// T is const int*
@@ -202,7 +204,7 @@
 	class TypeTeller;
 	
 	template <typename T>
-	void func(T& )
+	void func(T&)
 	{
 		TypeTeller<T> x;
 	}
@@ -247,16 +249,19 @@
 	int main()
 	{
 		func(123);	// R value expression
+		// reference collapsion && - && -> &&
+		// functions parameter will be int&&
 		// T's type is int
 		// 'x' uses undefined class 'TypeTeller<int>'
-		// functions parameter will be int&&
-	
+		
 		int y = 23;
 		func(y);	// L value exprssion
+		// reference collapsing & - && -> &
+		// functions parameter will be int&
 		// T's type is int&
 		// 'x' uses undefined class 'TypeTeller<int&>'
-		// functions parameter will be T&& (int& &&)
-		// reference collapsing rules applied -> int&
+		
+		
 	}
 */
 
@@ -287,8 +292,9 @@
 	
 		auto list = { 1,3,5,6 };	// valid
 		func({ 1,3,5,6 });		// syntax error
-		// only exception that is different between
-		// auto type deduction and template type deduction is std::initialzer_list.
+		// only exception between auto type deduction and template type deduction
+		// is std::initialzer_list.
+		// it is not valid to send initializer_list argument for function template to deduce.
 	}
 */
 
@@ -301,8 +307,7 @@
 		foo(); // syntax error
 		// compiler can not understand T's type.
 	
-		int x = foo(); // still syntax error.
-	
+		int x = foo(); // syntax error.
 		// 'T foo(void)': could not deduce template argument for 'T'
 	}
 */
@@ -324,11 +329,15 @@
 	
 	int main()
 	{
-		func(10, 20);	// no syntax error
-	
+		func(10, 20);	// legal
+		// 1st parameter -> T is int
+		// 2nd parameter -> T is int
+		// reference collapsing && - && -> &&
+		// sending int&& to T&& -> T is int
+		
+		
 		int x{ 1 };
 		func(x, x);	// syntax error
-	
 		// 1st parameter -> T is int
 		// 2nd parameter -> T is int&
 		// 'void func(T,T &&)': template parameter 'T' is ambiguous
@@ -348,6 +357,8 @@
 		func("hello", "myworld");	// legal
 		foo("hello", "hello");		// legal
 		foo("hello", "myworld");	// syntax error
+		// 1st parameter is const char[6]
+		// 2nd parameter is const char[8]
 	}
 */
 
@@ -421,7 +432,7 @@
 		func('A');		// output -> char
 		func(true);		// output -> bool
 	
-		func(12);		// output -> int
+		func<int>(12);		// output -> int
 		func<int>('A');		// output -> int
 		func<int>(true);	// output -> int
 	}
@@ -480,7 +491,7 @@
 	
 		typename T::value_type x;
 		// now compiler thinks that value_type is T classes nested type.
-		// IN ALL Dependent types to T we need to use `typename`
+		// IN ALL Dependent types of T we need to use `typename`
 	}
 	
 	int main()
@@ -494,7 +505,6 @@
 	template <typename T>
 	void func(T x);
 	
-	
 	template <typename T, typename U>
 	void foo(T, U);
 	
@@ -504,11 +514,14 @@
 		// no template argument deduction for T, because we explicitly declared its type.
 	
 		foo(12, 45);		// (T-> int, U-> int)
-		// T and U can be same type.
+		// T and U can be the same type.
+		
 		foo(12, 2.121);		// (T-> int, U-> double)
 	
 		foo<int>('A', 5.6);	// (T-> int, U-> double)
 		// compiler will only do template argument deduction for U, not for T.
+		// we explicitly declare first template argument as int 
+		// char 'A' will implicitly convert to int.
 	}
 */
 
@@ -518,12 +531,11 @@
 	#include <memory>
 	#include <string>
 	
-	
 	template <typename T, typename ...Args>
 	std::unique_ptr<T> MakeUnique(Args&&...args);
 	
-	// compiler can not understand T's type if we did not declare T
-	// as an explicit template argument.
+	// in some scenerios compiler can not understand T's type 
+	// if we did not declare T as an explicit template argument.
 	
 	int main()
 	{
@@ -542,10 +554,8 @@
 /*
 	
 	// Write a function that returns the address of int foo(int,int).
-	
-	int foo(int, int);
-	
-	// func()'s return type should be int(*)(int,int)
+
+	// functions return type should be int(*)(int,int)
 	
 	int(*func())(int, int)
 	{
@@ -588,7 +598,7 @@
 	int main()
 	{
 		auto val = sum(6, 4.5);
-		// functions return type will be int, because T->int
+		// functions return type will be int, because T's type is int
 	
 		auto val_2 = sum<double>(6, 2.4);
 		// client code can declare trailing return type.
@@ -600,7 +610,7 @@
 /*
 	class Myclass {
 	public:
-		template <typename T>	// member template
+		template <typename T>	// member function template
 		void foo(T x)
 		{
 			std::cout << typeid(T).name() << '\n';
@@ -610,10 +620,10 @@
 	int main()
 	{
 		Myclass m;
-		m.foo(12);
-		m.foo(1.2);
-		m.foo('a');
-		m.foo("hello");
+		m.foo(12);		// output -> int
+		m.foo(1.2);		// output -> double
+		m.foo('a');		// output -> char
+		m.foo("hello");		// output -> const char*
 	}
 */
 
@@ -696,27 +706,22 @@
 	template <typename T>
 	T foo(T);
 	
-	// When there is a call to function template. 
-	// Compiler will do a substitution and generate template specialization for that function.
-	// That template specialization will join Function Overload Resolution.
-	// Not the function template itself.
-	
-	// int foo<int>(int); -> specialization
-	
-	
 	template <typename T>
 	T* func(T*);
 	
-	// int** func<int*>(int**) -> specialization
+	// When there is a call to a function template. 
+	// Compiler will do a substitution and generate template specialization for that function.
+	// Template specialization will join Function Overload Resolution.
+	// Not the function template itself.
 	
 	int main()
 	{
 		foo(12);
 	
-		int x = 10;
+		int x = 10;		// int foo<int>(int); -> specialization
 		int* p = &x;
 		int** ptr = &p;
-		func(ptr);
+		func(ptr);		// int** func<int*>(int**) -> specialization
 	}
 */
 
@@ -731,16 +736,18 @@
 		foo(2);
 		// we are calling foo() function with an int argument.
 
-		// because of function template's return type is T::value_type,
-		// there is no such thing as an int::value_type.
-		// but because there is another overload it will not create a syntax error.
+		// Because of function template's return type is T::value_type,
+		// when we use [foo(2);] statement there is no such thing as an int::value_type.
+		// Because of there is another overload it will not create a syntax error.
 		// SFINAE (Substitution Failure Is Not An Error)
 
-		// if we comment out [void foo(double);], there will be a syntax error.
-		// syntax error happens because of there is no viable function left.
+		// If we comment out [void foo(double);] statement, function call will be a syntax error.
+		// It will be a syntax error because there is no viable function left.
 
 		// When substitution failure happens compiler will remove that template specialization
 		// from Function Overload Resolution set.
+		// If there were another viable functions in Function Overload Set,
+		// it will control them.
 	}
 */
 
@@ -761,17 +768,17 @@
 		foo(2.3);	// output -> template type T is double
 		// void foo<double>(double)		-> exact match
 		// void foo(int)			-> conversion
-		// 2 overloads are viable.
+		// 2 overloads are viable in Function Overload Set.
 	
 		foo('A');	// output -> template type T is char
 		// void foo<char>(char)			-> exact match
 		// void foo(int)			-> promotion
-		// 2 overloads are viable.
+		// 2 overloads are viable in Function Overload Set.
 	
 		foo(12);	// output -> foo(int)
 		// void foo<int>(int)			-> exact match
 		// void foo(int)			-> exact match	[Real function will be chosen]
-		// 2 overloads are viable.
+		// 2 overloads are viable in Function Overload Set.
 	}
 */
 
@@ -787,8 +794,11 @@
 		func(1.f);	// syntax error
 		func(1u);	// syntax error
 	
-		func(12.3);
+		func(12.3);	// legal
 		// func() function can only be called with double argument.
+		// we are deleting every other function specialization that compiler can wrote.
+		// Calling a deleted function(every template specialization) is syntax error!
+		// We can only call func() with a double argument.
 	}
 */
 
@@ -815,12 +825,13 @@
 	{
 		int x{};
 		func(&x);	// output -> func(T*)
+		// There are 2 viable function specializations.
 	
 		int* ptr{};
 		func(&ptr);	// output -> func(T**)
-		// 3 viable function specializations are viable.
+		// There are 3 viable function specializations.
 	
-		// generally more specific will be chosen
+		// Generally more specific will be chosen,
 		// partial ordering rules applied.
 	}
 */
@@ -858,14 +869,14 @@
 	void bar(T* p)
 	{
 		baz(*p);
-		// T is int
+		// calling baz function with an int argument.
 	}
 	
 	template <typename T>
 	void foo(T x)
 	{
 		bar(&x);
-		// T is int
+		// calling bar function with int* argument.
 	}
 	
 	int main()
@@ -927,10 +938,12 @@
 		x = foo();	// output -> move assignment called
 		x = func();	// output -> copy assignment called
 	
-		// returning a const class object will choose copy assignment overload
-		// because of the constness. It will inhibit move semantics.
+		// Returning a const class object will choose copy assignment overload
+		// Because of the constness, it will choose copy assignment function
+		// with a parameter (const Myclass&) not move assignment with a parameter (Myclass&&)
+		// Returning const class object will block move semantics.
 	
-		// DO NOT MAKE FUNCTIONS RETURN TYPE, A CONST CLASS OBJECT !!!
+		// DO NOT MAKE FUNCTIONS RETURN TYPE A CONST CLASS OBJECT !!!
 	}
 */
 
@@ -967,10 +980,11 @@
 	Myclass foo()
 	{
 		Myclass x;
-		return std::move(x); // no need to use std::move(x)
+		// return std::move(x); 
+		// no need to use std::move(x), because L value object will convert to X value(R value)
 		// Pessimistic Move
 	
-		return x;	// NRVO(Named Return Value Optimization)
+		return x;	// NRVO(Named Return Value Optimization) -> Not a mandatory copy ellision
 	}
 */
 
@@ -988,7 +1002,7 @@
 	
 		std::cout << '\n';
 	}
-	// Pos need use in unequality comparison
+	// Pos needs to use in unequality comparison.
 	// Pos needs to be the operand of dereferencing operator.
 	// Pos needs to be the operand of prefix increment operator.
 	// *beg expression needs to be insertable to std output.
@@ -1059,6 +1073,7 @@
 		// Someclass<10> and Someclass<12> are different classes.
 	
 		s1 = s2; // syntax error
+		// E0349 no operator "=" matches these operands
 	}
 */
 
@@ -1068,7 +1083,6 @@
 	public:
 		T foo(T);
 		T func(T&&);
-	
 	private:
 		T mx;
 	};
@@ -1078,15 +1092,16 @@
 		Myclass<int> m;
 	
 		m.foo(12);
-		// when we call this function with an argument.
-		// there won't be any type deduction happening.
-		// Because T's type have already been found out
-		// in [Myclass<int> m;] statement.
+		// When we call foo function with an int argument.
+		// It won't be any type deduction happening.
+		// Because T's type have already been found out,
+		// in [Myclass<int> m;] statement with an explicit template argument.
 	
 		// For Myclass<int> specialization.
-		// [T func(T&&);] member functions parameter
-		// is an R value reference NOT universal reference.
-		// Because of no type deduction happening.
+		// [T func(T&&);] member functions parameter is an R value reference,
+		// NOT a universal reference.
+		// Because, there is no type deduction in function call.
+		// T has already been declared as an int with an explicit template argument.
 	}
 */
 
@@ -1097,7 +1112,7 @@
 		std::size_t bar(T, int);
 	
 		typename T::value_type x;
-		// if nested type we need to use typename keyword
+		// For nested type we need to use typename keyword.
 	
 	private:
 		T ma[n];
@@ -1110,7 +1125,7 @@
 	public:
 		T foo(T x)
 		{
-			// if we are defining member function INSIDE class template definition.
+			// When we are inside in member function in class template definition.
 	
 			Myclass<T> y1;
 			Myclass y2;
@@ -1128,7 +1143,7 @@
 		// For Myclass<int> specialization
 		// func functions parameter type is int*
 		// func functions return type is int**
-		// m local variables data type is Myclass<int>
+		// m local variable's data type is Myclass<int>
 	
 		void bar()
 		{
@@ -1136,12 +1151,12 @@
 			Myclass<double> y;
 			Myclass<T*> z;
 	
-			// We can also create different Myclass specialization objects.
+			// We can also create different object have different Myclass specializations.
 	
 			// For Myclass<int> specialization
-			// x's data type is Myclass<int>
-			// y's data type is Myclass<double>
-			// z's data type is Myclass<int*>
+			// local variable x's data type is Myclass<int>
+			// local variable y's data type is Myclass<double>
+			// local variable z's data type is Myclass<int*>
 		}
 	private:
 	};
@@ -1178,9 +1193,11 @@
 	{
 		return x;
 	}
-	// using Myclass instead of Myclass<int>
-	// as we did in the previous scenerio where we define member functions inside
-	// class definition is not valid.
+	// using Myclass instead of Myclass<T>
+	// as we did inside inline member functions in class definition is NOT VALID,
+	// when we are defining member function outside the class definition.
+	// We need to use Myclass<T>::baz()
+	
 */
 
 /*
@@ -1188,15 +1205,14 @@
 	class Myclass {
 	public:
 		Myclass foo(T, U ,Myclass);
+		// defining foo function inside class definition
 	};
 	
 	// defining foo function outside of class definition
-	
 	template<typename T, typename U>
 	Myclass<T, U> Myclass<T, U>::foo(T x, U y, Myclass<T, U> z)
 	{
 		Myclass<T, U> a;
-	
 		return z;
 	}
 	
@@ -1206,12 +1222,14 @@
 		Myclass<T, U> a;
 		Myclass b;
 		// Those 2 lines are same
-	
 		// we can also use Myclass instead of Myclass<T,U>
+		
 		return z;
 	}
 	// We can use Myclass instead of Myclass<T,U> in parameter variables.
 	// as we did in z argument
+	// return type and function name is not in class scope we need to declere it Myclass<T,U>
+	// but parameters and inside function scope is in class scope.
 	
 	template<typename T, typename U>
 	Myclass Myclass<T, U>::foo(T x, U y, Myclass z)	// syntax error
@@ -1229,7 +1247,7 @@
 		T foo(U);
 	};
 	
-	template < class A, class B>
+	template <class A, class B>
 	A Myclass<A, B>::foo(B bx)
 	{
 		std::cout << "foo() called\n";
@@ -1253,9 +1271,7 @@
 
 /*
 	template <typename T>
-	class Myclass {
-	
-	};
+	class Myclass {};
 	
 	Myclass<int> foo(Myclass<double>);
 	// we can use class specializations as a parameter and return type of a function.
@@ -1263,13 +1279,11 @@
 	class Someclass {
 		Myclass<int> mx;
 		Myclass<double *> my;
-		// we can use class specializations as classes member variables.
+		// we can use class specializations as classes data members.
 	};
 	
 	template <typename T>
-	class Yourclass {
-	
-	};
+	class Yourclass {};
 	
 	int main()
 	{
@@ -1278,13 +1292,12 @@
 	
 		Yourclass<Myclass<int>> x;
 		Myclass<Myclass<double>> y;
-		// We can use a class specialization as a template argument.
+		// We can use class specialization as template arguments.
 	}
 */
 
 /*
-	class class_a {
-	};
+	class class_a {};
 	
 	template <typename T>
 	class Myclass {
@@ -1310,11 +1323,11 @@
 	{
 		Myclass<class_a> m;
 		// Because of class templates member functions are written by compiler
-		// if we call that member function. There is no syntax error now.
+		// when they have been called, there is no syntax error now.
 	
 		m.foo();	// syntax error
-		// unary '++': 'T' does not define this operator or a conversion to a type
-		// acceptable to the predefined operator
+		// unary '++': 'T' does not define this operator or 
+		// a conversion to a type acceptable to the predefined operator
 	
 		m.bar();	// syntax error
 		// 'foo': is not a member of 'class_a'
@@ -1323,21 +1336,18 @@
 
 /*
 	template <int n>
-	class Myclass {
-	
-	};
+	class Myclass {};
 	
 	template <unsigned n>
-	class Myclass {
-	
-	};
+	class Myclass {};
 	
 	// syntax error
 	// 'Myclass': template parameter 'n' is incompatible with the declaration
 */
 
 /*
-	template <auto n>	// C++17
+	// C++17
+	template <auto n>	
 	class Myclass {
 	public:
 		Myclass()
@@ -1354,11 +1364,9 @@
 */
 
 /*
-	// floating types added as an NTTP in C++20
+	// floating types added as a NTTP in C++20
 	template <double n>
-	class Myclass {
-	
-	};
+	class Myclass {};
 */
 
 /*
@@ -1366,24 +1374,23 @@
 	#include <bitset>
 	
 	template <typename T, std::size_t n>
-	struct Array {
-	};
+	struct Array {};
 	
 	int main()
 	{
 		double a[20];
 		std::array<double, 20> arr;
 	
-		std::bitset<32> bs;
-		// Only have 1 NTTP
+		std::bitset<32> bs;	// Only have 1 NTTP
+		
 	}
 */
 
 /*
-	// splitting implementation and interface 
+	// Splitting implementation and interface of templates scenerios.
 	
-	// scenerio 1
-	//------------------------
+	// Scenerio_1
+	// ------------------------
 
 	// first.h
 	template <typename T>
@@ -1411,8 +1418,8 @@
 	};
 
 
-	// scenerio 2
-	//------------------------
+	// Scenerio_2
+	// ------------------------
 
 	// first.h
 	namespace first {
@@ -1427,39 +1434,33 @@
 
 /*
 	template <int* p>
-	class Myclass{
-	
-	};
+	class Myclass{};
 	
 	template<int& r>
-	class Yourclass {
+	class Yourclass {};
 	
-	};
-	
-	int x = 10;		// static storage duration object
-	int y = 20;		// static storage duration object
+	int x = 10;	// static storage duration object
+	int y = 20;	// static storage duration object
 	
 	int main()
 	{
 		Myclass<&x> m1;
 		Myclass<&y> m2;
 
-		int l = 15;
-		static int s = 20;
+		int k = 15;		// automatic storage duration object
+		static int s = 20;	// static storage duration object
 
-		Myclass<&l> m3; // syntax error		->	automatic storage duration object
-		Myclass<&s> m4; // legal		->	static storage duration object 
+		Myclass<&k> m3; 	// syntax error	
+		Myclass<&s> m4; 	// legal	
 	
-		Yourclass<x> y1;
-		Yourclass<y> y2;
+		Yourclass<x> y1;	// legal
+		Yourclass<y> y2;	// legal
 	}
 */
 
 /*
 	template <int (*p)(int)>
-	class Myclass {
-	
-	};
+	class Myclass {};
 	
 	int foo(int);
 	int bar(int);
@@ -1489,16 +1490,14 @@
 	
 		m1.foo(m2);	// legal
 		m1.foo(m3);	// syntax error.
-		// we are sending Myclass<double> object to the foo function
-		// which is expecting Myclass<int> type argument
+		// We are sending Myclass<double> object to the foo as function an argument 
+		// which is expecting Myclass<int> type as an argument
 	}
 */
 
 /*
 	template <typename T>
-	class B {
-	
-	};
+	class B {};
 	
 	class A {
 	public:
@@ -1514,7 +1513,7 @@
 		B<double> b2;
 	
 		ax.foo(b1);	// legal
-		ax.foo(b2); // legal
+		ax.foo(b2); 	// legal
 	}
 */
 
@@ -1537,22 +1536,20 @@
 		Myclass<int> m1;
 	
 		m1.foo(13.5);
-		m1.foo(14);
-		m1.foo("hello");
-	
 		// output ->
 		// type of *this = class Myclass<int>
 		// type of U = double
 	
+		m1.foo(14);
 		// type of *this = class Myclass<int>
 		// type of U = int
-	
+		
+		m1.foo("hello");
 		// type of *this = class Myclass<int>
-		// type of U = char const* __ptr64
+		// type of U = const char* 
 	
 		Myclass<long> m2;
 		m2.foo(12L);
-	
 		// output->
 		// type of *this = class Myclass<long>
 		// type of U = long
@@ -1604,7 +1601,7 @@
 		Data mydata = { 1,4,6 };		// aggregate initialization
 	
 		Data_2 mydata = { 1,4,6 };		// syntax error
-		// because of Data_2 has private data member it is not an aggregate type
+		// Because of Data_2's data members are in the private section it is not an aggregate type!
 		// aggregate initialization is not valid.
 
 		Myclass mx = { 29, 32, 12, 3, 54, 2 };	// aggregate initialization
@@ -1637,24 +1634,24 @@
 	template <typename T, typename U>
 	struct Pair {
 		T first;
-		U sencond;
+		U second;
 	};
 	
 	std::pair<int, std::string> foo();
-	// If we want to return 2 different types we can use std::pair
+	// If we want to return 2 different types, we can use std::pair class.
 	
 	int main()
 	{
 		std::pair<int, double> x;
 		std::cout << x.first << '\n';			// output -> 0
-		std::cout << x.second << '\n';			// output -> 0
+		std::cout << x.second << '\n';			// output -> 0.0
 		// default ctor is value initializing data members
 	
 		std::pair <int, std::string> p;
 		std::cout << p.first << '\n';			// output -> 0
 		std::cout << p.second.size() << '\n';		// output -> 0
 		// string's default ctor will be called
-		// when second data member(std::string) is value initialized 
+		// when second data member(std::string) is value initialized
 		// in std::pair's default ctor.
 	}
 */
@@ -1755,7 +1752,7 @@
 		auto p  = MakePair(12, 4.5);
 		// [MakePair(12, 4.5);] is PR value expression
 	
-		// before CTAD make_pair function template used for CTAD.
+		// before CTAD make_pair function template is used for CTAD.
 	}
 */
 
@@ -1774,12 +1771,10 @@
 		using namespace std;
 	
 		pair<int, double> x{ 2,4.6 };
-		cout << x << '\n';	// output -> [2, 4.6]
-	
-		string str{ "hello" };
+		cout << x << '\n';			// output -> [2, 4.6]
 		cout << make_pair(12, 5.6) << '\n';	// output -> [12, 5.6]
-	
-	
+		
+		string str{ "hello" };
 		cout << make_pair( make_pair(12, 5.6), make_pair(str,34L) ) << '\n';
 		// output -> [[12, 5.6], [hello, 34]]
 	}
@@ -1910,8 +1905,8 @@
 	}
 	
 	
-	// If foo() function have 2 parameters i need to write 16 call_foo() overloads
-	// If foo() function have 3 parameters i need to write 64 call_foo() overloads
+	// If foo() function have 2 parameters we need to write 16 call_foo() overloads
+	// If foo() function have 3 parameters we need to write 64 call_foo() overloads
 	
 	template <typename T>
 	void forward_foo(T&& r)
@@ -2097,7 +2092,7 @@
 		// explicit specialization will not be in Function Overload Resolution Set.
 		// In this scenerio only func(T) and func(T*) overloads are in Function Overload Resolution Set.
 		// func(T*) will be chosen.
-		// If func(T) overload  was chosen output will be 2
+		// If func(T) overload was chosen output will be 2
 		// because func(int*) is explicit specialization for func(T) overload.
 	
 		// When we add func(int*) explicit specialization for func(T*) overload
@@ -2139,7 +2134,7 @@
 		m3.bar();
 		// Myclass<T> primary template has a foo() function in its interface
 		// Myclass<int> explicit specialization has bar() function in its interface
-		// There interfaces can be different and it is perfectly valid.
+		// Their interfaces can be different and it is perfectly valid.
 	}
 */
 
@@ -2199,7 +2194,7 @@
 
 /*
 	template <int n>
-	struct Myclass : Myclass<n - 1> { // public inheritance
+	struct Myclass : Myclass<n - 1> { 	// public inheritance
 		Myclass()
 		{
 			std::cout << n << ' ';
@@ -2216,15 +2211,16 @@
 	{
 		Myclass<100> x; // compile time recursivity
 	
-		// 1 2 3 4 5 .....99 100
-		// first base class object will become alive then derived class object.
-		// for Myclass<2>'s ctor code to be executed (become alive) first Myclass<1> needs to become alive
+		// output -> 1 2 3 4 5 .....99 100
+		// first base class object will become alive then derived class object will become alive.
+		// for Myclass<2>'s ctor code to be executed(become alive) first Myclass<1> needs to become alive
+		// for Myclass<1> to become alive base case Myclass<0> needs to become alive.
 	}
 */
 
 /*
-	// meta function is a class and its purpose is
-	// calculating a value or a type in compile time
+	// Meta function is a class and its purpose is
+	// calculating a value or a type in compile time.
 	
 	template <int n>
 	struct Factorial {
@@ -2244,6 +2240,7 @@
 	int main()
 	{
 		Factorial<12>::value;
+		// calculated in compile time.
 	}
 */
 
@@ -2476,7 +2473,7 @@
 
 /*
 
-	// vector classes bool specaialization is partial specialization
+	// std::vector classes bool specaialization is partial specialization
 	#include <vector>
 
 	int main()
@@ -2486,8 +2483,10 @@
 		vector<int> x;
 		vector<bool> y;
 	
-		y.flip();
-		x.flip();	// no flip() function for vector<int> specialization
+		y.flip();	// legal
+		// because of std::vector<bool> partial specialization does have flip member function
+		x.flip();	// syntax error
+		// no flip() function for vector<int> specialization
 	}
 */
 
@@ -2525,7 +2524,7 @@
 		int x = 10;
 		const IPTR p = &x;
 		int* const ptr = &x;
-		// These 2 lnes are same
+		// These 2 lines are same.
 		// p is top level const
 	
 		int y = 12;
@@ -2554,16 +2553,16 @@
 	
 	int main()
 	{
-		Ptr<int> p = nullptr;
+		Ptr<int> p = nullptr;		// p's type is int*
 	
 		double dval{};
-		Ptr<double> dp = &dval;
+		Ptr<double> dp = &dval;		// dp's type is double*
 	
-		ar10<int> x;
-		ar10<double> y;
+		ar10<int> x;			// x's type is int[10]
+		ar10<double> y;			// y's type is double[10]
 	
-		Array<int, 20> a;
-		Array<char, 40> b;
+		Array<int, 20> a;		// a's type is int[20]
+		Array<char, 40> b;		// b's type is char[40]
 	}
 */
 
@@ -2687,8 +2686,9 @@
 	
 	int main()
 	{
-		IsPointer<int>::value;	// came from base class(std::false type)
-		// bool, constexpr static data member,  false
+		IsPointer<int>::value;	
+		// came from base class(std::false type)
+		// bool, constexpr static data member value is false
 	
 		IsPointer<int>::value;	// false
 		IsPointer<int*>::value;	// true
@@ -2698,6 +2698,12 @@
 		int x{};
 		func(&x);	// no syntax error
 	}
+*/
+
+/*
+	------------------------------
+	| default template parameter |
+	------------------------------
 */
 
 /*
@@ -2717,25 +2723,25 @@
 */
 
 /*
-	template <typename T = int, typename U>	// syntax error.
+	template <typename T = int, typename U>			// syntax error.
 	class Myclass {
 	
 	};
 	// After the last default template parameter,
-	// It is not valid any template parameter that is NOT default template parameters.
+	// It is not valid any template parameter that is NOT default template parameter.
 */
 
 /*
-	template <typename T = int, typename U = double>
+	template <typename T = int, typename U = double>	// legal
 	class Myclass {
 	
 	};
 	
 	int main()
 	{
-		Myclass<char, char> m1;
-		Myclass<char> m2; // Myclass<char, double>
-		Myclass<> m3; // Myclass<int, double>
+		Myclass<char, char> m1;		// Myclass<char, char>
+		Myclass<char> m2; 		// Myclass<char, double>
+		Myclass<> m3; 			// Myclass<int, double>
 	}
 */
 
@@ -2768,7 +2774,7 @@
 	{
 		T&& y = x;
 		// & - && -> &
-		// reference collapsing - y's type will be int&
+		// reference collapsing - x's type will be int&
 	}
 	
 	int main()
@@ -2828,13 +2834,13 @@
 	
 		IsLValueReference<int>::value;		// false
 		// because of inherited from std::false_type,
-		// if there is no partial specialization
-		// every type specializations value will be false.
+		// there is no partial specialization that accepts int type.
+		// every other type specializations value will be inherited from std::false_type.
 	
 		IsLValueReference<int&>::value;		// true
 		// because of partial specialization IsLValueReference<T&>
-		// inherited from std::true_type
-		// every L value reference specialization's value will be true.
+		// there is a valid partial specializattion for int& and it is inherited from std::true_type
+		// every L value reference specialization's ::value nested types value, will be true.
 	}
 */
 
@@ -2881,13 +2887,11 @@
 	
 	// instead of using (IsLValueReference<T>::value) value type
 	// we can create a variable template named IsLValueReference_v
-	// and use IsLValueReference_v<T>
+	// and we can use it like IsLValueReference_v<T>
 	
 	template <typename T>
 	constexpr bool IsLValueReference_v = IsLValueReference<T>::value;
-	
-	
-	
+
 	template <typename T>
 	class Refclass {
 		static_assert(IsLValueReference_v<T>, "only for L value ref types");
@@ -2949,14 +2953,20 @@
 		EnableIf<false, char>::type;				// syntax error no type
 	
 		EnableIf<is_pointer_v<int*>, double>::type;		// true.
-		// is_pointer_v<int*> is true
+		// is_pointer_v<int*> returns is_pointer<int*>::value which is true.
+		
 		EnableIf<is_pointer_v<int>, double>::type;		// syntax error
-		// is_pointer_v<int> is false so EnableIf<false,double> does not have ::type
+		// is_pointer_v<int> returns false so 
+		// because of only EnableIf<true, T> partial specialization have ::type nested member
+		// EnableIf<false,double> does not have ::type nested member
+		// it will be syntax error.
 	
-		std::enable_if<is_pointer_v<int*>>::type;
-		std::enable_if_t<is_pointer_v<int*>>;			// void
+		std::enable_if<is_pointer_v<int*>>::type;		// void
+		
+		std::enable_if_t<is_pointer_v<int*>,double>;		// double 
 		std::enable_if_t<is_pointer_v<int*>,double>;		// double
-		// These 2 lines are same
+		// These 2 lines are same.
+		
 		// enable_if_t is an alias template.
 	}
 */
@@ -2964,14 +2974,16 @@
 /*
 	#include <type_traits>
 	
+	
 	template <typename T>
 	std::enable_if_t<std::is_pointer_v<T>> func(T x);
-	// if T's type is pointer type
-	// func() functions return type will be void
+	// If T's type is a pointer type it will return void
+	// so func() functions return type will become void
 	
 	template <typename T>
 	std::enable_if_t<std::is_pointer_v<T>,T> foo(T x);
-	// foo() functions return type will be T
+	// If T's type is pointer type it will return T(a pointer)
+	// so foo() functions return type will be T(a pointer)
 	
 	void foo(double);
 	
@@ -2979,10 +2991,15 @@
 	{
 		func(12);	// syntax error
 		// func() functions will be removed from Function Overload Set.
+		// because there is not any other vaiable function is Function Overload Set,
+		// it will be syntax error.
 	
 		foo(12);	// valid
 		// std::enable_if_t<std::is_pointer_v<T>> func(T x); will removed from
-		// function overload set (SFINAE'd out) but there is another overload.
+		// Function Overload Set (SFINAE'd out) because int is not a pointer type 
+		// and there is no ::type nested member of std::is_pointer<int> specialization.
+		// because of it is inherited from std::false type, but there is another overload
+		// in function overload set and it will be chosen.
 	}
 */
 
@@ -2997,7 +3014,7 @@
 		func(12);	// func() is SFINAE'd out. No more overloads -> syntax error
 	
 		int ival{};
-		func(&ival);	// valid
+		func(&ival);	// valid	-> typename U = void 
 	}
 */
 
