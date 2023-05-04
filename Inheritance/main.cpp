@@ -210,7 +210,7 @@
 	
 		// in Der class scope name was found. It will NOT go to Base class for continue searching.
 		// [name-hiding(shadowing)]
-		// [myder.foo(12)] int will convert to double[standart conversion] and Der::foo(double) will invoked
+		// int will implicitly convert to double[standart conversion] and Der::foo(double) will be invoked.
 	}
 */
 
@@ -264,6 +264,8 @@
 	
 		Der myder;
 		myder.Base::foo(12); // calling Base::foo() function with Der class object
+		// upcasting myder(Der class) object(to Base class) then casting 
+		// hidden parameter this pointer(Der*) to Base* to call foo() function in Base class.
 	}
 */
 
@@ -282,7 +284,7 @@
 			// name-lookup will start from foo() functions block
 			// then continue with Der class scope and it will find func(int);
 			// context control will throw an error.
-			// process will stop and Base::func(int,int) can not be invoked
+			// process will stop and Base::func(int,int) can not be invoked.
 	
 			func(1);		// legal
 			Base::func(1, 1);	// legal
@@ -318,7 +320,7 @@
 		{
 			m_base_private = 10; // syntax error
 			// can not reach Base classes private section.
-			// Only can reach Base classes private section with friend decleration.
+			// Only can reach Base classes private section with a friend decleration.
 	
 			m_base_protected = 12;	// legal
 			bar();			// legal
@@ -384,8 +386,8 @@
 		// Base() default ctor
 		// ~Base() dtor
 	
-		// implicitly declared[by compiler] Der classes default ctor will invoke Base classes default ctor
-		// implicitly declared[by compiler] Der classes dtor will invoke Base classes dtor
+		// implicitly declared[by compiler] defaulted Der classes default ctor will invoke Base classes default ctor.
+		// implicitly declared[by compiler] defaulted Der classes dtor will invoke Base classes dtor
 	}
 */
 
@@ -396,6 +398,7 @@
 	};
 	
 	class Der : public Base {
+	public:
 	};
 	
 	int main()
@@ -403,11 +406,11 @@
 		Der myder; // syntax error
 		// E1790 the default constructor of "Der" cannot be referenced -- it is a deleted function
 	
-	
 		// Der's default ctor will try to invoke Base() default ctor.
 		// Because of there is a user declared ctor in Base class,
 		// Base() default ctor is not declared.
-		// When Der's default ctor can not found Base() default ctor.
+		// Because of Der's default ctor needs to invoke Base() default ctor, 
+		// and Base::Base() is not declared.
 		// Compiler will delete Der() default ctor
 	}
 */
@@ -427,8 +430,8 @@
 		Der myder; // syntax error
 		// E1790  the default constructor of "Der" cannot be referenced -- it is a deleted function
 	
-		// same error. Because of Base() default ctor is in the private section
-		// Der() can not reach Base classes private section
+		// Same error(default ctor deleted). Because of Base() default ctor is in the private section
+		// Der() can not reach Base classes private section.
 		// Compiler will delete Der's default ctor.
 	}
 */
@@ -777,7 +780,7 @@
 	
 	int main()
 	{
-		Der myder; // syntax error because Der() default ctor was deleted by compiler
+		Der myder; // syntax error -> Der() default ctor was deleted by compiler
 		// Der() tries to call Base() default ctor, because of there is a user declared Base(int) ctor
 		// there is no Base() default ctor. It will cause [Der() = delete;]
 	
@@ -808,11 +811,11 @@
 	int main()
 	{
 		// when we use [using Base::Base;] expression in Der classes PROTECTED section
-		Der myder1(12);
-		Der myder2(1, 2);
-		Der myder3(12.5);
-		// all cause syntax error because Base classes ctors are in protected section
-		// and Client codes can not reach Base classes protected section
+		Der myder1(12);		// syntax error
+		Der myder2(1, 2);	// syntax error
+		Der myder3(12.5);	// syntax error
+		// all statements cause syntax error because Base classes ctors are in protected section
+		// and client codes can not reach Base classes protected section
 	}
 */
 
@@ -835,7 +838,7 @@
 		- If Base class has a function in type 3, that will make Base class, an abstract class.
 			[polymorphic && abstract class(soyut sinif)]
 		- Abstract classes can not be instantiated. We can not create an object from an abstract class.
-		- Can create a pointer and reference from an abstract class.
+		- We can create a pointer and a reference from an abstract class.
 		- If a class is not an abstract class, it is concrete class(we can create an object from concrete class)
 */
 
@@ -903,7 +906,7 @@
 	};
 	
 	// base.cpp
-	// if we want to define virtual function in .cpp file [DO NOT USE VIRTUAL KEYWORD]
+	// if we want to define virtual function in .cpp file [DO NOT USE VIRTUAL KEYWORD not in function signature]
 	int Base::foo(int x, int y)
 	{
 	
@@ -991,7 +994,7 @@
 	1. Base class pointer
 	2. Base class reference
 
-	The function that called will understood in run time, NOT IN COMPILE TIME 
+	The function that called will be understood in run time, NOT IN COMPILE TIME 
 	[Late(Dynamic) binding]
 */
 
@@ -1030,7 +1033,7 @@
 		baseptr->func();	// output -> Base::func()
 		// func() is not a virtual function
 		baseptr->bar();		// output -> Der::bar()
-		// bar() is a virtual function
+		// Base::bar() is a virtual function
 	}
 */
 
@@ -1086,6 +1089,7 @@
 		// --------------------------------------------------------------------------------------
 	
 		Car* p_1 = new VolvoXC90;
+		
 		car_game_pointer(p_1);		// Virtual Dispatch is working
 		// output ->	
 		// VolvoXC90 has just started
@@ -1118,6 +1122,12 @@
 		// and because of Car(Base) class did not have a member function as open_sunroof()
 		// (only derived class Mercedes has it) it will throw a syntax error.
 	}
+	
+	int main()
+	{
+		Car* c = new Mercedes;
+		car_game(c);
+	}
 */
 
 /*
@@ -1138,7 +1148,7 @@
 		// Mercedes is running
 		// Mercedes has just stopped
 	
-		// virtual dispatch happens when we call a non-virtual function,
+		// virtual dispatch also applied when we call a non-virtual function,
 		// which is calling virtual functions with [this pointer]
 	}
 */
@@ -1171,10 +1181,10 @@
 	{
 		Der myder;
 		gf(&myder); // output -> Der::foo()
-		// virtual dispatch happens in run time.
+		// virtual dispatch mechanism applied in RUN TIME.
 		// access control phase is in compile-time (static type).
 		// access control applied to static type of argument expression (Base* p) which is [Base*]
-		// foo() function in Base class, is in public section, so no access control error.
+		// foo() function in Base class is in public section, so no access control error.
 		// in run-time because of there is no access control phase, virtual dispatch can happen
 	
 		myder.foo(); // syntax error
@@ -1219,7 +1229,15 @@
 		// [foo() virtual function is Base class is in private section]
 	
 		p->bar();
-		// non-static member function in public section of the class can call virtual member function in private section.
+		// non-static and non-virtual member function in public section of the base class 
+		// can call virtual member function in private section.
+		// virtual dispatch will be applied.
+	}
+	
+	int main()
+	{
+		Base* b = new Der;
+		gf(b);	// output -> Der::foo()
 	}
 */
 
@@ -1246,10 +1264,11 @@
 		// Car has just stopped
 	
 		// Virtual dispatch mechanism is not working!!
-		// When a derived class coming to life,
-		// first Base class needs to come to life than derived classes other data members,etc..
+		// Before derived class become alive
+		// first Base class needs to become alive then derived classes other data members,etc..
 		// Virtual dispatch can not be applied inside of base classes constructor because
-		// when executing Base() classes constructor function, derived class is still not alive.
+		// when executing Base() classes constructor function, derived class is still NOT alive.
+		// calling member functions of a class which is not alive is not possible.
 	
 	
 		// For Volvo::~Volvo() -> dtor function
@@ -1260,11 +1279,11 @@
 		// Car has just stopped
 	
 		// Virtual dispatch mechanism is not working!!
-		// Before derived class objects get destroyed
+		// Before derived class objects get destroyed,
 		// first data members, then base class object inside derived class then derived class object will get destroyed.
-		// Virtual dispatch can not be applied inside of base classes destructor because
-		// if virtual dispatch happens, we seem like using destroyed base class object inside derived class object.
-		// That will cause undefined behaviour
+		// Virtual dispatch mechanism can not be applied inside of base classes destructor because
+		// if virtual dispatch happens, we seem like using the destroyed base class object in derived class object.
+		// That will cause undefined behaviour.
 	}
 */
 
@@ -1277,7 +1296,8 @@
 		vx.test_car();
 
 		// Virtual dispatch mechanism is not working!!
-		// when used qualified name[Car::start()] of base class, used in non-static member functions of base class
+		// when we use qualified name[Car::start()] of base class
+		// base classes member functions will be called.
 	
 		// output ->
 		// Car has just started
@@ -1318,7 +1338,7 @@
 		// output -> sizeof(Der) = 16 -> 2 int and 1 pointer
 	
 		// Virtual function table pointer[vptr] is embedded in Base class.
-		// vptr is pointing to(have an address of) virtual function table in heap memory
+		// vptr is pointing to(have an address of) the virtual function table in heap memory.
 	}
 */
 
@@ -1357,8 +1377,8 @@
 	
 	void car_game(Car* p)
 	{
-		// how to create a copy of, derived class of Car inside this function ?
-		// if Volvo comes WE need to create a Volvo
+		// How to create a copy of, derived class of Car inside this function ?
+		// If Volvo comes as an argument WE need to clone the same Volvo
 		p->start();
 	
 		Car* pnewcar = p->clone();
@@ -1483,12 +1503,10 @@
 		foo(baseptr);
 		// undefined behaviour happens because, we are deleting Base object inside derived class
 		// but not deleting Derived class object itself.
-
 		// output -> Base dtor
 
 		// When we make base classes dtor virtual, dispatch mechanism started working.
 		// First Base dtor called inside Der dtor function then Der dtor finished executing.
-
 		// output ->
 		// Der dtor is releasing resources
 		// Base dtor
@@ -1508,7 +1526,7 @@
 	- When we use protected specifier in non virtual Base classes destructor,
 	client can not reach Base classes dtor and can not delete Base class.
 	- Client needs to call derived class dtor to reach protected section of Base class.
-	Because Derived classes can reach Base classes protected section.
+	Because Derived classes can reach Base classes protected section, it can call Base classes dtor in protected section.
 */
 
 /*
