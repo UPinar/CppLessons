@@ -275,3 +275,18 @@
   - `std::shared_ptr` shared pointer
   - `std::weak_ptr` weak pointer
   - CRTP(Curiously Recurring Template Pattern) idiom 
+
+### [Input - Output Operations](https://github.com/UPinar/CppLessons/tree/main/InputOutput)
+  - Formatted IO Operations
+  - File IO operations
+
+### [User Defined Literals](https://github.com/UPinar/CppLessons/tree/main/UserDefinedLiterals)
+  - cooked UDLs
+  - uncooked UDLs
+
+### [Random Library](https://github.com/UPinar/CppLessons/tree/main/RandomLibrary)
+  - random library
+  - algorithms related with random number generators
+  - `std::generate` && `std::generate_n` algorithms
+  - `std::shuffle` algorithm
+  - `std::sample` algorithm (C++17) 
