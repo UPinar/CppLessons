@@ -197,11 +197,11 @@
   - iterators 
   - iterator categories
     - input iterator
-	  - output iterator
-	  - forward iterator
-	  - bidirectional iterator
-	  - random access iterator
-	  - contigious iterator (Modern C++)
+    - output iterator
+    - forward iterator
+    - bidirectional iterator
+    - random access iterator
+    - contigious iterator (Modern C++)
   - `std::copy` algorithm
   - `std::sort` algorithm 
   - `std::find` algorithm
@@ -210,7 +210,7 @@
     - `std::advance`
     - `std::distance`
     - `std::next` && `std::prev`
-	  - `std::iter_swap`
+    - `std::iter_swap`
   - tag dispatch technique
   - `std::reverse_iterator` (iterator adapter)
   - `std::count` algorithm
