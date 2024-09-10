@@ -191,3 +191,87 @@
      - init_list
      - fold expressions (C++17)
      - static if
+
+
+### [Standart Template Library(STL)](https://github.com/UPinar/CppLessons/tree/main/StandartTemplateLibrary)
+  - iterators 
+  - iterator categories
+    - input iterator
+	  - output iterator
+	  - forward iterator
+	  - bidirectional iterator
+	  - random access iterator
+	  - contigious iterator (Modern C++)
+  - `std::copy` algorithm
+  - `std::sort` algorithm 
+  - `std::find` algorithm
+  - `std::back_inserter` && `std::front_inserter` algorithms
+  - iterator manipulator functions
+    - `std::advance`
+    - `std::distance`
+    - `std::next` && `std::prev`
+	  - `std::iter_swap`
+  - tag dispatch technique
+  - `std::reverse_iterator` (iterator adapter)
+  - `std::count` algorithm
+  - `std::count_if` algorithm
+  - `std::find_if` algorithm
+  - `std::copy_if` algorithm
+  - `std::transform` algorithm
+  - `std::for_each` algorithm`
+  - `std::all_of` && `std::any_of` && `std::none_of` algorithms
+  - `std::max_element` algorithm
+  - Standart function objects(standart functors)
+  - `std::replace` && `std::replace_if` algorithms
+  - `std::reverse_copy` && `std::remove_copy` && `std::remove_copy_if` algorithms
+  - containers
+    - `std::vector` container
+  - lexicographical compare
+  - lambda expressions (function)
+  - generalized lambda expression
+  - lambda init capture(C++14)
+  - positive lambda idiom
+  - Immediately Invoked Function(Lambda) Expression [IIFE] idiom
+  - remove-erase idiom
+  - sorting algorithms
+    - `std::stable_sort` && `std::sort` stable and unstable sort algorithms
+    - `std::partial_sort` algorithm
+    - `std::nth_element` algorithm
+    - `std::partition` && `std::stable_parition` && `std::partition_copy` algorithms
+  - `std::make_heap` && `std::push_heap` && `std::pop_heap` && `std::sort_heap` algorithms
+  - iterator invalidation
+  - `std::deque` container
+  - `std::list`(double-linked list) container
+  - `std::forward_list`(singly-linked list)
+  - `std::set` container
+  - `std::lower_bound` && `std::upper_bound` && `std::equal_range` algorithms
+  - `std::map` and `std::multimap` containers
+  - ostream iterator class
+  - `std::hash` function object class
+  - unordered_ containers
+    - `std::unordered_set` && `std::unordered_map`container
+  - `std::array` container 
+  - `std::stack` container adaptor
+  - `std::queue` container adaptor
+  - `std::priority_queue` container adaptor
+  - reference wrapper `std::reference_wrapper`
+  - `std::bind` function adaptor
+  - `std::function`
+  - member function pointers
+  - data member pointers
+  - `std::move_iterator` iterator adaptor
+  - `std::tuple`
+  - `std::apply`
+  - sorted ranged algorithms
+  - structured binding (C++17)
+  - `decltype(auto)`
+  - `std::bitset`
+  - dynamic storage objects
+  - placement new expressions
+  - overloading operator new() and operator delete() functions as a member function
+
+### [Smart Pointers](https://github.com/UPinar/CppLessons/tree/main/SmartPointers)
+  - `std::unique_ptr` unique pointer
+  - `std::shared_ptr` shared pointer
+  - `std::weak_ptr` weak pointer
+  - CRTP(Curiously Recurring Template Pattern) idiom 
