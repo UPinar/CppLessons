@@ -127,7 +127,7 @@
   - inline namespace
   - versioning with inline namespaces
   
-### [std::string Class](https://github.com/UPinar/CppLessons/tree/main/StringClass)
+### [`std::string` Class](https://github.com/UPinar/CppLessons/tree/main/StringClass)
   - using iterator and index interfaces in std::string class functions
   - std::initializer_list class
   - constexpr static data member string::npos
@@ -290,3 +290,19 @@
   - `std::generate` && `std::generate_n` algorithms
   - `std::shuffle` algorithm
   - `std::sample` algorithm (C++17) 
+
+### [`std::string_view` Class (C++17)](https://github.com/UPinar/CppLessons/tree/main/StringViewClass)
+
+### [Vocabulary Types (C++17)](https://github.com/UPinar/CppLessons/tree/main/VocabularyTypes)
+  - `std::optional`
+  - `std::variant`
+  - visitor design pattern
+  - overloader idiom
+  - mono state pattern
+  - variant polymorphism
+  - variant comparison
+  - `std::any`
+
+### [Ratio Library](https://github.com/UPinar/CppLessons/tree/main/RatioLibrary)
+
+### [Chrono Library](https://github.com/UPinar/CppLessons/tree/main/ChronoLibrary)
