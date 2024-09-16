@@ -562,9 +562,116 @@
   steady_clock (ayarlanmayan, süre ölçümü için kullanılıyor)
   high_resolution_clock (yüksek çözünürlüklü saat)
     typedef name of one of other 2 clocks
+
+  clock types are monostate 
+  they only have static member functions and nested types
 */
 
 /*
+  #include <chrono>
+  #include <ratio>
+
+  int main(){
+    using namespace std;
+    using namespace std::chrono;
+
+    system_clock::time_point x;
+    time_point<system_clock> y;
+    // those 2 lines are equivalent and both of them are time points
+
+    auto tp = system_clock::now();
+    // tp's type is system_clock::time_point
+
+    //  --------------------------------------------------
+    // time point is the time elapsed since the epoch
+    // (epochtan itibaren geçen süre)
+
+    // duration is not dependent on epoch
+    // time point is dependent on epoch
+    //  --------------------------------------------------
+
+    tp.time_since_epoch();  
+    // returns duration(clock's duration) - implementation defined
+
+    cout << tp.time_since_epoch() << '\n';
+    // output -> 1726473557639964700ns
+
+    auto tp2 = steady_clock::now();
+    cout << tp2.time_since_epoch() << '\n';
+    // output -> 221850245102100ns
+
+    // not every clock should have the same duration type 
+  }
 */
 
-// Lesson 70 - 02:07:20
+/*
+  #include <chrono>
+  #include <ratio>
+
+  int main(){
+    using namespace std;
+    using namespace std::chrono;
+
+    minutes mins{ 833918 };
+
+    auto tp = system_clock::now();
+    tp += mins;
+
+    auto t = system_clock::to_time_t(tp); // returns time_t
+
+    cout << ctime(&t) << '\n'; 
+    // output -> Sat Apr 18 13:44:19 2026
+  }
+*/
+
+/*
+  // system_clock is adjustable(ayarlanabilir) 
+  // system_clock::now() may change because of it is adjustable
+  // i.e calling system_clock::now() twice may return not expected results
+
+  // steady_clock is not adjustable(ayarlanamaz)
+*/
+
+/*
+  #include <chrono>
+  #include <ratio>
+  #include <vector>
+  #include <algorithm>
+  #include <random>
+
+  int main(){
+    using namespace std;
+    using namespace std::chrono;
+
+    mt19937 eng;
+    uniform_int_distribution dist{ 0, 100'000 };
+
+    cout << "operation is started\n";
+
+    vector<int> ivec;
+
+    auto tp_start = steady_clock::now();
+    generate_n( back_inserter(ivec), 
+                10'000'000, 
+                [&]{ return dist(eng); });
+
+    sort(ivec.begin(), ivec.end());
+
+    auto tp_end = steady_clock::now();
+    cout  << "with duration_cast " 
+          << duration_cast<milliseconds>(tp_end - tp_start).count() 
+          << " milliseconds\n";
+    
+    cout  << "using real number "
+          << duration<double>{tp_end - tp_start}.count()
+          << " seconds\n";
+
+    cout << "sorting is done\n";
+
+    // output ->
+    //  operation is started
+    //  with duration_cast 3202 milliseconds
+    //  using real number 3.20219 seconds
+    //  sorting is done
+  }
+*/

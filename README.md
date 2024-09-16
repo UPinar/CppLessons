@@ -307,4 +307,7 @@
 
 ### [Chrono Library](https://github.com/UPinar/CppLessons/tree/main/ChronoLibrary)
   - duration
-  - time points
+  - time point
+  - clock
+
+### [Concurrency](https://github.com/UPinar/CppLessons/tree/main/Concurrency)
