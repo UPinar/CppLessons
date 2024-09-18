@@ -425,10 +425,468 @@
   }
 */
 
-// 71_Concurrency_1 : 01:17:37
+/*
+  #include <thread>
+  #include <utility>      // std::move
+  #include <functional>   // std::ref 
 
+  class Myclass{
+  public:
+    Myclass() = default;
 
+    Myclass(const Myclass&)
+    {
+      std::cout << "Myclass copy ctor\n";
+    }
 
+    Myclass(Myclass&&)
+    {
+      std::cout << "Myclass move ctor\n";
+    }
+  };
 
+  void func(const Myclass&){}
 
+  void foo(Myclass&&){}
 
+  int main(){
+    using namespace std;
+
+    Myclass mx;
+
+    thread tx{ func, mx };  
+    tx.join();  // output -> Myclass copy ctor
+
+    thread ty{ func, std::ref(mx) };  
+    ty.join();  // output -> empty
+
+    thread tz{ foo, std::move(mx) };
+    tz.join();  // output -> Myclass move ctor
+  }
+*/
+
+/*
+  // function's parameter is out parameter
+
+  #include <thread>
+
+  void foo(int& r){
+    ++r;
+  }
+
+  int main(){
+    using namespace std;
+
+    int x{ 43 };
+
+    thread tx{ foo, ref(x) };
+    tx.join();
+
+    std::cout << "x = " << x << '\n';   // output -> x = 44
+  }
+*/
+
+/*
+  #include <thread>
+
+  void foo(int x){
+    std::cout << "x = " << x << '\n';
+  }
+
+  int main(){
+    using namespace std;
+
+    auto fp = foo;
+
+    thread tx{ fp, 10 };    
+    // thread's workload is a function pointer(as a callable)
+
+    tx.join();  // output -> x = 10 
+  }
+*/
+
+/*
+  #include <thread>
+
+  class Functor{
+  public:
+    void operator()(int x) const {
+      std::cout << "x = " << x << '\n';
+    }
+  };
+
+  int main(){
+    using namespace std;
+
+    Functor f;
+
+    thread tx{ f, 12 };
+    // thread's workload is a functor object
+    tx.join();  // output -> x = 12
+  }
+*/
+
+/*
+  #include <thread>
+
+  class Functor{
+  public:
+    void operator()() const {
+      std::cout << "Functor::operator()()\n";
+    }
+  };
+
+  int main(){
+    using namespace std;
+
+    thread tx{ Functor{} };
+    tx.join();  // output -> Functor::operator()()
+
+    thread ty( Functor() ); 
+    ty.join();  // syntax error 
+    // most vexing parse
+    // warning: parentheses were disambiguated as a function declaratio
+  }
+*/
+
+/*
+  #include <thread>
+
+  int main(){
+    using namespace std;
+
+    thread tx{ [](int x){
+      std::cout << "x = " << x << '\n'; }, 12 };
+
+    tx.join();  // output -> x = 12
+  }
+*/
+
+/*
+  // if we want to use some classes 
+  // non-static member function as a work load
+  // we need to send threads constructor, a pointer to the object
+  // as second argument(variadic parameter)
+
+  #include <thread>
+  #include <functional>  // std::ref
+
+  class Myclass{
+  public:
+    Myclass() = default;
+    Myclass(const Myclass&){
+      std::cout << "Myclass copy ctor\n";
+    }
+
+    void func(){
+      std::cout << "Myclass::func()\n";
+    }
+  };
+
+  int main(){
+    using namespace std;
+
+    Myclass mx;
+    thread tx{ &Myclass::func, mx };
+    tx.join();  
+
+    // Question : Is Myclass object is copied ? (YES)
+    // output ->
+    //  Myclass copy ctor
+    //  Myclass::func()
+
+    thread ty{ &Myclass::func, std::ref(mx) };
+    ty.join();
+
+    // Question : Is Myclass object is copied ?  (NO)
+    // output -> Myclass::func()
+  }
+*/
+
+/*
+  #include <thread>
+  #include <functional>  // std::ref
+
+  // ostream class is not copyable
+  void func(const std::ostream& os);
+
+  int main(){
+    std::thread tx{ func, std::cout };
+    tx.join();  // syntax error
+
+    std::thread ty{ func, std::ref(std::cout) };
+    ty.join();    // not syntax error
+  }
+*/
+
+/*
+  - thread is non copyable but movable
+  - when thread is joinable and moved to another thread object
+    other thread object will become joinable 
+    and moved thread object will become non-joinable.
+*/
+
+/*
+  #include <thread>
+
+  int main(){
+    using namespace std;
+
+    thread tx;
+    thread ty(tx);  // syntax error (call to deleted copy ctor)
+    // error: use of deleted function 
+    // 'std::thread::thread(const std::thread&)'
+
+    thread tz;
+    tz = tx;  // syntax error (call to deleted copy assignment operator)
+    // use of deleted function 
+    // 'std::thread& std::thread::operator=(const std::thread&)'
+  }
+*/
+
+/*
+  #include <thread>
+  #include <utility>  // std::move
+
+  void func(){}
+
+  int main(){
+    using namespace std;
+
+    thread tx{ func }; 
+    cout << boolalpha << tx.joinable() << '\n';  // output -> true
+
+    thread ty{ move(tx) };  // tx is moved to ty
+    cout << boolalpha << tx.joinable() << '\n';  // output -> false
+    cout << boolalpha << ty.joinable() << '\n';  // output -> true
+    ty.join();
+
+    cout << boolalpha << ty.joinable() << '\n';  // output -> false
+  }
+*/
+
+/*
+  #include <thread>
+  #include <utility>  // std::move
+
+  void func(std::thread t)
+  {
+    t.join();
+  }
+
+  void workload(){}
+
+  int main(){
+    using namespace std;
+
+    thread tx{ workload };
+
+    func(std::move(tx));
+    func( thread{workload} ); // RValue expression
+  }
+*/
+
+/*
+  #include <thread>
+  #include <utility>  // std::move
+
+  std::thread make_thread()
+  {
+    std::thread tx{ []{ std::cout << "func\n"; } };
+    // return value optimization is not guaranteed
+    // Named Return Value Optimization (NRVO)
+
+    // but if an automatic storage duration object is returned
+    // move semantics will be applied.
+    return tx;
+  }
+
+  int main(){
+    using namespace std;
+
+    thread t;
+    t = make_thread();  // "make_thread()" is RValue expression
+    t.join(); // output -> func
+  }
+*/
+
+/*
+  #include <thread>
+
+  void func(std::thread&& t)
+  {
+    auto tx = std::move(t);
+    tx.join();
+  }
+
+  int main(){
+    using namespace std;
+
+    thread tx{ []{} };
+    func(std::move(tx));
+  }
+*/
+
+/*
+  // RAII wrapping of std::thread
+
+  #include <thread>
+  #include <utility>  // std::forward, std::move
+
+  class JThread{
+  public:
+    JThread()noexcept = default;
+
+    // member template constructor
+    template <typename Function, typename... Args>  
+    explicit JThread(Function&& f, Args&& ...args)
+      : m_thread( std::forward<Function>(f), std::forward<Args>(args)... )
+    {}
+
+    ~JThread(){
+      if (joinable())
+        join();
+    }
+
+    explicit JThread(std::thread t) noexcept : m_thread{ std::move(t) } {}
+
+    JThread(JThread&& other) noexcept
+      : m_thread{ std::move(other.m_thread) } {}
+
+    JThread& operator=(JThread&& other){
+      if (joinable())
+        join();
+
+      m_thread = std::move(other.m_thread);
+      return *this;
+    }
+
+    bool joinable() const noexcept{
+      return m_thread.joinable(); 
+    }
+
+    void join(){
+      m_thread.join();
+    }
+
+    void swap(JThread& other) noexcept{
+      m_thread.swap(other.m_thread);
+    }
+
+    void detach(){
+      m_thread.detach();
+    }
+
+  private:
+    std::thread m_thread; 
+    // because of std::thread's copy ctor and copy assignment operator
+    // are deleted, JThead's copy ctor and copy assignment operator
+    // will be implicitly deleted by compiler.
+  };
+*/
+
+/*
+                ------------------------------
+                | std::this_thread namespace |
+                ------------------------------
+*/
+
+/*
+  #include <thread>
+
+  void func(){
+    // std::this_thread is a nested namespace
+    std::cout << std::this_thread::get_id() << '\n';
+    // output -> 2
+  }
+
+  int main(){
+    using namespace std;
+
+    thread tx{ func };
+
+    auto id = tx.get_id();
+    func(); // output -> 1 (main thread id)
+
+    cout << typeid(id).name() << '\n';
+    // output -> class std::thread::id (MSVC)
+    // std::thread::id class has an operator==() function
+    // std::thread::id class has an operator<<() function
+
+    std::cout << "tx id = " << tx.get_id() << '\n'; 
+    // output -> tx id = 2
+
+    tx.join();  // output -> 2 (tx thread id)
+  }
+*/
+
+/*
+  #include <thread>
+
+  std::thread::id g_id;
+
+  void func(){
+    auto id = std::this_thread::get_id();
+
+    if (id == g_id)
+      std::cout << "function called by the main thread\n";
+    else
+      std::cout << "function called by child thread\n";
+  }
+
+  int main(){
+    g_id = std::this_thread::get_id();
+    func(); // output -> function called by the main thread
+
+    std::thread tx{ func };
+    tx.join();  // output -> function called by child thread
+  }
+*/
+
+/*
+  çalışan threadi belirli bir süre ya da 
+  belirli bir time point'e kadar 
+  bloke eden sleep_for ve sleep_until fonksiyonları
+
+  std::this_thread::sleep_for  
+   blocking the current thread for a duration
+  std::this_thread::sleep_until 
+   blocking the current thread until a time point
+*/
+
+/*
+  #include <thread>
+  #include <chrono>
+
+  void func(){
+    using namespace std::chrono;
+    std::this_thread::sleep_for(1s);
+  }
+
+  int main(){
+    using namespace std;
+
+    thread tx{ func };
+    tx.join();
+  }
+*/
+
+/*
+  #include <chrono>
+  #include <thread>
+
+  auto now() { return std::chrono::steady_clock::now(); }
+
+  auto awake_time(){
+    using std::chrono::operator""ms;
+    return now() + 2000ms;
+  }
+
+  int main(){
+    std::cout << "Hello\n" << std::flush;
+    const auto start{ now() };
+    std::this_thread::sleep_until(awake_time());
+    std::chrono::duration<double, std::milli> elapsed{ now() - start };
+    std::cout << "Waited " << elapsed.count() << " ms\n";
+  }
+*/

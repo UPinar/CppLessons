@@ -311,3 +311,5 @@
   - clock
 
 ### [Concurrency](https://github.com/UPinar/CppLessons/tree/main/Concurrency)
+  - `<thread>` module
+  - `std::this_thread` namespace
