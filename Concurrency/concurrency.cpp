@@ -890,3 +890,1098 @@
     std::cout << "Waited " << elapsed.count() << " ms\n";
   }
 */
+
+/*
+  #include <thread>
+  #include <atomic>
+  #include <chrono>
+
+  // std::this_thread::yield function is "busy sleep"
+  // while suggesting the OS to give the CPU to another thread
+
+  std::atomic<bool> ga_start{ false };
+
+  void func(char id)
+  {
+    using namespace std::chrono;
+
+    while (!ga_start)
+      std::this_thread::yield();
+
+    std::this_thread::sleep_for(500ms);
+    std::cout << id << '\n';
+  }
+
+  int main(){
+    std::thread tArr[26];
+
+    for (char i{'A'}; auto& tx : tArr)
+      tx = std::thread{ func, i++ };
+
+    ga_start = true;
+
+    for (auto& tx : tArr)
+      tx.join();
+  }
+*/
+
+/*
+              ---------------------------------------------
+              | exception handling - threads relationship |
+              ---------------------------------------------
+*/
+
+/*
+  // when thread objects destructor is called,  
+  // if that thread object is still joinable,
+  // std::terminate() will be called.
+
+  #include <thread>
+
+  void foo(){
+    std::cout << "foo called\n";
+  }
+
+  void func(){
+    std::cout << "func called\n";
+    throw std::runtime_error{ "runtime error exception from func()" };
+  }
+
+  int main(){
+    std::thread t{ foo };
+    func();
+
+    // output ->
+    //  func called
+    //  terminate called after throwing an instance of 'std::runtime_error'
+    //  what():  runtime error exception from func()
+
+    t.join(); // won't be exucuted
+  }
+*/
+
+/*
+  // what to do if there was not any JThread or a RAII wrapper class ?
+
+  #include <thread>
+
+  void foo(){
+    std::cout << "foo called\n";
+  }
+
+  void func(){
+    std::cout << "func called\n";
+    throw std::runtime_error{ "runtime error exception from func()" };
+  }
+
+  int main(){
+    std::thread t{ foo };
+
+    try{
+      func(); 
+      t.join();
+    }
+    catch (const std::exception& ex){
+      std::cout << "exeption caught : " << ex.what() << '\n';
+      t.join();
+    }
+
+    // output ->
+    //  func called
+    //  exeption caught : runtime error exception from func()
+    //  foo called -> t.join() is executed
+  }
+*/
+
+/*
+  // if thread object's workload(calleble) throws an exception
+
+  #include <thread>
+  #include "../nutility.h"
+
+  void func(){
+    std::cout << "func() called\n";
+
+    if(1){
+      throw std::runtime_error{ "error from func()" };
+    }
+  }
+
+  int main(){
+
+    std::set_terminate(my_terminate);
+
+    try{
+      std::thread tx{ func };
+      tx.join();
+      // exception can not be caught here
+      // directly std::terminate() will be called
+
+      // output ->
+      //  func() called
+      //  std::terminate cagrildi....
+      //  myterminate cagrildi....
+      //  std::abort() cagrildi
+    }
+    catch (const std::exception& ex){
+      std::cout << "exception caught : " << ex.what() << '\n';
+    }
+  }
+*/
+
+/*
+  // What to do if thread object's workload(calleble) throws an exception?
+
+  // we can catch the exception and 
+  // store that exception object in a variable
+  // and using that variable we can rethrow that exception
+
+  // std::exception_ptr & std::current_exception() & std::rethrow_exception()
+
+  #include <thread>
+  #include <stdexcept>
+
+  std::exception_ptr exptr = nullptr;
+
+  void func(int x){
+    std::cout << "func(int x) called x = " << x << '\n';
+
+    try{
+      if (x % 2 == 0)
+        throw std::invalid_argument{ "invalid argument --- func()" };
+    }
+    catch (...){
+      exptr = std::current_exception();
+    }
+
+    std::cout << "func(int x) finished x = " << x << '\n';
+  }
+
+  int main(){
+    std::thread tx { func, 10 };
+    tx.join();
+
+    try{
+      if (exptr)
+        std::rethrow_exception(exptr);
+    }
+    catch (const std::exception& ex){
+      std::cout << "exception caught : " << ex.what() << '\n';
+    }
+
+    // output ->
+    //  func(int x) called x = 10
+    //  func(int x) finished x = 10
+    //  exception caught : invalid argument --- func()
+  }
+*/
+
+/*
+  #include <thread>
+  #include <stdexcept>
+  #include "../nutility.h"
+
+  std::exception_ptr exptr = nullptr;
+
+  void func(){
+
+    try{
+      throw std::runtime_error{ "error from func()" };
+    }
+    catch (...){
+      exptr = std::current_exception();
+    }
+  }
+
+  int main(){
+    std::thread tx { func };
+    tx.join();
+
+    std::set_terminate(my_terminate);
+
+    if (exptr){
+      std::cout << "exception has been caught in func()\n";
+
+      // there is no necessity to rethrow the exception
+      // but if an exception occured in func() function
+      // that thread's is not successfully executed
+      // and I could not do the work that I wanted to do
+      // so I can rethrow the same exception
+      std::rethrow_exception(exptr);
+
+      // because of rethrow_exception() function is called
+      // an exception will be thrown again
+      // because of that exception is not caught in main()
+      // std::terminate() will be called
+    }
+    else
+      std::cout << "no exception has been caught in func()\n";
+
+    // output ->
+    //  exception has been caught in func()
+    //  std::terminate cagrildi....
+    //  myterminate cagrildi....
+    //  std::abort() cagrildi
+  }
+*/
+
+/*
+  #include <vector>
+  #include <stdexcept>  // std::runtime_error
+  #include <mutex>
+  #include <thread>
+
+  std::vector<std::exception_ptr> g_ex_vec;
+  std::mutex g_mutex;
+
+  void f1(){
+    throw std::runtime_error{ "exception from f1()" };
+  }
+
+  void f2(){
+    throw std::runtime_error{ "exception from f2()" };
+  }
+
+  void thread_func1(){
+    try{
+      f1();
+    }
+    catch (...){
+      std::lock_guard<std::mutex> guard{ g_mutex };
+      g_ex_vec.push_back(std::current_exception());
+    }
+  }
+
+  void thread_func2(){
+    try{
+      f2();
+    }
+    catch (...){
+      std::lock_guard<std::mutex> guard{ g_mutex };
+      g_ex_vec.push_back(std::current_exception());
+    }
+  }
+
+  int main(){
+    std::thread t1{ thread_func1 };
+    std::thread t2{ thread_func2 };
+
+    t1.join();
+    t2.join();
+
+    for (const auto& ex : g_ex_vec){
+      try{
+        if (ex != nullptr)
+          std::rethrow_exception(ex);
+      }
+      catch (const std::exception& ex){
+        std::cout << "exception caught : " << ex.what() << '\n';
+      }
+    }
+    
+    // output ->
+    //  exception caught : exception from f1()
+    //  exception caught : exception from f2()
+  }
+*/
+
+/*
+  // before C++20 ostream objects i.e std::cout is not synchronized
+
+  #include <thread>
+
+  void f1(){
+    using namespace std::literals;
+    std::this_thread::sleep_for(2000ms);
+
+    for(int i = 0; i < 10000; ++i)
+      std::cout << 13 << "hello" << 34.2341 << "world\n"; 
+  }
+
+  void f2(){
+    using namespace std::literals;
+    std::this_thread::sleep_for(2000ms);
+
+    for (int i = 0; i < 10000; ++i)
+      std::cout << 25 << "Izmir" << 72.2393 << "Ankara\n";
+  }
+
+  int main(){
+    std::thread t1{ f1 };
+    std::thread t2{ f2 };
+
+    t1.join();
+    t2.join();
+
+    // output ->
+    //  13hello72.2393Ankara
+    //  25Izmir72.2393Ankara
+    //  25Izmir72.2393Ankara
+    //  34.2341world                  -> synchronization problem
+    //  13hello25Izmir72.2393Ankara   -> synchronization problem
+  }
+*/
+
+/*
+  // after C++20 <syncstream> header file is added
+
+  #include <syncstream>
+  #include <thread>
+
+  void f1(){
+    using namespace std::literals;
+    std::this_thread::sleep_for(2000ms);
+    std::osyncstream os{ std::cout }
+
+    for(int i = 0; i < 10000; ++i)
+      os << 13 << "hello" << 34.2341 << "world\n"; 
+  }
+
+  void f2(){
+    using namespace std::literals;
+    std::this_thread::sleep_for(2000ms);
+    std::osyncstream os{ std::cout }
+
+    for (int i = 0; i < 10000; ++i)
+      os << 25 << "Izmir" << 72.2393 << "Ankara\n";
+  }
+
+  int main(){
+    std::thread t1{ f1 };
+    std::thread t2{ f2 };
+
+    t1.join();
+    t2.join();
+
+    // output ->
+    //  25Izmir72.2393Ankara    
+    //  25Izmir72.2393Ankara
+    //  25Izmir72.2393Ankara
+    //  25Izmir72.2393Ankara
+    //  13hello34.2341world
+    //  25Izmir72.2393Ankara
+    //  13hello34.2341world
+    //  25Izmir72.2393Ankara
+    //  13hello34.2341world
+
+    // no synchronization problem
+  }
+*/
+
+/*
+  #include <thread>
+  #include <chrono>
+
+  void cprint(char c){
+    using namespace std::literals;
+    // operator""ms is in chrono::literals
+    // chrono::literals is an inline namespace
+    // so it is visible in std::literal namespace
+
+    for (int i = 0; i < 1000; ++i){
+      std::cout << c;
+      std::this_thread::sleep_for(50ms);
+    }
+  }
+
+  int main()
+  {
+    std::thread tarr[26]; 
+    // thread objects are default initialized
+    // they are not joinable
+
+    for (int i{}; auto& tx : tarr){
+      tx = std::thread{ cprint, 'A' + i++ };
+    }
+
+    for (auto& tx : tarr){
+      tx.join();
+    }
+
+    // output ->
+    //  ABXDEFGHIJKMLNOPQRSTUVWCYZYCBXOFIJDAGLUEHQTRNSZVPKWMIRVK
+    //  LCEGQAHXJYWBTDNFUOMZSPSQULMRYJZBWAFEKXOVDPTCGINHIABLRESQ
+    //  GKYOHUZMFJTVDCXNWPRCYFHVANDKSUBPGJQLTXMOEIMNYBPRKWTZDIPX
+    //  ...
+  }
+*/
+
+/*
+  #include <thread>
+  #include <chrono>
+  #include <vector>
+
+  void cprint(char c){
+    using namespace std::literals;
+
+    for (int i = 0; i < 1000; ++i){
+      std::cout << c;
+      std::this_thread::sleep_for(50ms);
+    }
+  }
+
+  int main()
+  {
+    std::vector<std::thread> tvec;
+
+    for (int i = 0; i < 26; ++i){
+      // tvec.push_back(std::thread{ cprint, 'A' + i });
+      tvec.emplace_back(cprint, 'A' + i);
+    }
+
+    for (auto& tx : tvec){
+      tx.join();
+    }
+
+    // output ->
+    //  EDCBAGFHIJKLMNOPRQSTUVWXYZSGBPVZQTJYNCXWADEHROIFMLKU
+    //  VHDEBKOTXIQYAPWGZUNFRJSCLMFMCHTLYUGWZRVOQDESKBAIPXNJ
+    //  AKOZSNIUJPEDBTHCVGQXRWLYFMALSVQECHUIJOGXFMNYBPRKWTZD
+    //  ...
+  }
+*/
+
+/*
+        --------------------------------------------------------
+        | thread-local storage duration | thread_local keyword |
+        --------------------------------------------------------
+*/
+
+/*
+  - if we need a static variable for each thread
+    but when that thread is finished, that variable is not needed anymore
+    we can use thread_local variables
+
+  - every thread_local variable is unique for each thread
+  - thread_local variable is like a static variable for each thread
+*/
+
+/*
+  #include <syncstream>
+  #include <string>
+  #include <thread>
+
+  thread_local int tl_ival { 0 };
+  // every thread has its own copy of tl_ival
+
+  void func(const std::string& thread_name){
+    ++tl_ival;  // no synchronization problem
+
+    std::osyncstream os{ std::cout };
+    os << "tl_ival in thread " << thread_name << " is " << tl_ival << '\n';
+  }
+
+  int main(){
+    std::thread t1{ func, "a" };
+    std::thread t2{ func, "b" };
+
+    {
+      std::osyncstream os{ std::cout };
+      os << "tl_ival in main thread is " << tl_ival << '\n';
+    }
+
+    t1.join();
+    t2.join();
+
+    // output ->
+    //  tl_ival in thread b is 1
+    //  tl_ival in main thread is 0
+    //  tl_ival in thread a is 1
+  }
+*/
+
+/*
+  #include <thread>
+
+  thread_local int tl_ival { 0 };
+
+  void thread_func(int* p){
+    *p = 42;
+    std::cout << "tl_ival = " << tl_ival << '\n';   // (3)
+  }
+
+  int main(){
+    std::cout << "tl_ival = " << tl_ival << '\n';   // (1)
+    tl_ival = 9;
+    std::cout << "tl_ival = " << tl_ival << '\n';   // (2)
+
+    std::thread tx{ thread_func, &tl_ival };
+    // main thread's tl_ival is sent to the thread_func
+    tx.join();
+
+    std::cout << "tl_ival = " << tl_ival << '\n';   // (4)  
+
+    // output ->
+    //  tl_ival = 0     // main thread's tl_ival  (1)
+    //  tl_ival = 9     // main thread's tl_ival  (2)
+    //  tl_ival = 0     // tx thread's tl_ival    (3)
+    //  tl_ival = 42    // main thread's tl_ival  (4)
+  }
+*/
+
+/*
+  #include <mutex>
+  #include <thread>
+
+  std::mutex mtx;
+
+  void func(int id)
+  {
+    int x = 0;                // thread's own stack memory
+    static int y = 0;         // shared memory
+    thread_local int z = 0;   // thread's own memory
+
+    ++x;
+    ++z;
+    std::lock_guard guard(mtx);
+    ++y;
+
+    std::cout << "thread id : " << id 
+              << " - x (automatic storage) = " << x << '\n';
+
+    std::cout << "thread id : " << id 
+              << " - y (static storage) = " << y << '\n';
+
+    std::cout << "thread id : " << id
+              << " - z (thread local storage) = " << z << "\n\n";
+  }
+
+  void foo(int id){
+    func(id);
+    func(id);
+    func(id);
+  }
+
+  int main(){
+    std::thread tx { foo, 0 };
+    std::thread ty { foo, 1 };
+    std::thread tz { foo, 2 };
+
+    tx.join();
+    ty.join();
+    tz.join();
+
+    // output ->
+    //  thread id : 2 - x (automatic storage) = 1
+    //  thread id : 2 - y (static storage) = 1
+    //  thread id : 2 - z (thread local storage) = 1
+    //  
+    //  thread id : 2 - x (automatic storage) = 1
+    //  thread id : 2 - y (static storage) = 2
+    //  thread id : 2 - z (thread local storage) = 2
+    //  
+    //  thread id : 2 - x (automatic storage) = 1
+    //  thread id : 2 - y (static storage) = 3
+    //  thread id : 2 - z (thread local storage) = 3
+    //  
+    //  thread id : 1 - x (automatic storage) = 1
+    //  thread id : 1 - y (static storage) = 4
+    //  thread id : 1 - z (thread local storage) = 1
+    //  
+    //  thread id : 1 - x (automatic storage) = 1
+    //  thread id : 1 - y (static storage) = 5
+    //  thread id : 1 - z (thread local storage) = 2
+    //  
+    //  thread id : 1 - x (automatic storage) = 1
+    //  thread id : 1 - y (static storage) = 6
+    //  thread id : 1 - z (thread local storage) = 3
+    //  
+    //  thread id : 0 - x (automatic storage) = 1
+    //  thread id : 0 - y (static storage) = 7
+    //  thread id : 0 - z (thread local storage) = 1
+    //  
+    //  thread id : 0 - x (automatic storage) = 1
+    //  thread id : 0 - y (static storage) = 8
+    //  thread id : 0 - z (thread local storage) = 2
+    //  
+    //  thread id : 0 - x (automatic storage) = 1
+    //  thread id : 0 - y (static storage) = 9
+    //  thread id : 0 - z (thread local storage) = 3
+  }
+*/
+
+/*
+  #include <thread>
+  #include <vector>
+  #include <syncstream>
+  #include <mutex>
+
+  thread_local int g_tl_ival{};
+  int g_ival{};
+
+  std::mutex mtx;
+  void func(char c)
+  {
+    ++g_tl_ival;
+    std::lock_guard<std::mutex> myguard{ mtx };
+    ++g_ival;
+    std::osyncstream{ std::cout } << c  << " - g_tl_ival = " << g_tl_ival 
+                                        << " - g_ival = " << g_ival << '\n';
+  }
+
+  int main(){
+    using namespace std;
+
+    vector<thread> tvec;
+
+    for(char c = 'a'; c <= 'z'; ++c)
+      tvec.emplace_back(func, c);
+
+    for (auto& t : tvec)
+      t.join();
+
+    // output ->
+    //  g - g_tl_ival = 1 - g_ival = 1
+    //  a - g_tl_ival = 1 - g_ival = 2
+    //  h - g_tl_ival = 1 - g_ival = 3
+    //  f - g_tl_ival = 1 - g_ival = 4
+    //  d - g_tl_ival = 1 - g_ival = 5
+    //  b - g_tl_ival = 1 - g_ival = 6
+    //  c - g_tl_ival = 1 - g_ival = 7
+    //  i - g_tl_ival = 1 - g_ival = 8
+    //  e - g_tl_ival = 1 - g_ival = 9
+    //  j - g_tl_ival = 1 - g_ival = 10
+    //  k - g_tl_ival = 1 - g_ival = 11
+    //  l - g_tl_ival = 1 - g_ival = 12
+    //  m - g_tl_ival = 1 - g_ival = 13
+    //  n - g_tl_ival = 1 - g_ival = 14
+    //  o - g_tl_ival = 1 - g_ival = 15
+    //  q - g_tl_ival = 1 - g_ival = 16
+    //  s - g_tl_ival = 1 - g_ival = 17
+    //  t - g_tl_ival = 1 - g_ival = 18
+    //  v - g_tl_ival = 1 - g_ival = 19
+    //  w - g_tl_ival = 1 - g_ival = 20
+    //  x - g_tl_ival = 1 - g_ival = 21
+    //  y - g_tl_ival = 1 - g_ival = 22
+    //  p - g_tl_ival = 1 - g_ival = 23
+    //  r - g_tl_ival = 1 - g_ival = 24
+    //  u - g_tl_ival = 1 - g_ival = 25
+    //  z - g_tl_ival = 1 - g_ival = 26
+  }
+*/
+
+/*
+  #include <cstdint>
+  #include <chrono>
+  #include <thread>
+
+  uint64_t sum_odd = 0ull;
+  uint64_t sum_even = 0ull;
+
+  constexpr uint64_t n = 1'000;
+
+  void get_sum_odds(){
+    using namespace std::literals;
+
+    for (uint64_t i = 1; i <= n; i += 2){
+      std::this_thread::sleep_for(4ms);
+      sum_odd += i;
+    }
+  }
+
+  void get_sum_evens(){
+    using namespace std::literals;
+    for (uint64_t i = 2; i <= n; i += 2){
+      std::this_thread::sleep_for(4ms);
+      sum_even += i;
+    }
+  }
+
+  int main(){
+    using namespace std;
+    using namespace chrono;
+
+    // ----------- PART 1 ------------
+    auto start = steady_clock::now();
+    get_sum_evens();
+    get_sum_odds();
+    auto end = steady_clock::now();
+
+    std::cout << "calculations completed in " 
+              << duration_cast<milliseconds>(end - start).count() 
+              << " milliseconds\n";
+    
+    std::cout << "sum of odds   : " << sum_odd << '\n';
+    std::cout << "sum of evens  : " << sum_even << '\n';
+
+    // output ->
+    //  calculations completed in 15790 milliseconds
+    //  sum of odds   : 250000
+    //  sum of evens  : 250500
+
+
+    // ----------- PART 2 ------------
+    std::thread tx{ get_sum_evens };
+    std::thread ty{ get_sum_odds };
+
+    sum_even = 0ull;
+    sum_odd = 0ull;
+
+    start = steady_clock::now();
+    tx.join();
+    ty.join();
+    end = steady_clock::now();
+
+    std::cout << "calculations completed in " 
+              << duration_cast<milliseconds>(end - start).count() 
+              << " milliseconds\n";
+
+    std::cout << "sum of odds   : " << sum_odd << '\n';
+    std::cout << "sum of evens  : " << sum_even << '\n';
+    
+    // output ->
+    //  calculations completed in 7872 milliseconds
+    //  sum of odds   : 250000
+    //  sum of evens  : 250500
+  }
+*/
+
+/*
+  // https://en.cppreference.com/w/cpp/thread/thread/native_handle
+  #include <thread>
+
+  void foo(){}
+
+  int main(){
+    std::thread tx{ foo };
+
+    std::cout << tx.native_handle() << '\n';    // output -> 2
+    // returns a handle for OS specific API's 
+
+    tx.join();
+  }
+*/
+
+/*
+  #include <thread>
+
+  void foo(){};
+  void bar(){};
+  void baz(){};
+
+  int main(){
+    std::thread t1;
+    std::thread t2;
+    std::thread t3;
+
+    std::cout << "t1 id : " << t1.get_id() << '\n';
+    std::cout << "t2 id : " << t2.get_id() << '\n';
+    std::cout << "t3 id : " << t3.get_id() << '\n';
+
+    // output ->
+    //  t1 id : thread::id of a non-executing thread
+    //  t2 id : thread::id of a non-executing thread
+    //  t3 id : thread::id of a non-executing thread
+
+    t1 = std::thread{ foo }; 
+    t2 = std::thread{ bar };
+    t3 = std::thread{ baz };
+
+    std::cout << "t1 id : " << t1.get_id() << '\n';
+    std::cout << "t2 id : " << t2.get_id() << '\n';
+    std::cout << "t3 id : " << t3.get_id() << '\n';
+
+    // output ->
+    //  t1 id : 2
+    //  t2 id : 3
+    //  t3 id : 4
+
+    t1.join();
+    t2.join();
+    t3.join();
+  }
+*/
+
+/*
+                  --------------------------------
+                  | std::async function template |
+                  --------------------------------
+*/
+
+/*
+  - to get the outcome from std::async's workload(callable)
+    if function throws an exception, we can get that exception
+    if not we can get the return value
+
+  - thread's paralel execution in high level interface
+*/
+
+/*
+  - for transfering the return value from running thread to runner thread
+    we need to have a shared state.
+  - if we did not use std::async() function template
+    we need to create that shared state manually
+*/
+
+/*
+  // https://en.cppreference.com/w/cpp/thread/async
+
+  - overload that does not have std::launch policy parameter
+    will work as same as (std::launch::async | std::launch::deferred)
+*/
+
+/*
+  #include <future>
+
+  int foo(int x){
+    std::cout << "foo called x = " << x << '\n';
+    return x * x;
+  }
+
+  class Myclass{};
+
+  Myclass bar();
+
+  int main(){
+    std::async(foo, 10);
+    std::async(std::launch::async | std::launch::deferred, foo, 10);
+    // Those 2 lines are equivalent
+
+    // std::async(foo, 10) functions return value type is 
+    // std::future<int> type 
+
+    std::future<int> ft1 = std::async(foo, 10);
+    auto ft2 = std::async(foo, 10);
+    // Those 2 lines are equivalent
+
+    std::future<Myclass> ft3 = std::async(bar);
+    auto ft4 = std::async(bar);
+    // Those 2 lines are equivalent
+  }
+*/
+
+/*
+  #include <future>
+
+  int foo(int x){
+    std::cout << "foo called x = " << x << '\n';
+    return x * x;
+  }
+
+  int main(){
+    auto ft = std::async(foo, 10);
+    auto val = ft.get();
+
+    std::cout << "val = " << val << '\n';
+
+    // SCENARIO 1
+    // std::async(foo, 10); function is called and executed.
+    // we can get the return type directly
+
+    // SCENARIO 2
+    // std::async(std::launch::deferred, foo, 10);
+    // when ft.get() is called, foo function will be called and executed
+
+    // SCENARIO 3
+    // when ft.get() is called, foo function will be called 
+    // but its execution is not finished(still continuing)
+    // ft.get() will block the caller thread 
+    // until foo function's execution is finished
+  }
+*/
+
+/*
+  // when workload function has no return type 
+  // and we did not hold return type of std::async() function in a variable
+  // we can not call get() function of the std::async() function's 
+  // return type (std::future<void>.get())
+  // if async() function is called with std::launch::deferred policy
+  // in this scenario that workload function will never be executed.
+*/
+
+/*
+  #include <future>
+
+  int f1(){
+    return 1;
+  }
+
+  int f2(){
+    return 2;
+  }
+
+  int f3(){
+    return 3;
+  }
+
+  int main(){
+    auto ft1 = std::async(std::launch::async, f1);
+    auto ft2 = std::async(std::launch::async, f2);
+    auto ft3 = std::async(std::launch::async, f3);
+
+    std::cout << ft1.get() << '\n';   // output -> 1
+    std::cout << ft2.get() << '\n';   // output -> 2
+    std::cout << ft3.get() << '\n';   // output -> 3
+
+    // SCENARIO 1 -> f1 function is called and executed
+    // SCENARIO 2 -> f1 function is called but execution is not finished
+    //  ft1.get() will be blocked
+
+    // we need to call get() function 1 time
+    std::cout << ft1.get() << '\n';   
+
+    // output -> 
+    //  terminate called after throwing an instance of 'std::future_error'
+    //  what():  std::future_error: No associated state
+  }
+*/
+
+/*
+  #include <future>
+  #include <stdexcept>
+
+  // <------ SCENARIO 1 ------>
+  int foo(){
+    return 11;
+  }
+  // output -> return value is: 11
+
+  // <------ SCENARIO 2 ------>
+  int foo(){
+    throw std::runtime_error{ "exception from foo()" };
+  }
+  // output -> exception caught: exception from foo()
+
+
+  int main(){
+    try{
+      auto ft1 = std::async(std::launch::async, foo);
+      auto val = ft1.get();
+
+      std::cout << "return value is: " << val << '\n';
+    }
+    catch(const std::exception& ex){
+      std::cout << "exception caught: " << ex.what() << '\n';
+    }
+  }
+*/
+
+/*
+  int func();
+  int foo();
+  // func and foo functions are taking long time to execute
+  // but we need the sum of their return values
+
+  int main(){
+
+    auto x = func() + foo();  
+    // if that way we run func and foo functions sequentially
+    // which function will be called is unspecified behaviour
+
+
+    auto ft1 = async(std::launch::async, foo);
+    auto func_val = func();
+    auto y = func_val + ft1.get();
+    // if that way we run func and foo functions parallel(simultaneously)
+  }
+*/
+
+/*
+  #include <string>
+  #include <cstdlib>      // std::rand 
+  #include <algorithm>    // std::generate_n
+  #include <thread>
+  #include <future>
+
+  std::string get_str_letters(int n){
+    using namespace std::literals;
+
+    std::string str(n ,'\0'); // fill constructor
+
+    std::generate_n(str.begin(), n, []{return rand() % 26 + 'A';});
+    std::this_thread::sleep_for(3s);
+
+    return str;
+  }
+
+  std::string get_str_digits(int n){
+    using namespace std::literals;
+
+    std::string str(n, '\0'); // fill constructor
+
+    std::generate_n(str.begin(), n, []{return rand() % 10 + '0';});
+    std::this_thread::sleep_for(3s);
+
+    return str;
+  }
+
+  int main(){
+    auto start = std::chrono::steady_clock::now();
+
+    // auto ft1 = std::async(std::launch::deferred, get_str_letters, 20);
+    // auto ft2 = std::async(std::launch::deferred, get_str_digits, 20);
+
+    auto ft1 = std::async(std::launch::async, get_str_letters, 20);
+    auto ft2 = std::async(std::launch::async, get_str_digits, 20);
+
+    auto s1 = ft1.get();
+    auto s2 = ft2.get();
+    auto end = std::chrono::steady_clock::now();
+
+    std::cout << std::chrono::duration<double>{end - start}.count() 
+              << " seconds\n";
+
+    std::cout << "s1 + s2 = " << s1 + s2 << '\n';
+
+    // output -> (std::launch::deferred)
+    //  6.02061 seconds
+    //  s1 + s2 = PHQGHUMEAYLNLFDXFIRC14232216857618927954
+
+    // with std::launch::deferred policy
+    // ft1.get() will block the caller thread
+    // until its workload function is finished executing
+    // then ft2.get() will be called
+
+    // output -> (std::launch::async)
+    //  3.01504 seconds
+    //  s1 + s2 = PHQGHUMEAYLNLFDXFIRC17409488245517115276
+
+    // with std::launch::async policy
+    // ft1.get() and ft2.get() will be called simultaneously
+    // and they will be executed in parallel
+  }
+*/
+
+/*
+  #include <future>
+  #include <thread>
+
+  void foo(){
+    using namespace std::literals;
+    std::cout << "foo called\n";
+    std::this_thread::sleep_for(3s);
+  }
+
+  void bar(){
+    using namespace std::literals;
+    std::cout << "bar called\n";
+    std::this_thread::sleep_for(3s);
+  }
+
+  int main(){
+
+    auto start = std::chrono::steady_clock::now();
+    async(std::launch::async, foo);
+    auto end = std::chrono::steady_clock::now();
+    std::cout << std::chrono::duration<double>{end - start}.count() 
+              << " seconds\n";
+
+    start = end;
+    async(std::launch::async, bar);
+    end = std::chrono::steady_clock::now();
+    std::cout << std::chrono::duration<double>{end - start}.count() 
+              << " seconds\n";
+
+    // output -> 
+    //  foo called
+    //  3.01237 seconds
+    //  bar called
+    //  3.01364 seconds
+
+    // when `async(std::launch::async, foo);` this line has been executed
+    // temporary std::future<void> object is created
+    // and after line's execution temporary object's destructor will be called
+    // and its destructor will call temporary objects get() function
+    // and that get() function will block the caller thread
+  }
+*/

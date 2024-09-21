@@ -313,3 +313,6 @@
 ### [Concurrency](https://github.com/UPinar/CppLessons/tree/main/Concurrency)
   - `<thread>` module
   - `std::this_thread` namespace
+  - exception handling - threads relationship
+  - thread-local storage duration | `thread_local` keyword
+  - `std::async` function template
