@@ -581,9 +581,9 @@
   //	main:
   //	  push rbp
   //	  mov rbp, rsp
-  //	  mov DWORD PTR [rbp-12], 10    // int temp_obj = 10;
-  //	  lea rax, [rbp-12]             // rax = &temp_obj
-  //	  mov QWORD PTR [rbp-8], rax    // int* ptr = rax(&temp_obj)
+  //	  mov DWORD PTR [rbp-12], 10      : int temp_obj = 10;
+  //	  lea rax, [rbp-12]               : rax = &temp_obj
+  //	  mov QWORD PTR [rbp-8], rax      : int* ptr = rax(&temp_obj)
   //	  mov eax, 0
   //	  pop rbp
   //	  ret
