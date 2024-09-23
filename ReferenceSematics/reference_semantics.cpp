@@ -40,7 +40,7 @@
     x++;				// RValue expression
     &x;					// LValue expression
 
-    nullptr;		// PRValue expression
+    nullptr;    // PRValue expression
 
     foo();			// PRValue expression
     func();			// LValue expression
@@ -49,19 +49,19 @@
 */
 
 /*
-                    C			C++
+                    C     C++
   ------------------------------------------
-  ++x								R			L
-  --x								R			L
-  a = b							R			L
-  x, y							R			L	[if right operand is L value]
-  x > y ? a : b			R			L
+  ++x               R     L
+  --x               R     L
+  a = b             R     L
+  x, y              R     L [if right operand is L value]
+  x > y ? a : b     R     L
 */
 
 /*
   Combined Value Categories
   -------------------------
-  1. GL value		-> L value 	or X value
+  1. GL value		-> L value  or X value
   2. R value		-> PR value or X value
 /*
 
@@ -83,7 +83,7 @@
   int main()
   {
     int x = 34;
-    int& r = x; 	// r binds to x
+    int& r = x;   // r binds to x
 
     std::cout << "x = " << x << '\n'; // output -> x = 34
 
@@ -139,7 +139,7 @@
     int* p{ &x };
     std::cout << "x = " << x << '\n'; // output -> x = 111
 
-    int& r = *p;	// r binds to x
+    int& r = *p;  // r binds to x
 
     r = 999;
     std::cout << "x = " << x << '\n'; // output -> x = 999
@@ -183,10 +183,10 @@
   {
     int* p = nullptr;
 
-    int*& r = p; 		// r = p
+    int*& r = p;    // r = p
     int x = 10;
-    r = &x;					// r = &x ===> p = &x
-    *r = 99;				// *r ===> *p ===> x
+    r = &x;         // r = &x ===> p = &x
+    *r = 99;        // *r ===> *p ===> x
 
     std::cout << "x = " << x << '\n'; // output -> x = 99
   }
@@ -199,8 +199,8 @@
     int* 	p 	= &x;
     int** ptr = &p;
 
-    int**& r = ptr; 	// r = ptr
-    **r = 99; 				// **r ===> **ptr ===> x
+    int**& r = ptr;   // r = ptr
+    **r = 99;         // **r ===> **ptr ===> x
 
     std::cout << "x = " << x << '\n'; // output -> x = 99
   }
@@ -261,7 +261,7 @@
     int a[5]{ 1, 2, 3, 4, 5 };
 
     //--------------------------------------------------------
-    int* ptr = a; 		// pointer, points to the arrays first element.
+    int* ptr = a;     // pointer, points to the arrays first element.
     // int* ptr = &a[0];
     // Those 2 lines are equivalent.
 
@@ -270,14 +270,14 @@
     // (pointer to an integer[array's first element])
 
     //--------------------------------------------------------
-    int(*p)[5] = &a; // pointer, points to the whole array.
+    int(*p)[5] = &a;  // pointer, points to the whole array.
 
     std::cout << typeid(p).name() << '\n';
     // output -> int (* __ptr64)[5] ->
     // (pointer to a 5 element array)
 
     //--------------------------------------------------------
-    int(&r)[5] = a; //  reference to 5 element array
+    int(&r)[5] = a;   // reference to 5 element array
 
     for (int i = 0; i < 5; ++i)
       printf("%d %d\n", r[i], a[i]);
@@ -456,8 +456,8 @@
 /*
   using T = int;
 
-  void mutator_func(T&);					// SET function
-  void accessor_func(const T&);		// GET function
+  void mutator_func(T&);          // SET function
+  void accessor_func(const T&);   // GET function
 
   int main()
   {
@@ -465,10 +465,10 @@
     const int& r = x;
     // const reference -> reading purpose
 
-    ++r;			// syntax error
+    ++r;        // syntax error
     // error: increment of read-only reference 'r'
 
-    r = 12; 	// syntax error
+    r = 12;     // syntax error
     // error: assignment of read-only reference 'r'
   }
 */
@@ -493,11 +493,11 @@
   int main()
   {
     const int x = 10;
-    int* p = &x; 	// syntax error
+    int* p = &x;    // syntax error
     // no implicit conversion from const T* to T*
     // error: invalid conversion from 'const int*' to 'int*'
 
-    int& r = x; 	// syntax error
+    int& r = x;     // syntax error
     // error: binding reference of type 'int&' to 'const int'
 
     const int* cptr = &x;		// VALID
@@ -510,18 +510,18 @@
   {
     int x = 10;
 
-    const int* cptr = &x; 	// VALID (contractual constness)
+    const int* cptr = &x;     // VALID (contractual constness)
     // implicit conversion from int* to const int* is valid.
 
-    const int& cref = x; 		// VALID
+    const int& cref = x;      // VALID
 
-    *cptr = 22;							// syntax error
+    *cptr = 22;               // syntax error
     // error: assignment of read-only location '* cptr'
 
-    cref = 44;							// syntax error
+    cref = 44;                // syntax error
     // error: assignment of read-only reference 'cref'
 
-    x = 23;									// VALID
+    x = 23;                   // VALID
   }
 */
 
@@ -581,9 +581,9 @@
   //	main:
   //	  push rbp
   //	  mov rbp, rsp
-  //	  mov DWORD PTR [rbp-12], 10		// int temp_obj = 10;
-  //	  lea rax, [rbp-12]							// rax = &temp_obj
-  //	  mov QWORD PTR [rbp-8], rax		// int* ptr = rax(&temp_obj)
+  //	  mov DWORD PTR [rbp-12], 10    // int temp_obj = 10;
+  //	  lea rax, [rbp-12]             // rax = &temp_obj
+  //	  mov QWORD PTR [rbp-8], rax    // int* ptr = rax(&temp_obj)
   //	  mov eax, 0
   //	  pop rbp
   //	  ret
@@ -593,7 +593,7 @@
   int main()
   {
     int x = 10;
-    double& dr = x;				// syntax error
+    double& dr = x;       // syntax error
     // error: cannot bind non-const lvalue reference of type 'double&'
     // to a value of type 'int'
   }
@@ -612,15 +612,15 @@
   // main:
   //	push rbp
   //	mov rbp, rsp
-  //	mov DWORD PTR [rbp-4], 10						: int temp_i_obj = 10;
-  //	pxor xmm0, xmm0											: clean xmm0 register
+  //	mov DWORD PTR [rbp-4], 10           : int temp_i_obj = 10;
+  //	pxor xmm0, xmm0                     : clean xmm0 register
 
-  //	cvtsi2sd xmm0, DWORD PTR [rbp-4]		: xmm0 = (double)temp_i_obj
-  //	movsd QWORD PTR [rbp-24], xmm0			: double temp_d_obj = xmm0
-  //		- double temp_d_obj = (double)temp_i_obj;
+  //	cvtsi2sd xmm0, DWORD PTR [rbp-4]    : xmm0 = (double)temp_i_obj
+  //	movsd QWORD PTR [rbp-24], xmm0      : double temp_d_obj = xmm0
+  //    - double temp_d_obj = (double)temp_i_obj;
 
-  //	lea rax, [rbp-24]										: rax = &temp_d_obj
-  //	mov QWORD PTR [rbp-16], rax					: double* ptr = rax(&temp_d_obj)
+  //	lea rax, [rbp-24]                   : rax = &temp_d_obj
+  //	mov QWORD PTR [rbp-16], rax         : double* ptr = rax(&temp_d_obj)
   //	mov eax, 0
   //	pop rbp
   //	ret
