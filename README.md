@@ -2,7 +2,8 @@
 
 ### [Reference Semantics](https://github.com/UPinar/CppLessons/tree/main/ReferenceSematics)
   - L value references
-  - differences between pointer semantics and reference semantics
+  - pointer semantics 
+  - reference semantics
   
 ### [Type Deduction](https://github.com/UPinar/CppLessons/tree/main/TypeDeduction)
   - `auto`
