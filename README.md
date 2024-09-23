@@ -316,3 +316,4 @@
   - exception handling - threads relationship
   - thread-local storage duration | `thread_local` keyword
   - `std::async` function template
+  - `std::future` class template

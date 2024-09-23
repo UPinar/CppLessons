@@ -1985,3 +1985,374 @@
     // and that get() function will block the caller thread
   }
 */
+
+/*
+  #include <chrono>
+  #include <future>
+
+  int main(){
+    using namespace std;
+    using namespace std::chrono;
+
+    auto tp_start = system_clock::now();
+
+    auto lazy_async = std::async(std::launch::deferred, []{
+      return system_clock::now();
+    });
+    // std::async(std::launch::deferred, ) will wait 
+    // till its get() member function is called
+
+    auto eager_async = std::async(std::launch::async, []{
+      return system_clock::now();
+    });
+    // std::async(std::launch::async, ) will be executed immediately
+
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+
+    using dsec = duration<double>;
+
+    auto deferred_sec = 
+              static_cast<dsec>(lazy_async.get() - tp_start).count();
+
+    auto eager_sec = 
+              static_cast<dsec>(eager_async.get() - tp_start).count();
+
+    std::cout << "duration for deferred : " 
+              << deferred_sec << " seconds\n";
+
+    std::cout << "duration for eager    : " 
+              << eager_sec << " seconds\n";
+
+    // output ->
+    //  duration for deferred : 1.00044 seconds
+    //  duration for eager    : 0.0005003 seconds
+  }
+*/
+
+/*
+  #include <chrono>
+  #include <future>
+
+  int main(){
+    using namespace std;
+    using namespace std::chrono;
+
+    auto tp_start = system_clock::now();
+
+    auto lazy_async = std::async(std::launch::deferred, []{
+      return system_clock::now();
+    });
+
+    auto no_policy_async = std::async([]{ return system_clock::now(); });
+    // when first parameter is not given
+    // one of std::launch::deferred or std::launch::async 
+    // will be choosen in run-time
+
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+
+    using dsec = duration<double>;
+
+    auto deferred_sec = 
+          static_cast<dsec>(lazy_async.get() - tp_start).count();
+
+    auto no_policy_sec = 
+          static_cast<dsec>(no_policy_async.get() - tp_start).count();
+
+    std::cout << "duration for deferred  : " 
+              << deferred_sec << " seconds\n";
+
+    std::cout << "duration for no policy : " 
+              << no_policy_sec << " seconds\n";
+
+    // output ->
+    //  duration for deferred  : 1.00623 seconds
+    //  duration for no policy : 0.0005693 seconds
+
+    // in run-time std::launch::async policy is choosen
+  }
+*/
+
+/*
+  #include <chrono>
+  #include <future>
+
+  int main(){
+    using namespace std;
+    using namespace std::chrono;
+
+    auto tp_start = system_clock::now();
+
+    auto no_policy_async = std::async(
+              []{ return system_clock::now();});
+
+    auto both_policy_async = std::async(
+              std::launch::async | std::launch::deferred,
+              []{ return system_clock::now(); });
+
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+
+    using dsec = duration<double>;
+
+    auto no_policy_sec = 
+        static_cast<dsec>(no_policy_async.get() - tp_start).count();
+
+    auto both_policy_sec = 
+        static_cast<dsec>(both_policy_async.get() - tp_start).count();
+
+    std::cout << "duration for no policy   : " 
+              << no_policy_sec << " seconds\n";
+
+    std::cout << "duration for both policy : " 
+              << both_policy_sec << " seconds\n";
+
+    // output ->
+    //  duration for no policy   : 0.000593 seconds
+    //  duration for both policy : 0.0006259 seconds
+
+    // for no policy(means std::launch::async | std::launch::deferred)
+    // std::launch::async policy is choosen
+
+    // for both policy(std::launch::async | std::launch::deferred)
+    // std::launch::async policy is choosen
+
+    // when get() functions are called both of them will 
+    // already been executed without waiting main threads 1 second
+}
+*/
+
+/*
+  #include <map>
+  #include <string>
+  #include <future>
+  #include <algorithm>
+  #include <iomanip>
+
+  std::map<char, size_t> histogram(const std::string& str)
+  {
+    std::map<char, size_t> cmap;
+
+    for (char c : str)
+      ++cmap[c];
+    // when a char not exists in the map
+    // ++ operator will create that char in the map
+    // and value initialize .second (int -> 0)
+
+    return cmap;
+  }
+
+  std::string get_sorted(std::string str)
+  {
+    std::sort(begin(str), end(str));
+    std::erase_if(str, [](char c){ return isspace(c); });   // C++20
+    return str;
+  }
+
+  bool is_vowel(char c)
+  {
+    static const char vowels[] = { "AEIOUaeiou" };
+    return std::find(std::begin(vowels), std::end(vowels), c) 
+                                                    != std::end(vowels);
+  }
+
+  size_t count_vowels(const std::string& str)
+  {
+    return std::count_if(std::begin(str), std::end(str), is_vowel);
+  }
+
+  int main(){
+    std::string sline = "Hello_world_we_are_live_from_Istanbul";
+
+    auto hist = std::async(std::launch::async, histogram, sline);
+    auto sorted_str = std::async(std::launch::async, get_sorted, sline);
+    auto vowel_count = std::async(std::launch::async, count_vowels, sline);
+
+    for (const auto& [c, count] : hist.get())
+      std::cout << c << " : " << count << '\n';
+
+    std::cout << "sorted string : " 
+              << std::quoted(sorted_str.get()) << '\n'
+              << "total_vowels : "
+              << vowel_count.get() << '\n';
+
+    // output -> 
+    //  H : 1
+    //  I : 1
+    //  _ : 6
+    //  a : 2
+    //  b : 1
+    //  d : 1
+    //  e : 4
+    //  f : 1
+    //  i : 1
+    //  l : 5
+    //  m : 1
+    //  n : 1
+    //  o : 3
+    //  r : 3
+    //  s : 1
+    //  t : 1
+    //  u : 1
+    //  v : 1
+    //  w : 2
+    //  sorted string : "HI______aabdeeeefilllllmnooorrrstuvww"
+    //  total_vowels : 12
+  }
+*/
+
+/*
+                --------------------------------
+                | `std::future` class template |
+                --------------------------------
+*/
+
+/*
+  - std::promise objects get_future() member function
+    will return us a std::future object that will shared state
+  
+  - std::async function will return us a std::future object
+
+  - std::packaged_task get_future() member function
+    will return us a std::future object
+*/
+
+/*
+                <--- check promise_future.png --->
+
+  Biz bir `std::promise` oluşturduğumuzda, bu std::promise 
+  sınıf nesnesi vasıtasıyla shared state'i set ediyoruz, böylece
+  bir result oluşturuyoruz.
+
+    - shared state'i bir value ile set etmek.
+    - shared state'i bir exception ile set etmek.
+  
+  `std::promise` sınıfının `set_value()` fonksiyonu ile shared 
+  state SET edilir ise, `std::future` sınıfı get() üye fonksiyonu ile
+  bu value GET edilir, alınır.
+
+  `std::promise` sınıfının `set_exception()` fonksiyonu ile shared
+  state SET edilir ise, `std::future` sınıfı get() üye fonksiyonu ile
+  bu exception GET edilir, yakalanır.
+
+  `std::promise` ve `std::future` sınıfları 
+  ayrı threadler tarafından kullanılabilirler.
+
+  `std::promise` ile `std::future` arasında kurulan iletişim kanalı
+  (channel) bir defa kullanıldıktan sonra tekrar kullanılamaz.
+    `std::promise` shared state'i bir kere set edebilir.
+    `std::future` shared state'i bir kere get edebilir.
+
+  `std::shared_future` sınıfı kullanılarak shared state 
+  birden fazla kere get edilebilir.
+*/
+
+/*
+  #include <future>  // std::promise, std::future, std::async
+
+  int main()
+  {
+    std::promise<int> prom;
+    // std::promise class is non copyable but movable
+
+    std::future<int> ftr = prom.get_future();
+
+    prom.set_value(999);
+
+    // std::future objects get() function has not been called
+    if (ftr.valid())  
+      std::cout << "future object is in valid state\n";
+    else
+      std::cout << "future is not a valid state\n";
+
+    // output -> future object is in valid state
+
+    auto val = ftr.get();
+    std::cout << "val = " << val << '\n';
+    // output -> val = 999
+
+    // std::future objects get() function has been called
+    if (ftr.valid())
+      std::cout << "future object is in valid state\n";
+    else
+      std::cout << "future is not a valid state\n";
+
+    // output -> future is not a valid state
+
+
+    // if get() function called for the second time
+    try{
+      val = ftr.get();
+    }
+    // catch(const std::exception& ex){
+    catch(const std::future_error& ex){
+      std::cout << "exception caught : " << ex.what() << '\n';
+    }
+    // output ->
+    // exception caught : std::future_error: No associated state
+  }
+*/
+
+/*
+  // what happens we call std::future's get() function 
+  // when std::promise did not set the shared state yet
+
+  #include <future>  // std::promise, std::future
+
+  int main(){
+    std::promise<int> prom;
+    auto ftr = prom.get_future();
+
+    auto val = ftr.get();   
+    // program will be blocked here and wait for 
+    // shared state to be set by std::promise
+  }
+*/
+
+/*
+  // !!!!! If async will solve your problem, use async !!!!!
+
+  #include <future>   // std::promise, std::future
+  #include <thread>   // std::thread
+  #include <utility>  // std::move
+
+  void sum_square(std::promise<int>&& prom, int a, int b)
+  {
+    prom.set_value(a * a + b * b);
+  }
+
+  struct Div{
+    void operator()(std::promise<int>&& prom, int a, int b) const 
+    {
+      prom.set_value(a / b);
+    }
+  };
+
+  int main(){
+    int x{ 90 }, y{ 15 };
+
+    std::promise<int> sum_square_prom;
+    std::promise<int> div_prom;
+    std::future<int> fp_sum_square = sum_square_prom.get_future();
+    std::future<int> fp_div = div_prom.get_future();
+
+    std::thread tx{ sum_square, std::move(sum_square_prom), x, y };
+    std::thread ty{ Div{}, std::move(div_prom), x, y };
+
+    std::cout << x << " * " << x << " + " 
+              << y << " * " << y << " = "
+              << fp_sum_square.get() << '\n';
+
+    std::cout << x << " / " << y << " = " 
+              << fp_div.get() << '\n';
+    
+    tx.join();
+    ty.join();
+
+    // tx, ty and main thread are running asynchronously
+
+    // output -> 
+    //  90 * 90 + 15 * 15 = 8325
+    //  90 / 15 = 6
+  }
+*/
+
+// concurrency Lesson 3 - 00:54:35
