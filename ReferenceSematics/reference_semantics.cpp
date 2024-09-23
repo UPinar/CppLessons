@@ -30,21 +30,21 @@
 
   int main()
   {
-    10;					// PRValue expression
+    10;         // PRValue expression
 
     int x = 10;
-    x;					// LValue expression
+    x;          // LValue expression
 
-    +x;					// PRValue expression
-    ++x;				// LValue expression
-    x++;				// RValue expression
-    &x;					// LValue expression
+    +x;         // PRValue expression
+    ++x;        // LValue expression
+    x++;        // RValue expression
+    &x;         // LValue expression
 
     nullptr;    // PRValue expression
 
-    foo();			// PRValue expression
-    func();			// LValue expression
-    bar();			// XValue expression
+    foo();      // PRValue expression
+    func();     // LValue expression
+    bar();      // XValue expression
   }
 */
 
@@ -465,10 +465,10 @@
     const int& r = x;
     // const reference -> reading purpose
 
-    ++r;        // syntax error
+    ++r;    // syntax error
     // error: increment of read-only reference 'r'
 
-    r = 12;     // syntax error
+    r = 12; // syntax error
     // error: assignment of read-only reference 'r'
   }
 */
@@ -500,8 +500,8 @@
     int& r = x;     // syntax error
     // error: binding reference of type 'int&' to 'const int'
 
-    const int* cptr = &x;		// VALID
-    const int& cref = x;		// VALID
+    const int* cptr = &x;   // VALID
+    const int& cref = x;    // VALID
   }
 */
 
@@ -510,18 +510,18 @@
   {
     int x = 10;
 
-    const int* cptr = &x;     // VALID (contractual constness)
+    const int* cptr = &x;   // VALID (contractual constness)
     // implicit conversion from int* to const int* is valid.
 
-    const int& cref = x;      // VALID
+    const int& cref = x;    // VALID
 
-    *cptr = 22;               // syntax error
+    *cptr = 22;   // syntax error
     // error: assignment of read-only location '* cptr'
 
-    cref = 44;                // syntax error
+    cref = 44;    // syntax error
     // error: assignment of read-only reference 'cref'
 
-    x = 23;                   // VALID
+    x = 23;   // VALID
   }
 */
 
@@ -572,7 +572,7 @@
 /*
   int main()
   {
-    const int& cref = 10; 	// VALID
+    const int& cref = 10;   // VALID
     // compiler create a temporary object and
     // reference binds to that temp object.
   }
@@ -593,7 +593,7 @@
   int main()
   {
     int x = 10;
-    double& dr = x;       // syntax error
+    double& dr = x;   // syntax error
     // error: cannot bind non-const lvalue reference of type 'double&'
     // to a value of type 'int'
   }
@@ -602,7 +602,7 @@
 /*
   int main()
   {
-    const double& cdref = x;	// VALID
+    const double& cdref = x;  // VALID
     // compiler will create an int and double temp objects
     // it will implicitly cast int to double
     // const double& will bind to casted double temp object.
