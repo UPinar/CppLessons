@@ -6,17 +6,17 @@
   - reference semantics
   
 ### [Type Deduction](https://github.com/UPinar/CppLessons/tree/main/TypeDeduction)
-  - `auto`
-  	- auto x   = expr
-	- auto& y  = expr
-	- auto&& z = expr -> forwarding reference
-		- reference collapsing
+  - `auto` type deduction
+    - `auto`   x = expr
+	  - `auto&`  y = expr
+	  - `auto&&` z = expr (forwarding reference)
+	- reference collapsing
 	- trailing return type
 	- auto return type
-  - `decltype`
+  - `decltype` specifier type deduction
   	- decltype(identifier)
-	- decltype(expression)
-  - unevaluated context
+	  - decltype(expression)
+  - unevaluated context (İşlem kodu üretilmeyen bağlam) 
   
 ### [Default Arguments](https://github.com/UPinar/CppLessons/tree/main/DefaultArguments)
   - Default arguments
