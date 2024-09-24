@@ -1,49 +1,49 @@
 #include <iostream>
 
 /*
-                  ========================================
-                  | Concurrency (eşzamanlılık / eşgüdüm) |
-                  ========================================
+                ========================================
+                | Concurrency (eşzamanlılık / eşgüdüm) |
+                ========================================
 */
 
 /*
-  --------------------------------------------------------------------------
-  concurrency : 
-    - işlerin "belirli bir zaman diliminde(aralığında)" birlikte yapılması.
-    - iş parçalarını birbirinden bağımsız parçalara ayırmak.
+------------------------------------------------------------------------
+concurrency : 
+  - işlerin "belirli bir zaman diliminde(aralığında)" birlikte yapılması.
+  - iş parçalarını birbirinden bağımsız parçalara ayırmak.
 
-    - bir programın concurrent olması, birden fazla görevi belirli bir 
-      zaman dilimi içinde parçalara ayırarak yönetebilmesi, 
-      gerçekleştirebilmesi anlamına gelir.
+  - bir programın concurrent olması, birden fazla görevi belirli bir 
+    zaman dilimi içinde parçalara ayırarak yönetebilmesi, 
+    gerçekleştirebilmesi anlamına gelir.
 
-    - aynı zaman dilimi içerisinde yapılması gereken işlerin yönetilmesi
-      (Managing tasks that need to be done within the same time period)
-      i.e orchestra playing together 
+  - aynı zaman dilimi içerisinde yapılması gereken işlerin yönetilmesi
+    (Managing tasks that need to be done within the same time period)
+    i.e orchestra playing together 
 
-    - an application can be concurrent but not parallel.
-    - more than one task needed.
+  - an application can be concurrent but not parallel.
+  - more than one task needed.
 
-  --------------------------------------------------------------------------
-  paralelism : 
-    - simultaneously doing the different jobs 
-    - birbirleriyle ilişkili olabilecek işlemlerin aynı zamanda yürütülmesi.
-    - aynı anda birden fazla işlem yapılması.
-    - need more than one core.
-  
-    - for job to done faster (işin daha hızlı yapılması için)
-      i.e splitting a vector(1'000'000 elem) in 4 different threads.
-      and sorting them in parallel. 
+------------------------------------------------------------------------
+paralelism : 
+  - simultaneously doing the different jobs 
+  - ilişkili olabilecek işlemlerin aynı zamanda yürütülmesi.
+  - aynı anda birden fazla işlem yapılması.
+  - need more than one core.
 
-    - an application can be parallel but not concurrent.
-      (1 task's subtasks can be divided into different threads)
+  - for job to done faster (işin daha hızlı yapılması için)
+    i.e splitting a vector(1'000'000 elem) in 4 different threads.
+    and sorting them in parallel. 
 
-  --------------------------------------------------------------------------
-  - an application can both be concurrent and parallel.
-    different tasks are done in different cores at the same time.
+  - an application can be parallel but not concurrent.
+    (1 task's subtasks can be divided into different threads)
 
-  - an application can be neither concurrent nor parallel.
-    sequential execution of tasks.
-  --------------------------------------------------------------------------
+------------------------------------------------------------------------
+- an application can both be concurrent and parallel.
+  different tasks are done in different cores at the same time.
+
+- an application can be neither concurrent nor parallel.
+  sequential execution of tasks.
+------------------------------------------------------------------------
 */
 
 /*
@@ -60,14 +60,16 @@
     // from thread class type.
 
     std::thread t;  
-    // default initialized thread object does not have work load to execute.
+    // default initialized thread object 
+    // does not have work load to execute.
 
     // work load(iş yükü) that thread will execute is a function.
     // 1. can be a global function
     // 2. can be a static member function of a class
     // 3. can be a non-static member function of a class
     // 4. can be an operator function of a functor class
-    // 5. can be a closure type function obtained from a lambda expression
+    // 5. can be a closure type function 
+    //    obtained from a lambda expression
   }
 */
 
@@ -357,8 +359,12 @@
 
       vector<int> ivec{ 1, 2, 3, 4, 5 };
 
-      thread t1{ foo, ivec };             // ivec will be copied
-      thread t2{ foo, std::ref(ivec) };   // ivec objects itself will be sent
+      thread t1{ foo, ivec };             
+      // ivec will be copied
+
+      thread t2{ foo, std::ref(ivec) };   
+      // ivec objects itself will be sent
+
       t1.join();
       t2.join();
     }
@@ -545,7 +551,9 @@
     thread ty( Functor() ); 
     ty.join();  // syntax error 
     // most vexing parse
-    // warning: parentheses were disambiguated as a function declaratio
+
+    // warning: parentheses were disambiguated 
+    // as a function declaratio
   }
 */
 
@@ -740,7 +748,7 @@
     // member template constructor
     template <typename Function, typename... Args>  
     explicit JThread(Function&& f, Args&& ...args)
-      : m_thread( std::forward<Function>(f), std::forward<Args>(args)... )
+      : m_thread( std::forward<Function>(f), std::forward<Args>(args)...)
     {}
 
     ~JThread(){
@@ -748,7 +756,7 @@
         join();
     }
 
-    explicit JThread(std::thread t) noexcept : m_thread{ std::move(t) } {}
+    explicit JThread(std::thread t) noexcept : m_thread{std::move(t)}{}
 
     JThread(JThread&& other) noexcept
       : m_thread{ std::move(other.m_thread) } {}
@@ -786,9 +794,9 @@
 */
 
 /*
-                ------------------------------
-                | std::this_thread namespace |
-                ------------------------------
+                  ------------------------------
+                  | std::this_thread namespace |
+                  ------------------------------
 */
 
 /*
@@ -953,7 +961,8 @@
 
     // output ->
     //  func called
-    //  terminate called after throwing an instance of 'std::runtime_error'
+    //  terminate called after throwing 
+    //  an instance of 'std::runtime_error'
     //  what():  runtime error exception from func()
 
     t.join(); // won't be exucuted
@@ -1036,7 +1045,9 @@
   // store that exception object in a variable
   // and using that variable we can rethrow that exception
 
-  // std::exception_ptr & std::current_exception() & std::rethrow_exception()
+  // std::exception_ptr & 
+  // std::current_exception() & 
+  // std::rethrow_exception()
 
   #include <thread>
   #include <stdexcept>
@@ -1349,7 +1360,8 @@
 
 /*
   - if we need a static variable for each thread
-    but when that thread is finished, that variable is not needed anymore
+    but when that thread is finished, 
+    that variable is not needed anymore
     we can use thread_local variables
 
   - every thread_local variable is unique for each thread
@@ -1368,7 +1380,8 @@
     ++tl_ival;  // no synchronization problem
 
     std::osyncstream os{ std::cout };
-    os << "tl_ival in thread " << thread_name << " is " << tl_ival << '\n';
+    os  << "tl_ival in thread " 
+        << thread_name << " is " << tl_ival << '\n';
   }
 
   int main(){
@@ -1515,8 +1528,9 @@
     ++g_tl_ival;
     std::lock_guard<std::mutex> myguard{ mtx };
     ++g_ival;
-    std::osyncstream{ std::cout } << c  << " - g_tl_ival = " << g_tl_ival 
-                                        << " - g_ival = " << g_ival << '\n';
+    std::osyncstream{ std::cout } << c  
+                                  << " - g_tl_ival = " << g_tl_ival 
+                                  << " - g_ival = " << g_ival << '\n';
   }
 
   int main(){
@@ -1707,7 +1721,8 @@
 */
 
 /*
-  - for transfering the return value from running thread to runner thread
+  - for transfering the return value 
+    from running thread to runner thread
     we need to have a shared state.
   - if we did not use std::async() function template
     we need to create that shared state manually
@@ -1782,7 +1797,8 @@
 
 /*
   // when workload function has no return type 
-  // and we did not hold return type of std::async() function in a variable
+  // and we did not hold return type 
+  // of std::async() function in a variable
   // we can not call get() function of the std::async() function's 
   // return type (std::future<void>.get())
   // if async() function is called with std::launch::deferred policy
@@ -1821,7 +1837,8 @@
     std::cout << ft1.get() << '\n';   
 
     // output -> 
-    //  terminate called after throwing an instance of 'std::future_error'
+    //  terminate called after 
+    //  throwing an instance of 'std::future_error'
     //  what():  std::future_error: No associated state
   }
 */
@@ -1865,14 +1882,14 @@
   int main(){
 
     auto x = func() + foo();  
-    // if that way we run func and foo functions sequentially
+    // we run func and foo functions sequentially
     // which function will be called is unspecified behaviour
 
 
     auto ft1 = async(std::launch::async, foo);
     auto func_val = func();
     auto y = func_val + ft1.get();
-    // if that way we run func and foo functions parallel(simultaneously)
+    // we run func and foo functions parallel(simultaneously)
   }
 */
 
@@ -1980,7 +1997,8 @@
 
     // when `async(std::launch::async, foo);` this line has been executed
     // temporary std::future<void> object is created
-    // and after line's execution temporary object's destructor will be called
+    // and after line's execution 
+    // temporary object's destructor will be called
     // and its destructor will call temporary objects get() function
     // and that get() function will block the caller thread
   }
@@ -2043,7 +2061,7 @@
       return system_clock::now();
     });
 
-    auto no_policy_async = std::async([]{ return system_clock::now(); });
+    auto no_policy_async = std::async([]{return system_clock::now();});
     // when first parameter is not given
     // one of std::launch::deferred or std::launch::async 
     // will be choosen in run-time
@@ -2151,7 +2169,7 @@
   {
     static const char vowels[] = { "AEIOUaeiou" };
     return std::find(std::begin(vowels), std::end(vowels), c) 
-                                                    != std::end(vowels);
+                                                != std::end(vowels);
   }
 
   size_t count_vowels(const std::string& str)
@@ -2162,9 +2180,17 @@
   int main(){
     std::string sline = "Hello_world_we_are_live_from_Istanbul";
 
-    auto hist = std::async(std::launch::async, histogram, sline);
-    auto sorted_str = std::async(std::launch::async, get_sorted, sline);
-    auto vowel_count = std::async(std::launch::async, count_vowels, sline);
+    auto hist = std::async( std::launch::async, 
+                            histogram, 
+                            sline);
+
+    auto sorted_str = std::async( std::launch::async, 
+                                  get_sorted, 
+                                  sline);
+
+    auto vowel_count = std::async(std::launch::async, 
+                                  count_vowels, 
+                                  sline);
 
     for (const auto& [c, count] : hist.get())
       std::cout << c << " : " << count << '\n';
@@ -2200,9 +2226,9 @@
 */
 
 /*
-                --------------------------------
-                | `std::future` class template |
-                --------------------------------
+                  --------------------------------
+                  | `std::future` class template |
+                  --------------------------------
 */
 
 /*
@@ -2355,4 +2381,457 @@
   }
 */
 
-// concurrency Lesson 3 - 00:54:35
+/*
+  #include <future>
+
+  // a function can also return `std::promise` object
+  std::promise<int> foo(int x, int y)
+  {
+    std::promise<int> prom;
+    prom.set_value(x * y);
+
+    return prom;
+  }
+*/
+
+/*
+  #include <exception>  // std::current_exception
+  #include <future>     // std::promise, std::future
+  #include <thread>     // std::thread
+  #include <utility>    // std::move
+  #include <string>     // std::to_string
+
+  struct Div{
+    void operator()(std::promise<int>&& prom, int a, int b) const
+    {
+      try{
+        if (b == 0){
+          auto err_str = "division by zero error : "
+                          + std::to_string(a) + " / " 
+                          + std::to_string(b);  
+          // const char* + std::string -> std::string   
+          // std::string + const char* -> std::string
+
+          throw std::runtime_error(err_str);              
+        }
+        prom.set_value(a / b);
+      }
+      catch(...){
+        prom.set_exception(std::current_exception());
+      }
+    }
+  };
+
+  void func(int x, int y)
+  {
+    std::promise<int> prom;
+    std::future<int> ftr = prom.get_future();
+    std::thread tx{ Div{}, std::move(prom), x, y };
+
+    try{
+      std::cout << x << " / " << y << " = " << ftr.get() << '\n';
+    }
+    catch(const std::exception& ex){
+      std::cout << "exception caught : " << ex.what() << '\n';
+    }
+
+    tx.join();
+  }
+
+  int main()
+  {
+    func(12, 7);
+    // output -> 12 / 7 = 1
+
+    func(12, 0);
+    // output -> 
+    //  12 / 0 = exception caught : division by zero error : 12 / 0
+  }
+*/
+
+/*
+  #include <future>  // std::promise, std::future_error
+
+  int main()
+  {
+    std::promise<int> prom;
+    prom.set_value(10);     // -------> (1)
+
+    try{
+      prom.set_value(20);   // -------> (2)
+      // trying to set shared state for the second time
+    }
+    // catch(const std::exception& ex){
+    catch(const std::future_error& ex){
+      std::cout << "exception caught : " << ex.what() << '\n';
+    }
+  }
+
+  // output ->
+  // exception caught : std::future_error: Promise already satisfied
+*/
+
+/*
+  #include <future> // std::promise, std::future, std::future_error
+
+  int main()
+  {
+    std::promise<double> dprom;
+    auto ftr = dprom.get_future();
+
+    dprom.set_value(3.14);
+
+    auto val = ftr.get();   // -------> (1)
+    std::cout << "val = " << val << '\n';
+    // output -> val = 3.14
+
+    try{
+      auto x = ftr.get();   // -------> (2)
+      // trying to get shared state for the second time
+    }
+    catch(const std::future_error& ex){
+      std::cout << "exception caught : " << ex.what() << '\n';
+    }
+
+    // output ->
+    // exception caught : std::future_error: No associated state
+  }
+*/
+
+/*
+  #include <future> // std::async, std::future_error, std::future
+
+  int foo(){
+    return 1;
+  }
+
+  int main()
+  {
+    auto ftr = std::async(foo);
+
+    if (ftr.valid())
+      std::cout << "future is valid, get() can be called!\n";
+    else
+      std::cout << "future is invalid, get() cannot be called!\n";
+    // output -> future is valid, get() can be called!
+
+    auto ival = ftr.get();
+    std::cout << "ival = " << ival << '\n';
+    // output -> ival = 1
+
+    if (ftr.valid())
+      std::cout << "future is valid, get() can be called!\n";
+    else
+      std::cout << "future is invalid, get() cannot be called!\n";
+    // output -> future is invalid, get() cannot be called!
+
+    try{
+      auto ival2 = ftr.get();
+    }
+    catch(const std::future_error& ex){
+      std::cout << "exception caught : " << ex.what() << '\n';
+    }
+    // output -> 
+    //  exception caught : std::future_error: No associated state
+  }
+*/
+
+/*
+            ---------------------------------------
+            | `std::shared_future` class template |
+            ---------------------------------------
+*/
+
+/*
+  #include <future>     // std::promise, std::shared_future
+  #include <thread>     // std::thread
+  #include <syncstream> // std::osyncstream
+
+  struct SumSquare{
+    void operator()(std::promise<int>&& prom, int a, int b) const
+    {
+      prom.set_value(a * a + b * b);
+    }
+  };
+
+  // copy semantics  -> std::shared_future object is copyable
+  void func(std::shared_future<int> sftr)
+  {
+    std::osyncstream os{ std::cout };
+    os << "threadId(" << std::this_thread::get_id() << ") : ";
+    os << "result = " << sftr.get() << "\n" << std::flush;
+    // os << "result = " << sftr.get() << std::endl;
+  }
+
+  int main()
+  {
+    std::promise<int> prom;
+    std::shared_future<int> sftr = prom.get_future();
+
+    std::thread tx(SumSquare{}, std::move(prom), 10, 20);
+
+    std::thread t1(func, sftr);
+    std::thread t2(func, sftr);
+    std::thread t3(func, sftr);
+    std::thread t4(func, sftr);
+    std::thread t5(func, sftr);
+
+    tx.join();
+
+    t1.join();
+    t2.join();
+    t3.join();
+    t4.join();
+    t5.join();
+
+    // output ->
+    //  threadId(3) : result = 500
+    //  threadId(5) : result = 500
+    //  threadId(6) : result = 500
+    //  threadId(7) : result = 500
+    //  threadId(4) : result = 500
+  }
+*/
+
+/*
+  #include <future>     // std::promise, std::future, std::shared_future
+  #include <thread>     // std::thread
+  #include <syncstream> // std::osyncstream
+
+  struct SumSquare{
+    void operator()(std::promise<int>&& prom, int a, int b) const
+    {
+      prom.set_value(a * a + b * b);
+    }
+  };
+
+  void func(std::shared_future<int> sftr)
+  {
+    std::osyncstream os{ std::cout };
+    os << "threadId(" << std::this_thread::get_id() << ") : ";
+    os << "result = " << sftr.get() << std::endl;
+  }
+
+  int main()
+  {
+    std::promise<int> prom;
+    std::future<int> ftr = prom.get_future();
+
+    std::cout << "ftr is " 
+              << (ftr.valid() ? "valid" : "invalid") << '\n';
+    // output -> ftr is valid
+
+    std::thread tx(SumSquare{}, std::move(prom), 11, 22);
+    std::cout << "ftr is " 
+              << (ftr.valid() ? "valid" : "invalid") << '\n';
+    // output -> ftr is valid
+
+    std::shared_future<int> sftr = ftr.share();
+    
+    std::cout << "ftr is " 
+              << (ftr.valid() ? "valid" : "invalid") << '\n';
+    // output -> ftr is invalid
+
+    std::thread t1(func, sftr);
+    std::thread t2(func, sftr);
+    std::thread t3(func, sftr);
+    std::thread t4(func, sftr);
+    std::thread t5(func, sftr);
+
+    tx.join();
+
+    t1.join();
+    t2.join();
+    t3.join();
+    t4.join();
+    t5.join();
+
+    // output ->
+    //  threadId(3) : result = 605
+    //  threadId(4) : result = 605
+    //  threadId(6) : result = 605
+    //  threadId(5) : result = 605
+    //  threadId(7) : result = 605
+  }
+*/
+
+/*
+  std::future<T>::wait_for
+  https://en.cppreference.com/w/cpp/thread/future/wait_for
+
+  template< class Rep, class Period >
+  std::future_status wait_for( 
+      const std::chrono::duration<Rep,Period>& timeout_duration) const;
+
+  std::future_status is an enum class type
+    - future_status::deferred
+      -> lazy evaluation has already been done, so until get() 
+        function is called workload will be executed
+    - future_status::ready
+      -> result is ready, promise has been set
+    - future_status::timeout
+      -> result is not ready yet, promise has not been set
+
+*/
+
+/*
+  #include <future>   // std::promise
+  #include <thread>   // std::thread
+  #include <chrono>   
+
+  using namespace std::literals;
+
+  // std::promise object is non copyable but movable
+  void func(std::promise<int> iprom)
+  {
+    std::this_thread::sleep_for(5s);
+    // pseudo function execution for 5 seconds 
+    iprom.set_value(999);
+    // shared state is set
+  }
+
+  int main()
+  {
+    std::promise<int> prom;
+    auto ftr = prom.get_future();
+    std::thread tx{ func, std::move(prom) };
+
+    std::future_status status{};
+    do{
+      status = ftr.wait_for(1s);
+      std::cout << "... doing some work here\n" << std::flush;
+    } while (status != std::future_status::ready);
+
+    std::cout << "the return value is " << ftr.get() << '\n';
+
+    tx.join();   
+
+    // output ->
+    //  ... doing some work here    -> status = timeout
+    //  ... doing some work here    -> status = timeout
+    //  ... doing some work here    -> status = timeout
+    //  ... doing some work here    -> status = timeout  
+    //  ... doing some work here    -> status = timeout
+    //  the return value is 999     -> status = ready
+  }
+*/
+
+/*
+  #include <chrono>
+  #include <future>   // std::async, std::future
+
+  constexpr int x = 41;
+
+  // do not write recursive fibonnaci function
+  // use lookup table instead
+  long long fib(int n)
+  {
+    return n < 3 ? 1 : fib(n - 1) + fib(n - 2);
+  }
+
+  int main()
+  {
+    using namespace std::literals;
+
+    auto ftr = std::async(fib, x);
+
+    std::cout << "wait result will come\n";
+    while (ftr.wait_for(10ms) == std::future_status::timeout)
+      std::cout << "." << std::flush;
+
+    auto result = ftr.get();
+
+    std::cout << "\nfib(" << x << ") = " << result << '\n';
+
+    // output ->
+    //  wait result will come
+    //  .................................
+    //  fib(41) = 165580141
+  }
+*/
+
+/*
+            -------------------------------------
+            | std::packaged_task class template |
+            -------------------------------------
+*/
+
+/*
+  - wrapping a callable for calling it asynchronously
+
+  - like std::promise, std::packaged_task is also have 
+    get_future() member function that returns a std::future object
+
+  - unlike std::promise where task is acting like std::launch::async,
+    task is acting like std::launch::deferred(will wait) until 
+    std::packaged_task classes operator() call function is called
+
+  - std::packaged_task is non copyable but movable class
+*/
+
+/*
+  #include <future>  // std::packaged_task, std::future
+
+  int foo(int x, int y){
+    return x * y + 5;
+  }
+
+  using ftype = int(int, int);
+
+  int main()
+  {
+    std::packaged_task<int(int, int)> ptask{ foo };
+    // std::packaged_task p_task{ foo };  -> C++17 - CTAD
+    // std::packaged_task<ftype>; can be choose for default ctor   
+
+    std::future<int> ftr = ptask.get_future();
+    ptask(10, 20);
+  }
+*/
+
+/*
+  #include <cmath>    // std::pow
+  #include <future>   // std::packaged_task, std::future
+
+  int main()
+  {
+    std::packaged_task<double(double, double)> ptask{ 
+      [](double a, double b){
+        return std::pow(a, b) + std::pow(b, a);
+      }};
+
+    std::future<double> ftr_result = ptask.get_future();
+    // auto ftr_result = ptask.get_future();
+
+    ptask(1.2, 3.4);
+
+    std::cout << "result = " << ftr_result.get() << '\n';
+    // output -> result = 6.20158
+  }
+*/
+
+/*
+  #include <utility>  // std::move
+  #include <future>   // std::packaged_task, std::future
+  #include <thread>   // std::thread
+
+  int main()
+  {
+    using ftype = int(int, int);
+
+    std::packaged_task<ftype> pt_x; // default initialized
+    std::packaged_task<ftype> pt_y([](int x, int y){ 
+      return x * x + y * y; });
+
+    pt_x = std::move(pt_y);   // move assignment
+
+    std::future<int> ftr_return = pt_x.get_future();
+    std::thread(std::move(pt_x), 10, 20).detach();
+    // giving packaged_task to a thread as a workload 
+
+    auto result = ftr_return.get();
+
+    std::cout << "result = " << result << '\n';
+    // output -> result = 500
+  }
+*/

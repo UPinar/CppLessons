@@ -318,3 +318,5 @@
   - thread-local storage duration | `thread_local` keyword
   - `std::async` function template
   - `std::future` class template
+  - `std::shared_future` class template
+  - `std::packaged_task` class template
