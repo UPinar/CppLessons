@@ -19,7 +19,7 @@
   - unevaluated context (İşlem kodu üretilmeyen bağlam) 
   
 ### [Default Arguments](https://github.com/UPinar/CppLessons/tree/main/DefaultArguments)
-  - Default arguments
+  - default arguments
   - maximal munch
   
 ### [Typecast Operators](https://github.com/UPinar/CppLessons/tree/main/TypecastOperators)
