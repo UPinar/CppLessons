@@ -8,14 +8,14 @@
 ### [Type Deduction](https://github.com/UPinar/CppLessons/tree/main/TypeDeduction)
   - `auto` type deduction
     - `auto`   x = expr
-	  - `auto&`  y = expr
-	  - `auto&&` z = expr (forwarding reference)
-	- reference collapsing
-	- trailing return type
-	- auto return type
+    - `auto&`  y = expr
+    - `auto&&` z = expr (forwarding reference)
+  - reference collapsing
+  - trailing return type
+  - auto return type
   - `decltype` specifier type deduction
-  	- decltype(identifier)
-	  - decltype(expression)
+    - decltype(identifier)
+    - decltype(expression)
   - unevaluated context (İşlem kodu üretilmeyen bağlam) 
   
 ### [Default Arguments](https://github.com/UPinar/CppLessons/tree/main/DefaultArguments)
