@@ -4,13 +4,13 @@
                         ==================
                         | Type Deduction |
                         ==================
-  -> Compile Time (no runtime cost) 
+  -> Compile Time (no runtime cost)
 
-  -> If the type includes a lot of tokens, 
+  -> If the type includes a lot of tokens,
     type deduction makes it easier.
-  std::vector<std::pair<std::list<std::vector::iterator>, 
+  std::vector<std::pair<std::list<std::vector::iterator>,
                         std::list<std::vector::iterator>>>
-  
+
 */
 
 /*
@@ -71,7 +71,7 @@
   int b = 6;
   double dval = 3.4;
   auto x = a > 2 ? b : dval;
-  // type conversion rules applied between 2nd and 3rd operands 
+  // type conversion rules applied between 2nd and 3rd operands
   // of ternary operator.
   // "int + double" expression's type is double
   // x deduce to double
@@ -107,9 +107,9 @@
   const int x = 20;
   auto b = x;
   // we have a const int variable (x)
-  // to copy const int variable to new variable 
+  // to copy const int variable to new variable
   // we need to create a space for int.
-  // const int variable is giving a promise 
+  // const int variable is giving a promise
   // that its value will not change
   // but b variable is not need to give the same promise
   // b's data type is int (CONST WILL DROP)
@@ -157,11 +157,11 @@
 */
 
 /*
-  int&& r = 10; 
+  int&& r = 10;
   // r's declaration type is int&&
 
   r;
-  // "r" expressions data type is int 
+  // "r" expressions data type is int
   // it is an LValue expression.
 */
 
@@ -185,11 +185,11 @@
   int* ptr = &x;
 
   const auto p = ptr;
-  // const [const auto p = ptr;] in declaration statement 
+  // const [const auto p = ptr;] in declaration statement
   // make p variable as TOP-LEVEL const
   // p's data type is int*
 
-  // "const auto p = ptr;" declaration statement's 
+  // "const auto p = ptr;" declaration statement's
   // data type is int* const (constant pointer to int)
 */
 
@@ -213,11 +213,11 @@
 /*
   int x = 10;
   auto& y = x + 5; // syntax error
-  // error: cannot bind non-const lvalue reference of type 'int&' 
+  // error: cannot bind non-const lvalue reference of type 'int&'
   // to an rvalue of type 'int'
 
   // "x + 5" expression is an RValue expression
-  // initializing L value reference 
+  // initializing L value reference
   // with an RValue expression is NOT VALID.
 */
 
@@ -232,10 +232,10 @@
   int x = 10;
   int* const p = &x; // TOP-LEVEL CONST (constant pointer to int)
   auto& y = p;
-  // auto's data type will be deduce to 
+  // auto's data type will be deduce to
   // int* const (constant pointer to int)
 
-  // y's data type is int* const& 
+  // y's data type is int* const&
   // (reference to constant pointer to int)
 */
 
@@ -245,9 +245,9 @@
   // auto's data type is deduced to int[5]
   // x's data type is int(&)[5] (reference to int[5])
 
-  auto& k = a; 
+  auto& k = a;
   // k's data type is int(&)[5] (reference to int[5])
-  int(&m)[5] = a; 
+  int(&m)[5] = a;
   // m's data type is int(&)[5] (reference to int[5])
 
   using ar = int[5];
@@ -268,7 +268,7 @@
   using constCharArray = const char[6];
   constCharArray& z = "hello";
   // z's data type is const char(&)[6] (reference to const char[6])
-  
+
   // Those 3 lines are equivalent.
 */
 
@@ -279,19 +279,19 @@
   using FUNCTION  = int(int);
   using FPTR      = int(*)(int);
 
-  FUNCTION* fp1 = foo; 	
+  FUNCTION* fp1 = foo;
   // function to function pointer conversion (function decay)
   FUNCTION* fp1_2 = &foo;
   // Those 2 lines are equivalent.
 
   //------------------------------------------------------------
-  FPTR fp2 = foo;		
+  FPTR fp2 = foo;
   // function to function pointer conversion (function decay)
   FPTR fp2_2 = &foo;
   // Those 2 lines are equivalent.
 
   //------------------------------------------------------------
-  auto fp3 = foo;		
+  auto fp3 = foo;
   // function to function pointer conversion (function decay)
   auto fp3_2 = &foo;
   // Those 2 lines are equivalent.
@@ -303,7 +303,7 @@
   // Those 3 lines are equivalent.
 
   //------------------------------------------------------------
-  auto& f1 = foo;    
+  auto& f1 = foo;
   // function decay is NOT HAPPENING in `auto&` deduction
   // auto's data type will be deduce to int(int)
   // f1's data type is int(&)(int) (reference to function)
@@ -358,7 +358,7 @@
   int a = 36;
 
   IREFREF&  x = a;    // int&& &  -> int& (x's data type is int&)
-  int&      y = a;  
+  int&      y = a;
   // Those 2 lines are equivalent.
 
   IREFREF&&   k = 12; // int&& && -> int&& (k's data type is int&&)
@@ -374,7 +374,7 @@
 
 /*
   int x = 10;
-  auto&& y = x;   
+  auto&& y = x;
   // "x" is an LValue expression, its data type is int
   // auto's data type will be deduced to int&(T&)
   // int& && -> int& (y's data type is int&)
@@ -394,7 +394,7 @@
   int&&   l = 10;
   // Those 2 lines are equivalent.
 */
-  
+
 /*
   const int x = 190;
   auto&& r = x;
@@ -439,7 +439,7 @@
   int foo(int);
   // declaring a fuction have a return type of int (*)(int)
 
-  int(*bar())(int) 
+  int(*bar())(int)
   {
     return &foo;
   }
@@ -480,7 +480,6 @@
   // auto's type will be deduced to int(*)(double)
 */
 
-
 /*
                   =====================================
                   | decltype specifier type deduction |
@@ -493,7 +492,7 @@
                       ------------------------
 */
 
-/* 
+/*
   Type deduction when decltype specifier's operand is an identifier.
     - decltype(x)
     - decltype(a.m_x)
@@ -501,106 +500,106 @@
 */
 
 /*
-	int x = 10;
-	decltype(x); // decltype(x)'s data type is int
-	// if x's data type is int
+  int x = 10;
+  decltype(x); // decltype(x)'s data type is int
+  // if x's data type is int
   // decltype(x)'s data type is int
 
-	decltype(x) intVar;
+  decltype(x) intVar;
 
-	struct Data {
-		decltype(x) y;
-		int y;
-		// Those 2 lines are equivalent.
-	};
+  struct Data {
+    decltype(x) y;
+    int y;
+    // Those 2 lines are equivalent.
+  };
 
-	double y = 3.4;
+  double y = 3.4;
 
-	decltype(x) foo(decltype(y));
-	int foo(double);
-	// Those 2 lines are equivalent.
+  decltype(x) foo(decltype(y));
+  int foo(double);
+  // Those 2 lines are equivalent.
 */
 
 /*
-	const int x = 13;
-	decltype(x) y = 15; 
+  const int x = 13;
+  decltype(x) y = 15;
   // x's data type is const int
-	// decltype(x)'s type is const int 
+  // decltype(x)'s type is const int
 
-	decltype(x) z; // syntax error
-  // error: uninitialized 'const z' 
-	// const objects can not be default initialized
+  decltype(x) z; // syntax error
+  // error: uninitialized 'const z'
+  // const objects can not be default initialized
 */
 
 /*
-	const int x = 13;
-	const int* const ptr = &x;
+  const int x = 13;
+  const int* const ptr = &x;
 
-	decltype(ptr) p = &x; 
-	// decltype(ptr)'s data type is const int* const
+  decltype(ptr) p = &x;
+  // decltype(ptr)'s data type is const int* const
   // (constant pointer to a constant int)
 */
 
 /*
-	int a[5]{};
+  int a[5]{};
 
-	decltype(a) b;  // (no array to pointer conversion)
+  decltype(a) b;  // (no array to pointer conversion)
   // b's data type is int a[5]
-	int c[5]; 
-	// Those 2 lines are equivalent. 
+  int c[5];
+  // Those 2 lines are equivalent.
 */
 
 /*
-	int x = 10;
-	int y = 456;
-	
-	int& r = x;
-	decltype(r) t = y;
-	// decltype(r)'s data type is int&, t's data type is int&
+  int x = 10;
+  int y = 456;
+
+  int& r = x;
+  decltype(r) t = y;
+  // decltype(r)'s data type is int&, t's data type is int&
 */
 
 /*
-	int&& r = 10;
-	decltype(r) x = 5; 
-	// decltype(r)'s data type is int&&, x's data type is int&&
+  int&& r = 10;
+  decltype(r) x = 5;
+  // decltype(r)'s data type is int&&, x's data type is int&&
 */
 
 /*
-	int x = 5;
-	int y = 10;
-	
-	decltype(x)& r = y;
-	// decltype(x)'s data type is int, r's data type is int&
+  int x = 5;
+  int y = 10;
+
+  decltype(x)& r = y;
+  // decltype(x)'s data type is int, r's data type is int&
 */
 
 /*
-	int x = 5;
-	const auto a = x; 
-	// auto's data type will be deduced to int 
-	// a's data type is const int
+  int x = 5;
+  const auto a = x;
+  // auto's data type will be deduced to int
+  // a's data type is const int
 
-	int y = 5;
-	const decltype(y) b; // syntax error
+  int y = 5;
+  const decltype(y) b; // syntax error
   // error: uninitialized 'const b'
 */
 
 /*
-	class Myclass {
-	public:
-		int a, b;
-		double dval;
-	};
-	
-	int main()
-	{
-		Myclass mx;
-		decltype(mx.a) ival = 5;
-		// decltype(mx.a)'s data type is int
+  class Myclass {
+  public:
+    int a, b;
+    double dval;
+  };
 
-		Myclass* mp{ &mx };
-		decltype(mp->dval) dx = 3.4;
-		// decltype(mp->dval)'s data type is double
-	}
+  int main()
+  {
+    Myclass mx;
+    decltype(mx.a) ival = 5;
+    // decltype(mx.a)'s data type is int
+
+    Myclass* mp{ &mx };
+    decltype(mp->dval) dx = 3.4;
+    // decltype(mp->dval)'s data type is double
+  }
 */
 
 /*
@@ -616,95 +615,94 @@
 */
 
 /*
-	data type of decltype(expr) depends on the operand's "Value Category"
-	
-	- PRValue expression  -->   T
-	- LValue expression   -->   T&
-	- XValue expression   -->   T&&
+  data type of decltype(expr) depends on the operand's "Value Category"
+
+  - PRValue expression  -->   T
+  - LValue expression   -->   T&
+  - XValue expression   -->   T&&
 */
 
 /*
-	int x = 10;
-	decltype(x + 4); 
-	// "x + 4" is a PRValue expression(T), its data type is int
-	// decltype(x + 4)'s data type is int
+  int x = 10;
+  decltype(x + 4);
+  // "x + 4" is a PRValue expression(T), its data type is int
+  // decltype(x + 4)'s data type is int
 */
 
 /*
-	int x = 10;
-	int* ptr = &x;
+  int x = 10;
+  int* ptr = &x;
 
-	decltype(*ptr);
-	// "*ptr" is  LValue expression(T&), its data type is int
-	// decltype(*ptr)'s data type is int&
+  decltype(*ptr);
+  // "*ptr" is  LValue expression(T&), its data type is int
+  // decltype(*ptr)'s data type is int&
 
-	decltype(*ptr) b; // sythax error 
+  decltype(*ptr) b; // sythax error
   // error: 'b' declared as reference but not initialized
   // L Value reference must be initialized
 */
 
 /*
-	int x = 10;
-	int a[3]{};
-	
-	decltype(a[2]);
-	// "a[2]" is LValue expression(T&), its data type is int
-	// decltype(a[2])'s data type is int&
+  int x = 10;
+  int a[3]{};
+
+  decltype(a[2]);
+  // "a[2]" is LValue expression(T&), its data type is int
+  // decltype(a[2])'s data type is int&
 */
 
 /*
-	int x = 10;
-	decltype(+x)
-	// "+x" is PRValue expression, its data type is int
-	// decltype(+x)'s data type is int
+  int x = 10;
+  decltype(+x)
+  // "+x" is PRValue expression, its data type is int
+  // decltype(+x)'s data type is int
 */
 
 /*
-	int x = 10;
-	
-	decltype(x) y ; 
-	// "x" is an identifier, decltype(x)'s data type is int
+  int x = 10;
 
-	decltype((x)) z; 
-	// "(x)" is an LValue expression(T&), its data type is int
+  decltype(x) y ;
+  // "x" is an identifier, decltype(x)'s data type is int
+
+  decltype((x)) z;
+  // "(x)" is an LValue expression(T&), its data type is int
   // decltype((x))'s data type is int&
 */
 
 /*
-	int foo();    // foo function's return type is int
-	int& bar();   // bar function's return type is int&(L value reference)
-	int&& baz(); 	// baz function's return type is int&&(R value reference) 
+  int foo();    // foo function's return type is int
+  int& bar();   // bar function's return type is int&(L value reference)
+  int&& baz(); 	// baz function's return type is int&&(R value reference)
 
-	decltype(foo());
-	// "foo()" is a PRValue expression(T), its data type is int
-	// decltype(foo())'s data type is int
+  decltype(foo());
+  // "foo()" is a PRValue expression(T), its data type is int
+  // decltype(foo())'s data type is int
 
-	decltype(bar());
+  decltype(bar());
   // "bar()" is an LValue expression(T&), its data type is int&
   // decltype(bar())'s data type is int&
 
-	decltype(baz());
+  decltype(baz());
   // "baz()" is an XValue expression(T&&), its data type is int&&
   // decltype(baz())'s data type is int&&
 */
 
 /*
-	int x = 10;
+  int x = 10;
 
-	decltype(x++);
-	// "x++" is a PRValue expression(T), its data type is int
-	// decltype(x++)'s data type is int
+  decltype(x++);
+  // "x++" is a PRValue expression(T), its data type is int
+  // decltype(x++)'s data type is int
 
-	decltype(++x);
+  decltype(++x);
   // "++x" is an LValue expression(T&), its data type is int
   // decltype(++x)'s data type is int&
 */
 
-
 /*
         =======================================================
-        | unevaluated context (İşlem kodu üretilmeyen bağlam) | 
-        =======================================================          
+        | unevaluated context (İşlem kodu üretilmeyen bağlam) |
+        =======================================================
 */
 
 /*
@@ -723,10 +721,10 @@
 */
 
 /*
-	sizeof(x++);     -> value of x is not going to increase
-	sizeof(foo());   -> foo() function will not call
+  sizeof(x++);     -> value of x is not going to increase
+  sizeof(foo());   -> foo() function will not call
 
-	- NO SIDE EFFECT WILL HAPPEN
+  - NO SIDE EFFECT WILL HAPPEN
 */
 
 /*
@@ -736,7 +734,7 @@
     int a[5]{};
     int x = 356;
 
-    auto t = a[67]; 
+    auto t = a[67];
     // undefined behavior.(array bound overflow)
 
     *p = 4;
@@ -750,55 +748,54 @@
   }
 */
 
-
 /*
-	// C code example
+  // C code example
 
   #include <cstdlib>  // std::malloc
 
-	typedef struct {
-		int x, y;
-		double dval;
-	}*MyclassPtr;
-	
-	int main()
-	{
-		MyclassPtr p;
-		// type does not have a name, only a pointer to it
-		// but we can create a dynamic storage duration object
-	
-		MyclassPtr px = (MyclassPtr)malloc(sizeof(*px));
-	
-		// if *px evaluated it will cause undefined behaviour
-		// but we use it inside unevaluated context to find the structs size.
-	}
+  typedef struct {
+    int x, y;
+    double dval;
+  }*MyclassPtr;
+
+  int main()
+  {
+    MyclassPtr p;
+    // type does not have a name, only a pointer to it
+    // but we can create a dynamic storage duration object
+
+    MyclassPtr px = (MyclassPtr)malloc(sizeof(*px));
+
+    // if *px evaluated it will cause undefined behaviour
+    // but we use it inside unevaluated context to find the structs size.
+  }
 */
 
 /*
-	In C++ there are more unevaluated operators,
-	  - sizeof
-	  - decltype
-	  - typeid
-	  - noexcept 
+  In C++ there are more unevaluated operators,
+    - sizeof
+    - decltype
+    - typeid
+    - noexcept
 
   In C, unevaluated context is only happens in `sizeof()` operator.
 */
 
 /*
-	int main()
-	{
-		int x = 10;
+  int main()
+  {
+    int x = 10;
     std::cout << "x = " << x << '\n'; // output -> x = 10
 
-		decltype(x++) y = 6;
+    decltype(x++) y = 6;
     std::cout << "x = " << x << '\n'; // output -> x = 10
     // x's value is not changed because decltype operators
     // operand is an unevaluated context.
 
-		int a[10]{};
-		decltype(a[20]) y = x;
+    int a[10]{};
+    decltype(a[20]) y = x;
     // "a[20]" expression is undefined behavior
     // but we use it inside unevaluated context
     // so no undefined behavior will happen.
-	}
+  }
 */
