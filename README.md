@@ -30,8 +30,9 @@
   - dynamic_cast
   
 ### [Enumeration Types](https://github.com/UPinar/CppLessons/tree/main/EnumerationTypes)
+  - old-school(conventional) enum's problems
+  - incomplete type
   - scoped & unscoped enums
-  - incomplete & complete types
   
 ### [`constexpr` Keyword](https://github.com/UPinar/CppLessons/tree/main/ConstexprKeyword)
   - constexpr variables
