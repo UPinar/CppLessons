@@ -165,7 +165,7 @@
   // ------------
 
   extern int x;             // global variable declaration
-  int func(int x, int y);	  // function declaration
+  int func(int x, int y);   // function declaration
 
   // one.cpp
   // ------------
