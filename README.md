@@ -39,9 +39,11 @@
   - constexpr functions
   
 ### [Inline Functions](https://github.com/UPinar/CppLessons/tree/main/InlineFunctions)
-  - inline expansion optimization
-  - One Definition Rule (ODR)
-  - inline variables
+  - inline functions
+    - inline expansion optimization
+    - One Definition Rule (ODR)
+    - `static` vs `inline` functions
+  - inline variables **C++17**
   
 ### [Function Overloading](https://github.com/UPinar/CppLessons/tree/main/FunctionOverloading)
   - function signature

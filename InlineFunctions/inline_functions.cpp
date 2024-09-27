@@ -1,278 +1,362 @@
 #include <iostream>
 
 /*
-	====================
-	| inline functions |
-	====================
+                      ====================
+                      | inline functions |
+                      ====================
 */
 
 /*
-	---------------------------------
-	| inline expansion optimization |
-	---------------------------------
+                ---------------------------------
+                | inline expansion optimization |
+                ---------------------------------
 */
 
 /*
-	Normally if you declare a function in a file. 
-	Compiler will generate functions input&output assembly code
-	e.g,. changing stack pointers location, arguments to registers move codes,
-	return value to register move code...
-	Then Linker will link the compiler code and the function call() inside cpp file.
-	
-	Inline expansion optimization
-	-------------------------------
-	If compiler saw the function decleration.
-	It can compile the code when it sees the function call() in (.cpp) file.
-	-> Cost will decrease
+  - When a function declared in header file, compiler will generate
+    that functions input&output assembly code.
+    i.e : 
+          -> changing stack pointers location
+          -> arguments to registers move codes
+          -> return value to register move code
 
-	-> functions that have small codes(inline expansion will eleminate input&output codes),
-		One Liner funtions, Classes GET, SET functions will be a great candidate to be inline functions.
+    then linker will link the function call inside source file 
+    with the input&output code that compiler generated.
+
+  Inline expansion optimization
+  -----------------------------
+  - If compiler saw the function definition
+    it can compile the code directly where function was called 
+    without generating input&output assembly code. (cost will decrease)
+
+  - functions that have small codes are great candidates for 
+    inline functions.
+      -> one liner functions
+      -> classes GET and SET functions
 */
 
+
 /*
-	// If foo() function will be used in a lot of (.cpp) files. 
-	// It must be define in header(.h) file.
+	// if foo() function will be used in lots of source files(.cpp),
+  // it must be defined in the header(.h) file
+  // for compiler to apply inline expansion optimization.
 
 	int foo(int x, int y)
 	{
 		return x * x * y * y + 1;
 	}
-	
+  // compiler already know foo function's definition here
+
 	int main()
 	{
 		int a = 46;
 		int b = 345;
 	
 		auto x = foo(a, b);
-		// compiler can change the code(inline expansion) 
-		// and calculate the return value in compile time.
+		// compiler can change this function call(inline expansion) 
+    // and directly calculate the return value in compile time.
+    // without generating foo functions input&output assembly code.
 
 		auto y = a * a * b * b + 1;
-		// foo() functions return value will calculate like this line.
-		// seems like foo() functions is not invoking.
+    // foo(a, b); function call will be replaced with this line
+    // by the compiler. (inline expansion optimization)
 	}
 */
 
 /*
-	if you make a function `inline`, compiler might not make
-	inline expansion optimization for that function.
-	
-	if you did not make a function inline, compiler can apply inline expansion 
-	optimization for that function too.
+  - making functions `inline`, will not guarantee that 
+    compiler will apply inline expansion optimization for that function.  
+    it might or it might not.
 
-	if you want inline expansion optimization apply to a function by the compiler,
-	and you want to use that function in many .cpp files, 
-	you need to put that function in header(.h) file and
-	make it inline for not violating the One Definition Rule (ODR)
-	then include that header(.h) file in .cpp files.
+  - if a function wanted to be inline expanded by the compiler,
+    it must be defined in the header(.h) file and should be made
+    `inline` for not violating the One Definition Rule (ODR)
+    for different source files(.cpp) that include that header file.
 */
 
 /*
-	----------------------------
-	| One Definition Rule(ODR) |
-	----------------------------
+                    ----------------------------
+                    | One Definition Rule(ODR) |
+                    ----------------------------
 */
 
 /*
-	If a functions definition count is greater than 1, that will make the program ill-formed.
-	It is violating One Definition Rule.
+  - If any function's DEFINITION count is greater than 1,
+    program will become ill-formed.
+    It will violate the One Definition Rule(ODR).
 */
 
 /*
-	int g = 10;
-	int g = 10;
-	// violating ODR, syntax error.
+	int g_x = 10;
+	int g_x = 10; // syntax error (violation of ODR)
+  // error: redefinition of 'int g_x' 
 
-
-	void func(int x)
-	{
+	void func(int x){
 		++x;
 	}
 
-	void func(int x)
-	{
+	void func(int x){
 		++x;
 	}
-	// violating ODR, syntax error.
+  // syntax error (violation of ODR)
+  // error: redefinition of 'void func(int)'
 */
 
 /*
-	one.cpp
-		void func(int x) {}
-	two.cpp
-	three.cpp
-	four.cpp
-		void func(int x) {}
-	five.cpp
+	//  one.cpp
+  //  ------------
+	void func(int x) {}
 
-	ODR VIOLATION!!
-	Compiler could't found out if there same functions in different .cpp files.
-	Because compiler checks only 1 cpp file each time.
-	[Ill formed, but no diagnostic required]
+  //  two.cpp
+  //  ------------
+
+  //  three.cpp
+  //  ------------
+
+  //  four.cpp
+  //  ------------
+	void func(int x) {}
+
+  //  five.cpp
+  //  ------------
+
+  // ODR violation.
+  // compiler will not give any error or warning
+  // because compiler is checking only one .cpp file at a time.
+  // In the linking phase, linker will give an error.
+  // linker error : multiple definition of `func(int)'
 */
 
 /*
-	some.h
-		int func(int x,int y) {return x * x - y;}
+	// some.h
+  // ------------
+	int func(int x, int y) { return x * x - y; }
 
-	one.cpp
-		#include "some.h"
-	two.cpp
-	three.cpp
-		#include "some.h"
-	four.cpp
-	five.cpp
+	// one.cpp
+  // ------------
+	#include "some.h"
 
-	ODR VIOLATION!!
+  // two.cpp
+  // ------------
+	#include "some.h"
+
+	// ODR violation 
+  // linker error : multiple definition of `func(int, int)'
 */
 
 /*
-	some.h
-		int globalVariable = 12;
+	// some.h
+  // ------------
+	int global_var = 12;
 
-	one.cpp
-	two.cpp
-		#include "some.h"
-	three.cpp
-		#include "some.h"
-	four.cpp
-	five.cpp
+	// one.cpp
+  // ------------
+	#include "some.h"
+  
+  // two.cpp
+  // ------------
+	#include "some.h"
 
-	ODR VIOLATION!!
+	// ODR violation 
+  // linker error : multiple definition of `global_var'
 */
 
 /*
-	some.h
-		extern int x;			// global variable decleration
-		int func(int x, int y);		// function decleration
+	// some.h
+  // ------------
 
-	one.cpp
-	two.cpp
-		#include "some.h"
-	three.cpp
-		#include "some.h"
-	four.cpp
-	five.cpp
+	extern int x;             // global variable declaration
+	int func(int x, int y);	  // function declaration
 
-	There is NO ODR Violation.
+	// one.cpp
+  // ------------
+	#include "some.h"
+  
+  // two.cpp
+  // ------------
+	#include "some.h"
+
+	// NO ODR violation
+*/
+
+
+/*
+	// one.cpp
+  // ------------
+	// inline int foo(int x, int y) { return x * x - y; }
+
+  // two.cpp
+  // ------------
+	// inline int foo(int x, int y) { return x * x + y; }	
+
+	// `inline` foo function's definitions are not token by token same.
+	// ODR violation.
 */
 
 /*
-	one.cpp
-	two.cpp
-		inline int func(int x,int y) {return x * x - y;}
-	three.cpp
-		inline int func(int x,int y) {return x * x + y;}	
-	four.cpp
-	five.cpp
+	// one.cpp
+  // ------------
+	inline int func(int x, int y) { return x * x + y; }
+  
+  // two.cpp
+  // ------------
+	inline int func(int x, int y) { return x * x + y; }
 
-	Inline functions definitions are not token by token same.
-	One of them returns [x * x - y] other one returns [x * x + y]
-	ODR VIOLATION!!
+  // `inline` foo function's definitions are token by token same.
+  // NO ODR violation.
 */
-
+  
 /*
-	one.cpp
-	two.cpp
-		inline int func(int x,int y) {return x * x + y;}
-	three.cpp
-		inline int func(int x,int y) {return x * x + y;}
-	four.cpp
-	five.cpp
+	// some.h
+  // ------------
+	inline int foo(int x, int y) { return x * x - y; }		
 
-	NO ODR Violation.
-	Both inline functions definitions in the same project are token by token same.
-*/
-
-/*
-	some.h
-		inline int func(int x,int y) {return x * x - y;}		// inline function definition
-
-	one.cpp
-	two.cpp
-		#include "some.h"
-	three.cpp
-		#include "some.h"
-	four.cpp
-	five.cpp
-
-	There is NO ODR Violation.
-	Inline function in .header file guarantees that, every .cpp file that include "some.h"
-	will have the same inline function definition token by token.
-*/
-
-/*
-	some.h
-		static int foo(int x) {return x * x - 6;}
-		inline int func(int x) {return x * x * x + 2;}
-
-	one.cpp
-		#include "some.h"
-	two.cpp
-		#include "some.h"
-	three.cpp
-	four.cpp
-		#include "some.h"
-	five.cpp
-
-	// static keyword make the function have an internal linkage.
-
-	// static is also act like inline,
-	// different .cpp files can include and use foo() functions
-	// without violating ODR rules.
-
-	// The difference is, for inline function
-	// every .cpp file that include and use that inline function
-	// will get the same function and the same function address.
-	// but for static function, every .cpp file will get the same function
-	// but their addresses will be different.
-*/
-
-/*
-	constexpr func(int x, int y);
-	// constexpr functions are implicitly inline functions.
-	// putting constexpr functions in header(.h) file will not violate ODR.
-
+	// one.cpp
+  // ------------
+  #include "some.h"
 	
-	class Myclass {
+  // two.cpp
+  // ------------
+	#include "some.h"
+
+  // `inline` function definition in an header(.h) file 
+  // guarantees that, every source(.cpp) file that includes 
+  // the header file, will have the same function definition
+  // token by token.
+	// NO ODR Violation.
+*/
+
+
+/*
+	// some.h
+  // ------------
+	static int foo(int x) { return x * x - 6; }
+	inline int func(int x) { return x * x * x + 2; }
+
+	// one.cpp
+  // ------------
+  #include "some.h"
+	
+  // two.cpp
+  // ------------
+	#include "some.h"
+
+  // -----------------------------------------------------------
+
+	// `static` keyword makes function's linkage internal.
+
+	// `static` function will also act like an `inline` function.
+  // every source(.cpp) file that includes the header file 
+  // can use the `static` function without violating ODR.
+	// NO ODR Violation.
+
+  // -----------------------------------------------------------
+
+  // for `inline` function,
+  // every source(.cpp) file that includes the header file
+  // will have the same `inline` function definition token by token 
+  // and will have the same function addresses.
+
+  // -----------------------------------------------------------
+
+  // for `static` function,
+  // every source(.cpp) file that includes the header file
+  // will have the same `static` function definition token by token
+  // but will have different function addresses.
+
+  // -----------------------------------------------------------
+*/
+
+/*
+  // some.h
+  // ------------
+	constexpr int foo(int x, int y) { return x * x - y; }
+
+  // one.cpp
+  // ------------
+  #include "some.h"
+	
+  // two.cpp
+  // ------------
+	#include "some.h"
+
+	// constexpr functions are IMPLICITLY INLINE functions.
+	// constexpr function definition in header(.h) file
+  // will not violate ODR.
+*/
+
+/*
+	class AClass {
 	public:
-		// non-static member function
 		void foo(int x, int y);
 	};
-	// non-static member functions are implicitly inline functions.
+
+	// non-static member functions  -> IMPLICITLY INLINE functions.
+	// static member functions      -> IMPLICITLY INLINE functions.
+	// friend functions             -> IMPLICITLY INLINE functions.
+	// function templates           -> IMPLICITLY INLINE functions.
+*/
 	
-	// static member functions are implicitly inline
-	// friend functions are implicitly inline
-	// function templates are implicitly inline
+/*
+                ----------------------------
+                | inline variables (C++17) |
+                ----------------------------
 */
 
 /*
-	=============================
-	| inline variables// C++ 17 |
-	=============================
+  - Before C++17,  
+    -> global variables
+    -> classes static data members
+  can not be defined in header files because of ODR violation. 
+  It was causing program to be ill-formed.
+
 */
 
 /*
-	Before C++17 global variables and classes static data members 
-	can not be used in header files, they caused program to be ill-formed. 
-*/
+  // before C++17 global inline variables can be used with this method
 
-/*
-	inline int& oldschool_global_inline_variable()
+  // some.h
+  // ------------
+	inline int& get_global_inline_variable()
 	{
 		static int x{ 30 };
 		return x;
 	}
+
+  // one.cpp
+  // ------------
+  #include "some.h"
+  int main()
+  {
+    int& ref = get_global_inline_variable();
+    ref = 50;
+  }
+
+  // two.cpp
+  // ------------
+  #include "some.h"
+  void some_function()
+  {
+    int& ref = get_global_inline_variable();
+    std::cout << ref << '\n';  // output -> 50
+  }
 */
 
 /*
-	some.h 
-		inline int x = 10;	// inline global variable.
+  // After C++17, `inline` global variables can be defined 
+  // in header(.h) files without violating ODR.
 
-	one.cpp
-		#include "some.h"
-	two.cpp
-		#include "some.h"
-	three.cpp
-	four.cpp
+	// some.h
+  // ------------ 
+	inline int x = 10;	// `inline` global variable.
+
+  // one.cpp
+  // ------------
+  #include "some.h"
+
+  // two.cpp
+  // ------------
+	#include "some.h"
+
+  // NO ODR violation.
 */
