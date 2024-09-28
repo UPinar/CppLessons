@@ -2835,3 +2835,1196 @@ paralelism :
     // output -> result = 500
   }
 */
+
+/*
+                -------------------------------
+                | shared resources in threads |
+                -------------------------------
+*/
+
+/*
+  // Unsyncronized data access
+
+  int x;
+  void foo(int);
+
+  void func()
+  {
+    if (x >= 0)
+      foo(x);
+    else
+      foo(-x);
+  }
+
+  // first thread will call func() when "x" is 10
+  // foo() will be called with 10 and in the middle of the execution
+  // second thread will change the value of "x" to negative
+*/
+
+/*
+  Unsychronized data access
+  - When two threads running in parallel read and write the same data,
+    it is open which statement comes first.
+
+  Half-written data: 
+  - When one thread reads data, which another thread modifies, 
+  the reading thread might even read the data in the middle of the write
+  of the other thread, thus reading neither the old nor the new value.
+
+  Reordered statements:
+  - Statements and operations might be reordered so that the behaviour
+  of each single thread is correct, but in combination of all threads,
+  expected behaviour is broken.
+*/
+
+/*
+  - Birden fazla thread eğer aynı değişkeni kullanıyorsa, hangi 
+  threading o değişkene erişeceği konusunda bunu garantiye alacak 
+  bir mekanizma yok ise, paralel olarak çalışan threadlerden 
+  hangisinin daha önce o değişkeni kullanacağı konusunda 
+  bir garanti yoktur.
+
+  race condition: farklı threadlerin daha önce paylaşılan değişkene
+  erişmesine bağlı olarak oluşan farklı sonuçlar.
+    - race condition bir hata oluşturmayabilir.
+      farklı sonuçlar oluşabilir ama programın genel yapısı üzerinde
+      bir problem oluşturmayabilir. (benign : iyi huylu)
+    - race condition hata oluşturabilir (malign : kötü huylu)
+
+  data race : malign race condition (undefined behaviour)
+    -> if all threads are read only, no problem will occur.
+    -> if even one of the threads is writing, risk for data race.
+*/
+
+/*
+  - inside threads workloads(callables), automatic storage duration
+    variables are not shared between threads.
+  - every thread have their own stack memory.
+  - static storage duration variables are shared between threads.
+    global variables and static local variables
+  - variable that will sent to the function with reference semantics
+*/
+
+/*
+  #include <vector>
+
+  std::vector<double> dvec;
+
+  void func()
+  {
+    if (!dvec.empty())
+      std::cout << dvec.back() << '\n';
+  }
+
+  // first thread will call func() when dvec is not empty
+  // but in if statements execution, second thread will clear dvec
+  // undefined behaviour(ub)
+*/
+
+/*
+  #include <cstdint>  // std::int64_t
+
+  std::int64_t g_x{};
+
+  void foo()
+  {
+    g_x = -1;
+  }
+
+  void bar()
+  {
+    std::cout << g_x << '\n';
+  }
+
+  // std::int64_t does not have an atomic guarantee 
+  // first thread will call foo() and between the assignment to g_x
+  // second thread will call bar() and read the value of g_x
+  // because of it was not atomic, it is undefined behaviour(ub)
+  // can be torn read
+
+  // atomic: guarantee that g_x's value will be 0 or -1 
+  // it can not be between 
+  // the code that assignment operation is executing
+*/
+
+/*
+  #include <cstdint> // std::int64_t
+
+  std::int64_t g_x{};
+  bool ready_flag = false;
+
+  void foo(std::int64_t x)
+  {
+    g_x = x;
+    ready_flag = true;
+  }
+
+  void bar()
+  {
+    while(!ready_flag)
+      ;
+
+    foo(g_x);
+  }
+
+  // first thread will call foo() 
+  // compiler can execute "ready_flag = true;" statement 
+  // before "g_x = x;" statement
+  // when second thread will call bar() function
+  // foo(g_x) will be called with the value of g_x = 0
+*/
+
+/*
+                  ----------------------------
+                  | mutex (mutual exclusion) |
+                  ----------------------------
+*/
+
+/*
+  - when one of the thread locks(acquire) the mutex, other threads 
+    must wait(blocked) until the mutex is unlocked(released).
+    when mutex has been released, another thread can acquire it.
+*/
+
+/*
+  #include <mutex>
+  #include <shared_mutex>
+
+  // -------------------------------------------------------------
+
+  // use it minimal, which one is necessary. Cost will increase
+  // all of them have lock() and unlock() member functions
+
+  std::mutex m1;
+  std::timed_mutex m2;
+  std::recursive_mutex m3;
+  std::recursive_timed_mutex m4;
+  std::shared_mutex m5;
+
+  // -------------------------------------------------------------
+
+  // mutex wrapper RAII class templates used 
+  //  - forget to unlock() the mutex
+  //  - exception thrown in the critical section before unlock()
+
+  std::lock_guard<std::mutex> lg1{ m1 };   
+  std::unique_lock<std::mutex> ul1{ m1 };  
+  std::scoped_lock<std::mutex> sl1{ m1 };  // (C++17)
+  std::shared_lock<std::shared_mutex> sl2{ m5 }; 
+
+  // -------------------------------------------------------------
+
+  std::lock()  // global function
+*/
+
+/*
+  std::mutex :
+    - lock() and unlock() member functions
+    - try_lock() member function
+
+    - time based lock operations can not be done with std::mutex
+    - when a std::mutex is locked it can not be locked again
+    it will be undefined behaviour(ub)
+
+  std::timed_mutex :
+    - time based lock operations can be done with std::timed_mutex
+
+  std::recursive_mutex :
+    - can be locked more than once.
+*/
+
+/*
+  #include <mutex>    // std::mutex
+
+  std::mutex m1;
+
+  int main()
+  {
+    // -------------------------------------------------------------
+
+    m1.lock();  // will acquire the mutex or get blocked 
+
+    // if this mutex is locked(acquired) by the first thread
+    // second thread will be blocked until the first thread 
+    // unlocked(released) the mutex.
+
+    // -------------------------------------------------------------
+
+    m1.try_lock();  // will try to acquire the mutex
+
+    // if this mutex is locked(acquired) by the first thread
+    // second thread will NOT be blocked, it will return false
+    // else it will acquire the mutex and return true
+
+    while(!m1.try_lock())
+    {
+      // do other stuff until the mutex is acquired
+    }
+
+    // -------------------------------------------------------------
+
+    m1.unlock();  // will release the mutex
+  }
+*/
+
+/*
+  #include <mutex>  // std::timed_mutex
+  #include <chrono> // std::chrono::steady_clock
+
+  std::timed_mutex tm1;
+
+  int main()
+  {
+    // -------------------------------------------------------------
+    
+    tm1.lock();       // same as std::mutex::lock()
+    tm1.try_lock();   // same as std::mutex::try_lock()
+    tm1.unlock();     // same as std::mutex::unlock()
+
+    // -------------------------------------------------------------
+
+    using namespace std::literals;
+
+    tm1.try_lock_for(1000ms);   
+    // will try to acquire the mutex 
+    // for "a std::chrono::duration" time
+
+    // will return true if the mutex is acquired
+    // will return false if the mutex is not acquired
+
+    // -------------------------------------------------------------
+
+    auto tp = std::chrono::steady_clock::now() + 2s;
+
+    tm1.try_lock_until(tp);  
+    // will try to acquire the mutex
+    // until "a std::chrono::time_point" time
+    
+    // will return true if the mutex is acquired
+    // will return false if the mutex is not acquired
+
+    // -------------------------------------------------------------
+  }
+*/
+
+/*
+  #include <mutex>  // std::mutex
+  #include <thread> // std::thread
+
+  unsigned long long counter = 0;
+  std::mutex mtx;
+
+  void func()
+  {
+    // ------------------ critical region ------------------
+    for(unsigned long long i = 0; i < 1'000'000ull; ++i)
+      ++counter;
+    // ------------------ critical region ------------------
+  }
+
+  void foo()
+  {
+    mtx.lock();
+    // ------------------ critical region ------------------
+    for(unsigned long long i = 0; i < 1'000'000ull; ++i)
+      ++counter;
+    // ------------------ critical region ------------------
+    mtx.unlock();
+  }
+
+  int main()
+  {
+    // std::thread t1{ func };
+    // std::thread t2{ func };
+    // std::thread t3{ func };
+    // std::thread t4{ func };
+
+    std::thread t1{ foo };
+    std::thread t2{ foo };
+    std::thread t3{ foo };
+    std::thread t4{ foo };
+
+    t1.join();
+    t2.join();
+    t3.join();
+    t4.join();
+
+    // std::cout << "counter = " << counter << '\n';
+    // output -> counter = 1'182'405  -> func
+    // output -> counter = 4'000'000  -> foo
+  }
+*/
+
+/*
+  #include <mutex>  // std::mutex
+  #include <thread> // std::thread
+
+  unsigned long long counter = 0;
+  std::mutex mtx;
+
+  void foo()
+  {
+    mtx.lock();
+    // ------------------ critical region ------------------
+    for(unsigned long long i = 0; i < 1'000'000ull; ++i)
+      ++counter;
+    // ------------------ critical region ------------------
+
+    // mtx.unlock(); is forgotten -> dead lock
+    // other threads will be blocked
+  }
+
+  int main()
+  {
+    std::thread t1{ foo };
+    std::thread t2{ foo };
+    std::thread t3{ foo };
+    std::thread t4{ foo };
+
+    t1.join();
+    t2.join();
+    t3.join();
+    t4.join();
+  }
+*/
+
+/*
+  #include <mutex>  // std::mutex, std::lock_guard
+  #include <thread> // std::thread
+
+  unsigned long long counter = 0;
+  std::mutex mtx;
+
+  void foo()
+  {
+    std::lock_guard<std::mutex> guard{ mtx };
+
+    // ------------------ critical region ------------------
+    for(unsigned long long i = 0; i < 1'000'000ull; ++i)
+      ++counter;
+    // ------------------ critical region ------------------
+  }
+
+  int main()
+  {
+    std::thread t1{ foo };
+    std::thread t2{ foo };
+    std::thread t3{ foo };
+    std::thread t4{ foo };
+
+    t1.join();
+    t2.join();
+    t3.join();
+    t4.join();
+
+    std::cout << "counter = " << counter << '\n';
+    // output -> counter = 4'000'000
+  }
+*/
+
+/*
+  #include <mutex>  // std::mutex, std::lock_guard
+  #include <thread> // std::thread
+
+  unsigned long long counter = 0;
+  std::mutex mtx;
+
+  void foo()
+  {
+    mtx.lock(); 
+    // we already acquired or wait for acquiring the mutex
+
+    std::lock_guard<std::mutex> guard(mtx, std::adopt_lock);
+    // we already acquired the mutex, so we can adopt it
+    // and RAII wrapper lock_guard will unlock() the mutex
+    // at the end of its scope
+
+    // ------------------ critical region ------------------
+    for(unsigned long long i = 0; i < 1'000'000ull; ++i)
+      ++counter;
+    // ------------------ critical region ------------------
+  }
+
+  int main()
+  {
+    std::thread t1{ foo };
+    std::thread t2{ foo };
+
+    t1.join();
+    t2.join();
+
+    std::cout << "counter = " << counter << '\n';
+    // output -> counter = 2'000'000
+  }
+*/
+
+/*
+  - unique_lock can wrap, an already acquired mutex. (adopting)
+  - unique_lock can wrap a mutex for acquiring(locking) it later
+  - unique_lock can wrap a mutex for 
+    attemting to acquire it in a future time point 
+*/
+
+/*
+  #include <mutex>  // std::mutex, std::lock_guard
+  #include <thread> // std::thread, std::this_thread::sleep_for
+  #include <chrono> // std::chrono::milliseconds
+
+  std::mutex mtx;
+
+
+  void print_block_1(int n, char c)
+  {
+    using namespace std::literals;
+    for(int i = 0; i < n; ++i){
+      std::this_thread::sleep_for(5ms);
+      std::cout << c;
+    }
+    std::cout << '\n';
+  }
+
+  void print_block_2(int n, char c)
+  {
+    using namespace std::literals;
+
+    std::lock_guard guard{ mtx }; // CTAD(C++17)
+    // ------------------ critical region ------------------
+    for(int i = 0; i < n; ++i){
+      std::this_thread::sleep_for(5ms);
+      std::cout << c;
+    }
+    std::cout << '\n';
+    // ------------------ critical region ------------------
+  }
+
+  int main()
+  {
+    std::thread t1{ print_block_1, 20, '*' };
+    std::thread t2{ print_block_1, 20, '$' };
+    t1.join();
+    t2.join();
+
+    // output ->
+    //  $*$*$**$$*$**$$*$*$**$$**$*$*$$*$**$$**
+    //  $
+
+    t1 = std::thread{ print_block_2, 20, '*' };
+    t2 = std::thread{ print_block_2, 20, '$' };
+    t1.join();
+    t2.join();
+
+    // output ->
+    //  ********************
+    //  $$$$$$$$$$$$$$$$$$$$
+  }
+*/
+
+/*
+  #include <mutex>  // std::mutex
+  #include <thread> // std::thread
+
+  int g_counter{};    // not atomic shared variable 
+  std::mutex counter_mtx; 
+
+  void try_increase()
+  {
+    for(int i = 0; i < 100'000; ++i){
+      if (counter_mtx.try_lock()){  
+        ++g_counter;
+        // g_counter will be increase only if the mutex is acquired
+        counter_mtx.unlock();
+      }
+    }
+  }
+
+  int main()
+  {
+    std::thread arr_tx[10];
+
+    for(int i = 0; i < 10; ++i)
+      arr_tx[i] = std::thread{ try_increase };
+
+    for(auto& tx : arr_tx)
+      tx.join();
+
+    std::cout << "g_counter = " << g_counter << '\n';
+    // output -> g_counter = 50732
+
+    // normally g_counter should be 1'000'000
+    // if all try_lock() calls are successful(returns true)
+  }
+*/
+
+/*
+  #include <mutex>      // std::timed_mutex
+  #include <thread>     // std::thread
+  #include <chrono>     // std::this_thread::sleep_for
+  #include <syncstream> // std::osyncstream
+
+  int g_counter{};
+  std::timed_mutex t_mtx;
+
+  void increment(int i)
+  {
+    using namespace std::literals;
+
+    std::osyncstream os{ std::cout }; // (C++20)
+
+    if (t_mtx.try_lock_for(10ms)){
+      ++g_counter;
+      os << "thread : " << i << " gets is in critical region\n";
+      std::this_thread::sleep_for(5ms);
+      t_mtx.unlock();
+    }
+    else
+      os << "thread : " << i << " can not get in critical region\n";
+  }
+
+  int main()
+  {
+    std::thread t1{ increment, 1 };
+    std::thread t2{ increment, 2 };
+    std::thread t3{ increment, 3 };
+    std::thread t4{ increment, 4 };
+    t1.join();
+    t2.join();
+    t3.join();
+    t4.join();
+
+    std::cout << "g_counter = " << g_counter << '\n';
+    // output ->
+    //  thread : 3 can not get in critical region
+    //  thread : 2 can not get in critical region
+    //  thread : 1 can not get in critical region
+    //  thread : 4 gets is in critical region
+    //  g_counter = 1
+  }
+*/
+
+/*
+  // ------------------- rdbuf() reminder -------------------
+  #include <fstream>  // std::ifstream
+
+  int main()
+  {
+    std::ifstream ifs{ "run.bat" };
+    if(!ifs){
+      std::cerr << "file can not be opened\n";
+      return 1;
+    }
+
+    std::cout << ifs.rdbuf();    
+    // ifs.rdbuf() function returns filebuf*
+
+    // output ->
+    //  cls
+    //  @echo off
+    //  g++ -o prog concurrency.cpp -std=c++20
+    //  if %errorlevel% neq 0 (
+    //      echo Compilation failed.
+    //      exit /b %errorlevel%
+    //  )
+    //  prog.exe
+    //  del prog.exe
+  }
+*/
+
+/*
+  // before std::osyncstream class (C++20)
+  #include <sstream>  // std::stringstream
+  #include <mutex>    // std::mutex, std::lock_guard
+  #include <thread>   // std::thread
+  #include <vector>
+
+  void print_1(int x)
+  {
+    std::cout << "print() x = " << x << '\n';
+  }
+
+  struct pcout : std::stringstream{
+    ~pcout()
+    {
+      std::lock_guard guard{ cmutex };  // CTAD(C++17)
+      std::cout << rdbuf();
+      std::cout.flush();
+    }
+    static inline std::mutex cmutex;
+  };
+
+  void print_2(int x)
+  {
+    pcout{} << "print() x = " << x << '\n';
+  }
+
+  int main()
+  {
+    std::vector<std::thread> tvec;
+
+    for (int i = 0; i < 10; ++i)
+      tvec.emplace_back(std::thread{ print_2, i });
+
+    for (auto& t : tvec)
+      t.join();
+
+    // output (print_1) ->
+    //  print() x = print() x = 0
+    //  print() x = 4
+    //  print() x = 5print() x = 2
+    //  print() x = 8
+    //  
+    //  print() x = 7
+    //  print() x = 9
+    //  1
+    //  print() x = 3
+    //  print() x = 6
+
+    // output (print_2) ->
+    //  print() x = 4
+    //  print() x = 3
+    //  print() x = 2
+    //  print() x = 1
+    //  print() x = 5
+    //  print() x = 6
+    //  print() x = 0
+    //  print() x = 7
+    //  print() x = 8
+    //  print() x = 9
+  }
+*/
+
+/*
+  #include <mutex>      // std::mutex
+
+  std::mutex mtx;
+
+  int main()
+  {
+    try{
+      mtx.lock();
+      mtx.lock();
+
+      mtx.unlock();
+    }
+    catch(const std::exception& ex){
+      std::cout << "exception caught : " << ex.what() << '\n';
+    }
+
+    // when a mutex is acquired, it can not be acquired again 
+    // if we try to acquire it again, compiler can throw an exception
+    // but it is not guaranteed
+
+    // - if it will throw an exception, 
+    //  it will be system_error class
+    // - if it will not throw an exception, 
+    //  it will be undefined behaviour(ub)
+
+    // msvc output ->
+    //  exception caught : resource deadlock would occur: 
+    //  resource deadlock would occur
+  }
+*/
+
+/*
+  #include <mutex>  // std::mutex, std::recursive_mutex
+  #include <thread> // std::thread
+
+  std::recursive_mutex r_mtx;
+  std::mutex mtx;
+  int g_counter = 0;
+
+  void recursive_func_rmutex(char c, int n)
+  {
+    if (n < 0)
+      return;
+
+    r_mtx.lock();
+    std::cout << c << ' ' << g_counter++ << '\n';
+    recursive_func_rmutex(c, n - 1);
+    r_mtx.unlock();
+  }
+
+  void recursive_func_mutex(char c, int n)
+  {
+    if (n < 0)
+      return;
+
+    mtx.lock();
+    std::cout << c << ' ' << g_counter++ << '\n';
+    recursive_func_mutex(c, n - 1);
+    mtx.unlock();
+  }
+
+  int main()
+  {
+    // -------------------------------------------------------------
+    // recursive function with std::mutex
+
+    std::thread t1{ recursive_func_mutex, 'x', 5 };
+    std::thread t2{ recursive_func_mutex, 'y', 5 };
+
+    t1.join();
+    t2.join();
+
+    // output (recursive function with std::mutex) ->
+    // y 0 
+    // deadlock would occur
+
+    // -------------------------------------------------------------
+    // recursive function with std::recursive_mutex
+
+    std::thread t1{ recursive_func_rmutex, 'x', 5 };
+    std::thread t2{ recursive_func_rmutex, 'y', 5 };
+
+    t1.join();
+    t2.join();
+
+    // output (recursive function with std::recursive_mutex) ->
+    //  x 0
+    //  x 1
+    //  x 2
+    //  x 3
+    //  x 4
+    //  x 5
+    //  y 6
+    //  y 7
+    //  y 8
+    //  y 9
+    //  y 10
+    //  y 11
+
+    // x or y orders are not guaranteed(deterministic)
+
+    // -------------------------------------------------------------
+  }
+*/
+
+/*
+  #include <mutex>  // std::mutex, std::lock_guard
+
+  class AClass{
+  public:
+    void func()
+    {
+      std::lock_guard guard{ mtx };
+      std::cout << "func() is called\n";
+      foo();
+      std::cout << "func() is finished\n";
+    }
+
+    void foo()
+    {
+      std::lock_guard guard{ mtx };
+      std::cout << "foo() is called\n";
+      std::cout << "foo() is finished\n";
+    }
+  private:
+    // mutable std::mutex mtx;
+    mutable std::recursive_mutex mtx;
+  };
+
+  int main()
+  {
+    AClass a;
+
+    try{
+      a.func();   // may throw exception depends on the compiler
+    }
+    catch(const std::exception& ex){
+      std::cout << "exception caught : " << ex.what() << '\n';
+    }
+
+    // output -> (recursive mutex is used)
+    //  func() is called
+    //  foo() is called
+    //  foo() is finished
+    //  func() is finished
+  }
+*/
+
+/*
+  #include <mutex>  // std::mutex, std::lock_guard
+  #include <thread> // std::thread
+
+  int g_x{};  // non atomic shared variable 
+
+  std::mutex mtx_func;
+  std::mutex mtx_foo;
+
+  void func()
+  {
+    std::lock_guard guard{ mtx_func };
+
+    for (int i = 0; i < 1000; ++i)
+      ++g_x;
+  }
+
+  void foo()
+  {
+    std::lock_guard guard{ mtx_foo };
+
+    for (int i = 0; i < 1000; ++i)
+      ++g_x;
+  }
+
+  int main()
+  {
+    std::thread t1{ func };
+    std::thread t2{ foo };
+    t1.join();
+    t2.join();
+
+    // no guarantee that g_x will be 2000 
+    // after the execution of both threads
+    // should be lock with same mutex object
+
+    // std::cout << "g_x = " << g_x << '\n';
+  }
+*/
+
+/*
+  #include <mutex>  // std::mutex, std::unique_lock, std::timed_mutex
+  #include <chrono> // std::chrono::steady_clock
+
+  std::mutex mtx_1;
+  std::mutex mtx_2;
+  std::timed_mutex mtx_3;
+  std::timed_mutex mtx_4;
+  std::timed_mutex mtx_5;
+  std::timed_mutex mtx_6;
+
+  void func()
+  {
+    // --------------------------------------------------------------
+
+    mtx_1.lock();
+    std::unique_lock<std::mutex> guard_1(mtx_1, std::adopt_lock);
+
+    // --------------------------------------------------------------
+    
+    std::unique_lock<std::mutex> guard_2(mtx_2, std::defer_lock);
+    guard_2.lock();
+    guard_2.try_lock();
+
+    // --------------------------------------------------------------
+
+    std::unique_lock<std::timed_mutex> guard_3(mtx_3, std::defer_lock);
+
+    using namespace std::literals;
+    auto tp = std::chrono::steady_clock::now() + 2s;
+
+    guard_2.try_lock_for(1000ms); 
+    guard_2.try_lock_until(tp); 
+
+    // --------------------------------------------------------------
+
+    std::unique_lock<std::timed_mutex> guard_4(mtx_4, std::try_to_lock);
+    // guard_4 will try to lock the mutex
+    // mtx_4 can be locked or not in this point
+
+    if (guard_4)  // operator bool() member function
+      std::cout << "mtx_4 is locked\n";
+    else
+      std::cout << "mtx_4 is not locked\n";
+
+    if (guard_4.owns_lock())  // owns_lock() member function
+      std::cout << "mtx_4 is locked\n";
+    else
+      std::cout << "mtx_4 is not locked\n";
+
+    // --------------------------------------------------------------
+
+    std::unique_lock guard_5(mtx_5, 1000ms);
+    // guard_5 will try to lock the mutex for 1 second
+
+    // --------------------------------------------------------------
+
+    auto tp_2 = std::chrono::steady_clock::now() + 2s;
+    std::unique_lock guard_6(mtx_6, tp_2);
+    // guard_6 will try to lock the mutex until 2 seconds
+
+    // --------------------------------------------------------------
+
+    // std::unique_lock<> class template is non copyable but movable
+    // can be transferred to another unique_lock object
+  }
+*/
+
+/*
+  // ------------ Problem ------------
+  #include <mutex>  // std::mutex
+  #include <thread> // std::thread, std::this_thread::sleep_for
+
+  std::mutex mtx_a;
+  std::mutex mtx_b;
+
+  void foo()
+  {
+    using namespace std::literals;
+
+    mtx_a.lock();
+    std::this_thread::sleep_for(100ms);
+    mtx_b.lock();
+    std::cout << "foo()" << '\n';
+
+    mtx_a.unlock();
+    mtx_b.unlock();
+  }
+
+  void bar()
+  {
+    using namespace std::literals;
+
+    mtx_b.lock();
+    std::this_thread::sleep_for(100ms);
+    mtx_a.lock();
+    std::cout << "bar()" << '\n';
+
+    mtx_b.unlock();
+    mtx_a.unlock();
+  }
+
+  int main()
+  {
+    std::thread t1{ foo };
+    std::thread t2{ bar };
+    t1.join();
+    t2.join();
+
+    // t1 thread will acquire mtx_a and t2 thread will acquire mtx_b
+    // for t1 thread to continue it needs to acquire mtx_b
+    // and for t2 thread to continue it needs to acquire mtx_a
+    // because of both of them are blocked by each other, 
+    // it is a deadlock
+  }
+*/
+
+/*
+  // ------------ 1st solution ------------
+  // if both threads acquire the mutexes in the same order
+  // there will be no deadlock
+
+  #include <mutex>  // std::mutex
+  #include <thread> // std::thread, std::this_thread::sleep_for
+
+  std::mutex mtx_a;
+  std::mutex mtx_b;
+
+  void foo()
+  {
+    using namespace std::literals;
+
+    mtx_a.lock();
+    std::this_thread::sleep_for(100ms);
+    mtx_b.lock();
+    std::cout << "foo()" << '\n';
+
+    mtx_a.unlock();
+    mtx_b.unlock();
+  }
+
+  void bar()
+  {
+    using namespace std::literals;
+
+    mtx_a.lock();
+    std::this_thread::sleep_for(100ms);
+    mtx_b.lock();
+    std::cout << "bar()" << '\n';
+
+    mtx_a.unlock();
+    mtx_b.unlock();
+  }
+
+  int main()
+  {
+    std::thread t1{ foo };
+    std::thread t2{ bar };
+    t1.join();
+    t2.join();
+    // output ->
+    //  foo()
+    //  bar()
+  }
+*/
+
+/*
+  // ------------ 2nd solution ------------
+  // using std::lock() global function
+
+  #include <mutex>  // std::mutex, std::lock, std::lock_guard
+  #include <thread> // std::thread, std::this_thread::sleep_for
+
+  std::mutex mtx_a;
+  std::mutex mtx_b;
+
+  void foo()
+  {
+    using namespace std::literals;
+
+    std::lock(mtx_a, mtx_b);
+    std::lock_guard guard_a{ mtx_a, std::adopt_lock };
+    std::lock_guard guard_b{ mtx_b, std::adopt_lock };
+
+    std::this_thread::sleep_for(100ms);
+    std::cout << "foo()" << '\n';
+  }
+
+  void bar()
+  {
+    using namespace std::literals;
+
+    std::lock(mtx_a, mtx_b);
+    std::lock_guard guard_a{ mtx_a, std::adopt_lock };
+    std::lock_guard guard_b{ mtx_b, std::adopt_lock };
+
+    std::this_thread::sleep_for(100ms);
+    std::cout << "bar()" << '\n';
+  }
+
+  int main()
+  {
+    std::thread t1{ foo };
+    std::thread t2{ bar };
+    t1.join();
+    t2.join();
+    // output ->
+    //  foo()
+    //  bar()
+  }
+*/
+
+/*
+  // ------------ 3rd solution ------------
+  // using std::scoped_lock variadic class template (C++17)
+
+  #include <mutex>  // std::mutex, std::scoped_lock
+  #include <thread> // std::thread, std::this_thread::sleep_for
+
+  std::mutex mtx_a;
+  std::mutex mtx_b;
+
+  void foo()
+  {
+    using namespace std::literals;
+
+    std::scoped_lock<std::mutex, std::mutex> guard{ mtx_a, mtx_b };
+    std::this_thread::sleep_for(100ms);
+    std::cout << "foo()" << '\n';
+  }
+
+  void bar()
+  {
+    using namespace std::literals;
+
+    std::scoped_lock guard{ mtx_a, mtx_b }; // CTAD(C++17)
+    std::this_thread::sleep_for(100ms); 
+    std::cout << "bar()" << '\n';
+  }
+
+  int main()
+  {
+    std::thread t1{ foo };
+    std::thread t2{ bar };
+    t1.join();
+    t2.join();
+    // output ->
+    //  bar()
+    //  foo()
+  }
+*/
+
+/*
+  #include <mutex>      // std::mutex, std::lock
+  #include <syncstream> // std::osyncstream
+  #include <thread>     // std::thread
+
+  std::mutex mtx_1, mtx_2; 
+
+  void foo()
+  {
+    std::lock(mtx_1, mtx_2);
+    // std::lock() will guarantee that after std::lock() call
+    // both mtx_1 and mtx_2 will be acquired(locked)
+
+    mtx_1.unlock();
+    mtx_2.unlock();
+    std::osyncstream{ std::cout } << "foo()\n";
+  }
+
+  void bar()
+  {
+    std::lock(mtx_1, mtx_2);
+
+    mtx_1.unlock();
+    mtx_2.unlock();
+    std::osyncstream{ std::cout } << "bar()\n";
+  }
+
+  int main()
+  {
+    std::thread t1{ foo };
+    std::thread t2{ bar };
+
+    t1.join();
+    t2.join();
+
+    // output ->
+    //  foo()
+    //  bar()
+  }
+*/
+
+/*
+  #include <thread>     // std::this_thread::sleep_for, std::thread
+  #include <mutex>      // std::mutex
+  #include <syncstream> // std::osyncstream
+  #include <functional> // std::ref
+
+  struct HasCriticalCode{
+    std::mutex mtx;
+  };
+
+  void func(HasCriticalCode& x, HasCriticalCode& y)
+  {
+    using namespace std::literals;
+    std::osyncstream os{ std::cout };
+
+    x.mtx.lock();
+    std::this_thread::sleep_for(1ms);
+    os << "acquired mutex at the address of " << &x << '\n';
+
+    y.mtx.lock();
+    os << "acquired mutex at the address of " << &y << '\n';
+
+    y.mtx.unlock();
+    x.mtx.unlock();
+  }
+
+  int main()
+  {
+    HasCriticalCode a, b;
+
+    // -------------------------------------------------
+
+    std::thread t1{ func, std::ref(a), std::ref(b) };
+    std::thread t2{ func, std::ref(b), std::ref(a) };
+
+    // because of the call order, this will cause a deadlock
+
+    // -------------------------------------------------
+
+    std::thread t1{ func, std::ref(a), std::ref(b) };
+    std::thread t2{ func, std::ref(a), std::ref(b) };
+
+    t1.join();
+    t2.join();
+
+    // output ->
+    //  acquired mutex at the address of 0xe5d2bff768
+    //  acquired mutex at the address of 0xe5d2bff760
+    //  acquired mutex at the address of 0xe5d2bff768
+    //  acquired mutex at the address of 0xe5d2bff760
+
+    // -------------------------------------------------
+  }
+*/

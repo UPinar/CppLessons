@@ -323,3 +323,12 @@
   - `std::future` class template
   - `std::shared_future` class template
   - `std::packaged_task` class template
+  - shared resources in threads
+  - mutex (mutual exclusion)
+    - `std::mutex` class
+    - `std::timed_mutex` class
+    - `std::lock_guard` class template
+    - `std::recursive_mutex` class
+    - `std::unique_lock` class template
+    - `std::lock` function template
+    - `std::scoped_lock` variadic class template **(C++17)**
