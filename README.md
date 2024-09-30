@@ -338,3 +338,5 @@
     - `std::unique_lock` class template
     - `std::lock` function template
     - `std::scoped_lock` variadic class template **(C++17)**
+  - `std::call_once` & `std::once_flag`
+  - conditional variable

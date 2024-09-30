@@ -4028,3 +4028,153 @@ paralelism :
     // -------------------------------------------------
   }
 */
+
+/*
+  Birden fazla thread'in bulunması durumunda bir fonksiyonun 
+  sadece bir kere çalıştırılması gerekiyor. 
+    - özellikle bir değişkene atama yaptığımız zaman aynı 
+    değişkene birden fazla thread'in atama yapmasına engel olmak.
+    - dinamik ömürlü bir değişkenin sadece bir kere hayata 
+    gelmesini sağlamak.
+
+  std::once_flag class and std::call_once class template
+    - std::once_flag fonksiyonun sadece 1 kere çalıştırılmasına 
+    yönelik bayrak vazifesi görüyor.
+    - std::call_once, once_flag'i kullanarak çağrılacak 
+    callable'ı ve callable'a gönderilecek argümanları alıyor.
+
+  std::call_once çağrısına ilk gelen thread fonksiyonu çağırıyor.
+  diğer threadler bu esnada bloke oluyorlar. Fonksiyonun 
+  çalışması bittiğinde diğer threadlerin blokesi açılıyor.
+*/
+
+/*
+  #include <thread> // std::thread
+  #include <mutex>  // std::call_once, std::once_flag
+  #include <vector>
+
+  std::once_flag g_flag;
+
+  void func(int id)
+  {
+    std::call_once(g_flag, [id](){
+      std::cout << "thread id = " << id << " is called.\n";
+    });
+  }
+
+  int main()
+  {
+    std::vector<std::thread> tvec;
+
+    for(int i = 0; i < 10; ++i)
+      tvec.emplace_back(func, i);
+
+    for (auto& tx : tvec)
+      tx.join();
+
+    // output -> thread id = 5 is called.
+  }
+*/
+
+/*
+  #include <thread> // std::thread, std::this_thread::sleep_for 
+  #include <mutex>  // std::call_once, std::once_flag
+  #include <thread>
+  #include <chrono>
+
+  std::once_flag g_flag;
+
+  void foo()
+  {
+    using namespace std::literals;
+    std::this_thread::sleep_for(100ms);
+    std::call_once(g_flag, [](){
+      std::cout << "registered in foo\n";
+    });
+  }
+
+  void bar()
+  {
+    using namespace std::literals;
+    std::this_thread::sleep_for(100ms);
+    std::call_once(g_flag, [](){
+      std::cout << "registered in bar\n";
+    });
+  }
+
+  int main()
+  {
+    std::thread tx_arr[10];
+
+    for(int i = 0; i < 10; ++i){
+      tx_arr[i] = i % 2 == 0  ? std::thread{ foo } 
+                              : std::thread{ bar };
+    }
+
+    for (auto& tx : tx_arr)
+      tx.join();
+
+    // output -> registered in foo
+  }
+*/
+
+/*
+  #include <mutex>      // std::once_flag, std::call_once
+  #include <vector>
+  #include <thread>     // std::thread
+  #include <syncstream> // std::osyncstream
+  #include <fstream>    // std::ofstream
+
+  class Singleton{
+  public:
+    Singleton(const Singleton&) = delete;
+    Singleton& operator=(const Singleton&) = delete;
+
+    static void init_function()
+    {
+      m_instance = new Singleton;
+    }
+
+    static Singleton* get_instance()
+    {
+      std::call_once(m_init_flag, init_function);
+      return m_instance;
+    }
+  private:
+    Singleton() = default;  // private constructor
+
+    static inline std::once_flag m_init_flag;
+    static inline Singleton* m_instance{};
+  };
+
+  void foo()
+  {
+    static std::ofstream ofs{ "out.txt" };
+    std::osyncstream{ ofs } << Singleton::get_instance() 
+                            << '\n';
+  }
+
+  int main()
+  {
+    std::vector<std::thread> tvec;
+
+    for(int i = 0; i < 500; ++i)
+      tvec.emplace_back(foo);
+
+    for(auto& tx : tvec)
+      tx.join();
+
+    // check <--- out.txt ---> file
+  }
+*/
+
+/*
+                  ------------------------
+                  | conditional variable |
+                  ------------------------
+*/
+
+/*
+*/
+
+// Lesson_75_concurrency_5 : 00:35:49
