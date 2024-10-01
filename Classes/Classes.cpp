@@ -437,60 +437,80 @@
   // member functions inline in header file for not violating ODR.
 */
 
-// CONTINUE FIX FROM HERE
-
 /*
   // myclass.h
+  // ----------------
   class Myclass {
   public:
     void func(int x);	// class scope
   };
 
+
   // myclass.cpp
+  // ----------------
+  #include "myclass.h"
   void func(double x)
   {
     // global namespace scope
   }
-  // These functions are not overloads.
-  // Because their scopes are different
+  // These functions are not overloads, their scopes are different.
 */
 
 /*
-  class Myclass {
+  class ABC {
   public:
-    void func(Myclass a, int x);
+    void func(ABC a, int x);
   private:
     int mx;
   };
 
-  Myclass g_a;
+  ABC g_a;
 
-  void Myclass::func(Myclass a, int x)
+  void ABC::func(ABC a, int x)
   {
-    // MYCLASSES PRIVATE SECTION IS ALWAYS OPEN FOR NON-STATIC MEMBER FUNCTIONS!!
+    // ABC class's private section is always open 
+    // for its non-static member functions.
+
+    // -----------------------------------------------------
 
     int val = a.mx;
-    // reaching Myclass objects(parameter) private data member inside Myclasses member function.
+    // reaching parameter variable ABC object's private data member
+    // inside ABC class's non-static member function.
+
+    // -----------------------------------------------------
 
     g_a.mx = 32452;
-    // reaching global Myclass objects private data member inside Myclasses member function.
+    // reaching global ABC class object's private data member
+    // inside ABC class's non-static member function
 
-    Myclass local_obj;
+    // -----------------------------------------------------
+
+    ABC local_obj;
     local_obj.mx = 12;
-    // reaching local Myclass objects private data member inside Myclasses member function.
+    // reaching local ABC class object's private data member
+    // inside ABC class's non-static member function.
+
+    // -----------------------------------------------------
 
     mx = 24;
     this->mx = 24;
-    Myclass::mx = 24;
-    // These 3 lines are same.
-    // reaching Myclass's private data member inside Myclasses member function.
+    ABC::mx = 24;
+    // These 3 lines are equivalent.
+    // reaching ABC class's private data member 
+    // inside ABC class's non-static member function.
+
+    // -----------------------------------------------------
 
     int mx = 12;
     mx = x;
-    // When we declare a local variable as same as Myclasses data member.
-    // namelookup phase will start from the local scope and it will find local variable.
-    // Name hiding will happen and local variable mx will hide private data member mx.
-    // Assignment will be done for local variable.
+    // declaring a local variable with same name as ABC class's
+    // data member, name lookup phase will start from the local scope
+    // and it will find the local variable.
+    // Because of it founds local variable, name lookup phase will stop.
+    // Local mx variable will hide ABC class's data member.
+    // Assignment will be done to local variable.
+
+    // -----------------------------------------------------
   }
 */
 
@@ -507,18 +527,22 @@
   void Myclass::func(int x)
   {
     int mx;		// local variable
-
     mx = 12;
     // assignment to local variable.
-    ::mx = 14;
-    // assignment to global variable	[unary scope resolution operator]
-    Myclass::mx = 20;
-    // assignment private data member.	[binary scope resolution operator]
+
+    ::mx = 14;  // ("::op1" unary scope resolution operator)
+    // assignment to global variable.
+
+    Myclass::mx = 20; // ("op1::op2" binary scope resolution operator)
+    // assignment to Myclass's private data member
+    // inside Myclass's non-static member function.
   }
 */
 
+// continue from here
+
 /*
-  // myclass.h
+  // algo.h
   class Algo {
   public:
     int foo(int x);
@@ -527,7 +551,8 @@
     int mx = 0;
   };
 
-  // myclass.cpp
+  // algo.cpp
+  // #include "algo.h"
   int Algo::foo(int x)
   {
     return bar(x);
