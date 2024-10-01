@@ -57,7 +57,8 @@
   - name decoration(mangling)
   
 ### [Classes](https://github.com/UPinar/CppLessons/tree/main/Classes)
-  - qualified & unqualified names
+  - name lookup - context control - access control
+  - qualified names scopes
   - non-static data members
   - member functions
   - access specifiers
