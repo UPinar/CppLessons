@@ -4169,12 +4169,505 @@ paralelism :
 */
 
 /*
-                  ------------------------
-                  | conditional variable |
-                  ------------------------
+                    ----------------------
+                    | condition variable |
+                    ----------------------
 */
 
 /*
+  - bir thread'in, bir diğer thread'in ürettiği veriyi kullanması.
+  - bir thread'in işlemleri yapıp, diğer thread'i hazır hale getirmesi.
+  - producer - consumer problem
 */
 
-// Lesson_75_concurrency_5 : 00:35:49
+/*
+  // Bad approach to producer-consumer problem
+
+  #include <mutex>  // std::mutex, std::unique_lock, std::lock_guard
+  #include <thread>
+
+  int shared_variable = 0;  // this will be used as a condition
+  std::mutex mtx;
+
+  void producer()
+  {
+    using namespace std::literals;
+    std::this_thread::sleep_for(1s);
+
+    std::lock_guard guard{ mtx }; // mutex is acquired
+    // ------------------ critical region ------------------
+    shared_variable = 999;
+    // ------------------ critical region ------------------
+  }
+
+  // wasting CPU cycles for checking the condition 
+  // while( shared_variable == 0 )
+  void consumer()
+  {
+    std::unique_lock ulock{ mtx }; 
+    // ------------------ critical region ------------------
+    while (shared_variable == 0){
+    // ------------------ critical region ------------------
+      ulock.unlock();
+      ulock.lock();
+    }
+
+    // consume the shared_variable
+    std::cout << "shared_variable = " << shared_variable << '\n';
+  }
+
+  int main()
+  {
+    std::thread t1{ producer };
+    std::thread t2{ consumer };
+    t1.join();
+    t2.join();
+    // output -> shared_variable = 999
+  }
+*/
+
+/*
+  // Better but still bad approach to producer-consumer problem
+  // ------------------------------------------------
+
+  #include <mutex>  // std::mutex, std::unique_lock, std::lock_guard
+  #include <thread> // std::this_thread::sleep_for
+
+  int shared_variable = 0;
+  std::mutex mtx;
+
+  void producer()
+  {
+    using namespace std::literals;
+    std::this_thread::sleep_for(1s);
+
+    std::lock_guard guard{ mtx }; // mutex is acquired
+    // ------------------ critical region ------------------
+    shared_variable = 999;
+    // ------------------ critical region ------------------
+  }
+
+  // wasting CPU cycles for checking the condition 
+  // while( shared_variable == 0 )
+  void consumer()
+  {
+    std::unique_lock ulock{ mtx }; 
+
+    while (shared_variable == 0){
+
+      using namespace std::literals;
+      std::this_thread::yield();
+      std::this_thread::sleep_for(100ms);
+      // if sleeping time is too short, it will also waste CPU cycles
+      // if sleeping time is too long, once the producer thread
+      // is finished, consumer thread will be wait more than it should
+      ulock.unlock();
+      ulock.lock();
+    }
+    // consume the shared_variable
+    std::cout << "shared_variable = " << shared_variable << '\n';
+  }
+
+  int main()
+  {
+    std::thread t1{ producer };
+    std::thread t2{ consumer };
+    t1.join();
+    t2.join();
+    // output -> shared_variable = 999
+  }
+*/
+
+/*
+  - condition variable is basically optimizing the code below
+  ```
+    while (shared_variable == 0)
+    {
+      using namespace std::literals;
+      std::this_thread::yield();
+      std::this_thread::sleep_for(100ms);
+      ulock.unlock();
+      ulock.lock();
+    }
+  ```
+*/
+
+/*
+  - std::condition_variable is non copyable, non movable class
+
+  - both producer and consumer threads will use the same mutex
+
+  Producer thread :
+    1. using std::lock_guard and acquire a mutex.
+    2. when the mutex is locked it will set the shared_variable
+    even the shared_variable is atomic it should be set when 
+    mutex is locked.
+    3. call the notify_one or notify_all member functions of 
+    std::condition_variable object. This should not be done 
+    when the mutex is locked.
+
+  Consumer thread(s):
+    1. using unique_lock to acquire the same(which producer threads used)
+    mutex. mutex might be locked and unlocked more than once so 
+    better using unique_lock.
+    2. first it should check the condition that shared_variable 
+    might already been set. 
+    If this condition is not checked and the consumer thread went 
+    to wait state it will be block forever.(lost wakeup)
+    3. If the condition is not met, it will call one of the wait 
+    functions of std::condition_variable object.
+    (wait, wait_for, wait_until)
+      - when wake function is called, std::condition_variable
+      will lock the mutex to itself(unlock consumers thread lock) 
+      and block the consumer thread.
+    4. When Producer thread calls notify_one or notify_all of 
+    std::condition_variable object, consumer thread will wake up
+    and will lock the mutex again which before was locked by the
+    std::condition_variable.
+    5. Wokeup(consumer) thread should check the condition again
+    because of spurious wakeup. If the condition is not met,
+    it should go to wait state again.
+    spuruous wakeup : thread woke up without notification(randomly)
+    <--- check spurious_wake.png --->
+*/
+
+/*
+  #include <condition_variable> // std::condition_variable
+  #include <mutex>  // std::unique_lock, std::lock_guard, std::mutex
+  #include <thread>
+
+  int data{}; // task
+  bool ready_flag = false;
+  std::mutex mtx;
+  std::condition_variable cond_var;
+
+  void producer()
+  {
+    std::cout << "producer is producing the data\n";
+
+    {
+      std::lock_guard guard{ mtx }; // mutex is locked
+      // ------------------ critical region ------------------
+      data = 999;
+      ready_flag = true;
+      // ------------------ critical region ------------------
+    }
+    // mutex is unlocked here(std::lock_guard's scope ends)
+    cond_var.notify_one();
+  }
+
+  void consumer()
+  {
+    {
+      std::unique_lock ulock{ mtx }; // mutex is locked
+      // ------------------ critical region ------------------
+      // wait function's predicate overload
+      // will check whole conditions
+      cond_var.wait(ulock, []{ return ready_flag; }); 
+      // ------------------ critical region ------------------
+    }
+    // mutex is unlocked here(std::unique_lock's scope ends)
+
+    std::cout << "data = " << data << '\n';
+  }
+
+  int main()
+  {
+    std::thread t1{ producer };
+    std::thread t2{ consumer };
+    t1.join();
+    t2.join();
+
+    // output ->
+    //  producer is producing the data
+    //  data = 999
+  }
+*/
+
+/*
+  #include <mutex>  // std::unique_lock
+
+  // wait function's predicate overload
+  // member template function of std::condition_variable class
+
+  template <typename Pred>
+  void wait(std::unique_lock<std::mutex>& ulock, Pred pred)
+  {
+    while (!pred()){
+      ulock.unlock();
+      ulock.lock();
+    }
+  }
+*/
+
+/*
+  #include <mutex>  // std::mutex, std::unique_lock, std::scoped_lock
+  #include <vector>
+  #include <condition_variable> // std::condition_variable
+  #include <thread>
+
+  class IStack{
+  public:
+    IStack() {}
+    IStack(const IStack&) = delete;
+    IStack& operator=(const IStack&) = delete;
+
+    int pop()
+    {
+      std::unique_lock ulock{ m_mtx };
+      m_cv.wait(ulock, [this]{ return !m_vec.empty(); });
+      int val = m_vec.back();
+      m_vec.pop_back();
+      ulock.unlock(); 
+      // because of no more shared_variable is being used
+
+      return val;
+    }
+    void push(int x)
+    {
+      {
+        std::scoped_lock slock{ m_mtx };  // std::scoped_lock (C++17)
+        m_vec.push_back(x);
+      }
+      m_cv.notify_one();
+    }
+  private:
+    std::vector<int> m_vec;
+    mutable std::mutex m_mtx;
+    mutable std::condition_variable m_cv;
+  };
+
+  constexpr int n = 10;
+  IStack s;
+
+  void producer()
+  {
+    for(int i = 0; i < n; ++i)
+      s.push(2 * i + 1);
+  }
+
+  void consumer()
+  {
+    for(int i = 0; i < n; ++i)
+      std::cout << s.pop() << '\n';
+  }
+
+  int main()
+  {
+    std::thread t1{ producer };
+    std::thread t2{ consumer };
+    t1.join();
+    t2.join();
+
+    // output ->
+    //  19
+    //  17
+    //  15
+    //  13
+    //  11
+    //  9
+    //  7
+    //  5
+    //  3
+    //  1
+  }
+*/
+
+/*
+  #include <mutex>  // std::mutex, std::unique_lock, std::lock_guard
+  #include <condition_variable> // std::condition_variable
+  #include <string>
+  #include <thread>
+
+  std::mutex mtx;
+  std::condition_variable cv;
+  std::string data;
+  bool ready_flag = false;
+  bool processed_flag = false;
+
+  void worker_thread()
+  {
+    // Wait until main() sends data
+    std::unique_lock<std::mutex> ulock{ mtx };
+    cv.wait(ulock, []{ return ready_flag; });
+
+    // after the wait, we own the lock
+    std::cout << "Worker thread is processing data\n";
+
+    // ------------------ critical region ------------------
+    data += " after processing";
+
+    // send data back to main()
+    processed_flag = true;
+    // ------------------ critical region ------------------
+
+    std::cout << "Worker thread signals data processing completed\n";
+
+    // Manual unlocking is done before notifying, to avoid waking up
+    // the waiting thread only to block again
+    ulock.unlock();
+    cv.notify_one();
+  }
+
+  int main()
+  {
+    std::thread worker{ worker_thread };  
+
+    data = "Example data";
+
+    // send data to the worker thread
+    {
+      std::lock_guard guard{ mtx };
+      ready_flag = true;
+      std::cout << "main() signals data ready for processing\n";
+    }
+    cv.notify_one();
+
+    // wait for the worker thread
+    {
+      std::unique_lock ulock{ mtx };
+      cv.wait(ulock, []{ return processed_flag; });
+    }
+
+    std::cout << "Back in main(), data = " << data << '\n';
+
+    worker.join();
+
+    // output ->
+    //  main() signals data ready for processing
+    //  Worker thread is processing data
+    //  Worker thread signals data processing completed
+    //  Back in main(), data = Example data after processing
+  }
+*/
+
+/*
+  #include <condition_variable> // std::condition_variable
+  #include <mutex>  
+  #include <thread> // std::this_thread::sleep_for
+  #include <future> // std::async, std::launch::async
+  #include <queue>
+  #include <syncstream> // std::osyncstream
+
+  std::queue<int> data_queue;   // shared variable
+  std::mutex mtx;
+  std::condition_variable cv;
+
+  void provider(int val)
+  {
+    for (int i = 0; i < 3; ++i)
+    {
+      {
+        std::lock_guard guard{ mtx };
+        data_queue.push(val + i);
+      } // lock is released here
+
+      cv.notify_one();
+      std::this_thread::sleep_for(std::chrono::milliseconds(val));
+    }
+  }
+
+  void consumer(int num)
+  {
+    // pop values if available (num identifies the consumer)
+
+    while(true)
+    {
+      int val;
+      {
+        std::unique_lock ulock{ mtx };
+        cv.wait(ulock, []{ return !data_queue.empty(); });
+
+        val = data_queue.front();
+        data_queue.pop();
+      } // lock is released here
+
+      std::osyncstream { std::cout }  << "consumer " << num 
+                                      << ": "<< val << '\n';
+    }
+  }
+
+  int main()
+  {
+    // start 3 providers for values 100+, 300+ and 500+
+    auto p1 = std::async(std::launch::async, provider, 100);
+    auto p2 = std::async(std::launch::async, provider, 300);
+    auto p3 = std::async(std::launch::async, provider, 500);
+
+    // start two consumers printing the values
+    auto c1 = std::async(std::launch::async, consumer, 1);
+    auto c2 = std::async(std::launch::async, consumer, 2);
+  }
+
+  // output ->
+  //  consumer 1: 300
+  //  consumer 1: 500
+  //  consumer 2: 100
+  //  consumer 1: 101
+  //  consumer 2: 102
+  //  consumer 1: 301
+  //  consumer 2: 501
+  //  consumer 1: 302
+  //  consumer 2: 502
+  //  ..... (infinite loop in consumer function -> wait())
+*/
+
+/*
+  #include <condition_variable>
+  #include <mutex>  // std::mutex, std::unique_lock
+  #include <thread>
+
+  std::condition_variable cv;
+  std::mutex cv_mtx;
+  // This mutex is used for three purposes
+  // 1. to synchronize access to the shared variable i
+  // 2. to synchronize access to std::cerr
+  // 3. for the conditional variable cv
+
+  int i = 0;
+
+  void waits()
+  {
+    std::unique_lock<std::mutex> ulock{ cv_mtx };
+    std::cerr << "Waiting... \n";
+    cv.wait(ulock, [] { return i == 1; });
+    std::cerr << "... finished waiting. i == 1\n";
+  }
+
+  void signals()
+  {
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    {
+      std::lock_guard guard{ cv_mtx };
+      std::cerr << "Notifying...\n";
+    }
+    cv.notify_all();
+
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+
+    {
+      std::lock_guard guard{ cv_mtx };
+      i = 1;
+      std::cerr << "Notifying again...\n";
+    }
+    cv.notify_all();
+  }
+
+  int main()
+  {
+    std::thread t1(waits), t2(waits), t3(waits), t4(signals);
+    t1.join();
+    t2.join();
+    t3.join();
+    t4.join();
+    // output ->
+    //  Waiting...
+    //  Waiting...
+    //  Waiting...
+    //  Notifying...
+    //  Notifying again...
+    //  ... finished waiting. i == 1
+    //  ... finished waiting. i == 1
+    //  ... finished waiting. i == 1
+  }
+*/
