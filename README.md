@@ -63,17 +63,30 @@
   - member functions
   - access specifiers
   - `this` pointer
-  - const member functions
+  - `const` member functions
   - `mutable` keyword
   - constructor & destructor
-  - RAII idiom
+  - RAII idiom (Resource Acquisition Is Initialization)
+  - special member functions
+    - Not declared special member functions
+    - User declared special member functions
+      - User declared defined / to be defined
+      - User declared defaulted
+      - User declared deleted
+    - Implicitly declared special member functions
+      - Implicitly declared defaulted
+      - Implicitly declared deleted
+  
+### [Storage Classes](https://github.com/UPinar/CppLessons/tree/main/StorageClasses)
   - Storage Classes(Lifetime)
-     - Static storage classes
-     	 - global variables,
-	 static initialization fiasco,
-	 static local variables
-     - Automatic storage classes
-     - Dynamic storage classes (new/delete keyword)
+     - Static storage class
+     	 - global variables 
+     	 - static local variables
+     - Automatic storage class
+       - function's local variables
+       - local and non-static variables in block scopes
+     - Dynamic storage class 
+       - new/delete keyword
      
 ### [Special Member Functions](https://github.com/UPinar/CppLessons/tree/main/SpecialMemberFunctions)
   - copy constructor

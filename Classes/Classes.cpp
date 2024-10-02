@@ -7,7 +7,7 @@
 */
 
 /*
-  class Data {};	
+  class Data {};
   // this is an empty class
   // "Data" is a class tag
 */
@@ -59,12 +59,12 @@
   {
     int x = x;
     // name lookup starts from block scope
-    // initializing local variable "x" with 
+    // initializing local variable "x" with
     // its garbage(indetermined) value.
 
     int x = ::x;
     // name lookup starts from global namespace scope.
-    // initializing local variable "x" 
+    // initializing local variable "x"
     // with global variable "x"s value.
   }
 */
@@ -78,7 +78,7 @@
     func(19); // syntax error
     // error: 'func' cannot be used as a function
 
-    // name lookup starts from main block scope, it succeeds. 
+    // name lookup starts from main block scope, it succeeds.
     // func has been found inside main block scope.
     // context control failed.
   }
@@ -100,7 +100,7 @@
 */
 
 /*
-  void foo(double); // promotion 
+  void foo(double); // promotion
   void foo(int);    // conversion
 
   class Myclass {
@@ -137,16 +137,16 @@
 /*
   qualified name(nitelenmiş isim) scopes
   ---------------------------------------
-  a.x		-> member selection operator ('.')		
+  a.x		-> member selection operator ('.')
     name lookup in a's class scope
 
-  ptr->x		-> member selection operator ('->')		
+  ptr->x		-> member selection operator ('->')
     name lookup in ptr's class scope
 
-  ::x		-> unary scope resolution operator ('::')	
+  ::x		-> unary scope resolution operator ('::')
     name lookup in global namespace scope
 
-  Myclass::x	-> binary scope resolution operator ('::')	
+  Myclass::x	-> binary scope resolution operator ('::')
     name lookup in Myclass's(class/namespace) scope
 */
 
@@ -330,7 +330,7 @@
     class NestedPublic {};
     int mx;
     void foo();
-    
+
   private:    // private access specifier
     class NestedPrivate {};
     int my;
@@ -357,7 +357,7 @@
     // ------------------------------------------------------------
 
     Myclass::NestedPrivate private_nested;      // syntax error
-    // error: 'class Myclass::NestedPrivate' is 
+    // error: 'class Myclass::NestedPrivate' is
     // private within this context
 
     auto var = m.my;                            // syntax error
@@ -372,7 +372,7 @@
     // ------------------------------------------------------------
 
     Myclass::NestedProtected protected_nested;  // syntax error
-    // error: 'class Myclass::NestedProtected' is 
+    // error: 'class Myclass::NestedProtected' is
     // protected within this context
 
     auto var = m.mz;                            // syntax error
@@ -407,10 +407,10 @@
 
   void Myclass::func(int x)
   {
-    // Member function definition outside the class scope in 
+    // Member function definition outside the class scope in
     // same header(.h) file.
-    // Myclass::func will not be implicitly inline. 
-    // It will violate ODR(One Definition Rule). 
+    // Myclass::func will not be implicitly inline.
+    // It will violate ODR(One Definition Rule).
   }
 
   inline void Myclass::foo(double x)
@@ -423,7 +423,7 @@
   void Myclass::baz(float x)
   {
     // Member function declaration is inline.
-    // Member function definition is outside the class scope in 
+    // Member function definition is outside the class scope in
     // same header(.h) file.
     // It will NOT violate ODR.
   }
@@ -433,7 +433,7 @@
     // this is a global function, not a member function.
   }
 
-  // For creating header only module, we need to define all 
+  // For creating header only module, we need to define all
   // member functions inline in header file for not violating ODR.
 */
 
@@ -468,7 +468,7 @@
 
   void ABC::func(ABC a, int x)
   {
-    // ABC class's private section is always open 
+    // ABC class's private section is always open
     // for its non-static member functions.
 
     // -----------------------------------------------------
@@ -496,7 +496,7 @@
     this->mx = 24;
     ABC::mx = 24;
     // These 3 lines are equivalent.
-    // reaching ABC class's private data member 
+    // reaching ABC class's private data member
     // inside ABC class's non-static member function.
 
     // -----------------------------------------------------
@@ -539,10 +539,9 @@
   }
 */
 
-// continue from here
-
 /*
   // algo.h
+  // ----------------
   class Algo {
   public:
     int foo(int x);
@@ -552,27 +551,39 @@
   };
 
   // algo.cpp
+  // ----------------
   // #include "algo.h"
   int Algo::foo(int x)
   {
     return bar(x);
-    // namelookup will start in local scope
-    // will continue in class scope.
+    // name lookup will start from local scope
+    // will continue from class scope.
 
-    // Algo will send hidden parameter (Algo*) to bar() member function.
+    // "foo" and "bar" functions are non-static member functions
+    // when "bar" function is called from "foo" function
+    // hidden parameter (Algo*) will be sent to bar() function.
+    // bar(Algo*, int) will be the underlying function call.
   }
 
   int Algo::bar(int x)
   {
     mx = x + 4;
+    // name lookup will start from local scope, failed.
+    // will continue from class scope, succeeded.
+
+    // Algo class's private data member is accessible from
+    // Algo class's non-static member function.
     return mx;
   }
 
+  // main.cpp
+  // ----------------
+  // #include "algo.h"
   int main()
   {
-    Algo a;
-    int b = a.foo(15);
-    std::cout << "b = " << b << '\n';
+    Algo algo;
+    int b = algo.foo(15);
+    std::cout << "b = " << b << '\n';   // output -> b = 19
   }
 */
 
@@ -584,56 +595,74 @@
     int mx;
   };
 
-  int foo(int x);
+  int foo(int x); // global function
 
   void Myclass::foo()
   {
     foo(3);	// syntax error
+    // error: no matching function for call to 'Myclass::foo(int)'
 
-    // namelookup will start from local scope [NOT FOUND]
-    // will continue in class scope	[FOUND]
-    // member function foo do not have an int parameter. [context control phase error]
+    // namelookup will start from local scope, failed.
+    // namelookup will continue from class scope, succeeded.
+    // Myclass's non-static member function foo does not have parameter
+    // context control will fail.
 
-    ::foo(3); // legal
-    // namelookup directly starts from global namespace scope.
+    ::foo(3); // VALID
+    // namelookup will start from global namespace scope.
 
-    foo(); // legal
-    Myclass::foo() // legal
-    // These 2 lines are same
-    // recursive function call.
+    foo();          // VALID
+    // namelookup will start from local scope, failed.
+    // namelookup will continue from class scope, succeeded.
+    // context control will succeed.
+    // access control will succeed.
+
+    Myclass::foo()  // VALID
+    // namelookup will start from class scope, succeeded.
+    // context control will succeed.
+    // access control will succeed.
   }
 */
 
 /*
-  class Algo {
+  class Myclass{
   public:
     void foo(int);
   private:
     int foo;
   };
-  // sythax error
-  // private, public and protected sections are in the same scope(class scope).
+  // syntax error
+  // error: 'int Algo::foo' conflicts with a previous declaration
 
-  class Algo {
+  // all sections(public, private, protected)
+  // are in the same scope(class scope)
+  // so, name conflict will occur between data member and
+  // non-static member function.
+*/
+
+/*
+  class Myclass{
   public:
     void foo(int);
   private:
     void foo(double);
   };
-  // 2 function overloads because of same scope.
+  // `foo(int)` and `foo(double)` are overloads
+  // they are in the same scope(class scope)
 */
 
 /*
   int foo(int);
   int foo(int);
-  // function redecleration is possible in global scope
+  // function redeclaration is VALID in global scope
 
   class Myclass {
   public:
     int bar(int);
     int bar(int);	// syntax error
+    // error: 'int Myclass::bar(int)' cannot be overloaded with
+    // 'int Myclass::bar(int)'
   };
-  // function redecleration IS NOT possible in class scope
+  // function redeclaration IS NOT VALID in class scope
 */
 
 /*
@@ -648,15 +677,19 @@
   {
     Myclass mx;
     mx.foo(2.3); // syntax error
+    // error: 'int Myclass::foo(double)' is private within this context
 
-    // 1. name-lookup control
-    // There are 2 overloads of foo() member function in class scope
-    // 2. context control
-    // Because of int(int) is conversion and int(double) is exact match
-    // int(double) will be chosen
-    // 3. access control
-    // The chosen overload [int(double)] in private section
-    // can not be accessed from global scope it will be sythax error.
+    // name lookup will start from Myclass's class scope
+    // 2 overloads will be found, name lookup succeeds.
+
+    // context control will find the best match.
+    // int(int) overload is conversion
+    // int(double) overload is exact match
+    // context control will choose int(double) overload.
+
+    // access control will fail because of int(double) is
+    // in private section of the class and it can not be
+    // accessed from the client side.
   }
 */
 
@@ -667,82 +700,107 @@
   private:
     int foo(double);
 
-    // This kind of function overloads(1 in public, 1 in private section)
-    // can be used for calling them from another member functions of class.
-    // class member functions can reach classes private section.
     void bar()
     {
       foo(12);
       foo(1.2);
     }
   };
+  // This kind of function overloads(1 in public, 1 in private)
+  // can be useful when it has been called from another
+  // member functions of the class.
+  // non-static member functions can access all sections of the class.
 */
 
 /*
   class Myclass {
+  private:
     int foo()
     {
       int mx{};
 
-      mx = 5;			// local variable
-      Myclass::mx = 5;	// data member
+      mx = 5;           // assignment to local variable
+      Myclass::mx = 5;  // assignment to data member
     }
     int mx;
   };
 */
 
 /*
-  ----------------
-  | this pointer |
-  ----------------
+                        ----------------
+                        | this pointer |
+                        ----------------
 */
 
 /*
-  this is a keyword and its value category is PR value expression
-  this is a pointer.
-  using this pointer in classes static member function is syntax error.
-  using this pointer in global function is syntax error.
+  - `this` is a keyword and its value category is
+    PRValue expression.
+
+  - `this` is a pointer.
+
+  - using `this` pointer in class's static member function
+    is syntax error.
+
+  - using `this` pointer in global function is syntax error.
 */
 
 /*
   class Myclass {
   public:
-    void func()
+    void func() // non-static member function
     {
-      std::cout << "this = " << this << '\n';  // output -> this = 009BFE2F
+      std::cout << "this = " << this << '\n';
+      // output -> this = 009BFE2F
+
       foo();
     }
 
-    void foo()
+    void foo()  // non-static member function
     {
-      std::cout << "this = " << this << '\n';  // output -> this = 009BFE2F
+      std::cout << "this = " << this << '\n';
+      // output -> this = 009BFE2F
     }
   };
 
   int main()
   {
     Myclass mx;
-    std::cout << "&mx = " << &mx << '\n'; // output -> &mx = 009BFE2F
+    std::cout << "&mx = " << &mx << '\n';
+    // output -> &mx = 009BFE2F
+
     mx.func();
   }
 */
 
 /*
+  // myclass.h
+  // ----------------
   class Myclass {
   public:
     void foo();
   };
 
+
+  // myclass.cpp
+  // ----------------
+  // #include "myclass.h"
+
   void Myclass::foo()
   {
     Myclass mx;
-    this = &mx;		// syntax error.
-    auto x = &this;		// syntax error
-    // this is a PR value expression.
+    this = &mx;       // syntax error.
+    // error: lvalue required as left operand of assignment
+
+    auto x = &this;   // syntax error
+    // error: lvalue required as unary '&' operand
+
+    // `this` is a PRValue expression
   }
 */
 
 /*
+  // myclass.h
+  // ----------------
   class Myclass {
   public:
     void foo();
@@ -751,17 +809,22 @@
     int mx;
   };
 
-  void Myclass::foo()
+
+  // myclass.cpp
+  // ----------------
+  // #include "myclass.h"
+
+  void Myclass::foo()   // non-static member function
   {
     mx = 10;
     this->mx = 10;
     Myclass::mx = 10;
-    // These 3 lines are same.
+    // These 3 lines are equivalent.
 
     bar();
     this->bar();
     Myclass::bar();
-    // These 3 line are same.
+    // These 3 lines are equivalent.
   }
 */
 
@@ -770,7 +833,6 @@
   public:
     void func();
   private:
-
     int x;
     int y;
     int z;
@@ -780,7 +842,7 @@
   void f2(Myclass&);
   void f3(Myclass);
 
-  void Myclass::func()
+  void Myclass::func()    // non-static member function
   {
     f1(this);
     f2(*this);
@@ -789,49 +851,52 @@
 */
 
 /*
-  // C code
+  // ------ C code ------
   typedef struct {
     int a, b, c;
-  }Myclass;
+  }CClass;
 
-  Myclass* foo(Myclass* p)
+  CClass* foo(CClass* p)
   {
-    // code here...
     return p;
   }
-  void bar(Myclass*);
+  void bar(CClass*);
+  // ------ C code ------
 
 
-  // C++ Code
-  class Yourclass {
+  // ------ C++ code ------
+  class CPPClass {
   public:
-    Yourclass& foo()
+    CPPClass& foo()
     {
-      // code here...
       return *this;
     }
-    Yourclass& bar()
+    CPPClass& bar()
     {
-      // code here...
       return *this;
     }
-    Yourclass& baz()
+    CPPClass& baz()
     {
-      // code here...
       return *this;
     }
   };
+  // ------ C++ code ------
 
   int main()
   {
-    // C Code
-    Myclass mx = { 43,46,98 };
-    bar(foo(&mx));
-    // sending the address of object returns from foo() function to bar() function.
+    // ------ C code ------
+    CClass c_x = { 43, 46, 98 };
+    bar(foo(&c_x));
+    // passing the address of the CClass object
+    // returns from "foo" function to "bar" function.
 
-    // C++ Code
-    Yourclass yx;
-    yx.foo().bar().baz();	// Chaining
+    // ------ C++ code ------
+    CPPClass cpp_x;
+    cpp_x.foo().bar().baz();
+    // chaining the member functions
+    // passing the address of the CPPClass object
+    // returns from "foo" function to "bar" function
+    // returns from "bar" function to "baz" function.
   }
 */
 
@@ -842,32 +907,38 @@
     double dval{ 23.22 };
 
     std::cout << ival << dval;
-    std::cout.operator<<(ival).operator<<(dval);	// Chaining
+    std::cout.operator<<(ival).operator<<(dval);  // chaining
 
-    std::cout.operator<<(ival);			// returns std::ostream&
-    std::cout.operator<<(ival).operator<<(dval);	// returns std::ostream&
-    // There is function overloading in operator<< functions	[int, double]
+    std::cout.operator<<(ival);
+    // returns std::ostream&
+
+    std::cout.operator<<(ival).operator<<(dval);
+    // returns std::ostream&
+
+    // Function overloading in operator<< functions
+    // std::ostream& operator<<(int);
+    // std::ostream& operator<<(double);
   }
 */
 
 /*
-  --------------------------
-  | const member functions |
-  --------------------------
+                    --------------------------
+                    | const member functions |
+                    --------------------------
 */
 
 /*
   class Myclass{};
 
-  void func(Myclass&);		// mutator
-  void func(const Myclass&);	// accessor
+  void func(Myclass&);        // mutator
+  void func(const Myclass&);  // accessor
 
-  void foo(Myclass* p);		// mutator
-  void foo(const Myclass* p);	// accesssor
+  void foo(Myclass* p);       // mutator
+  void foo(const Myclass* p); // accesssor
 */
 
 /*
-  // C code
+  // ------ C code ------
   struct Data {
     int a, b, c;
   };
@@ -876,71 +947,125 @@
 
   void func(const struct Data* p)
   {
+    // --------------------------------------------------
     struct Data* ptr;
-    *p = ptr;	// syntax error
+    *p = ptr;	  // syntax error
+    // error: assignment of read-only location '*p'
+
     p->a = 12;	// syntax error
+    // error: assignment of member 'a' in read-only object
 
-    struct Data* ptr = p;
-    // C++ sytax error
-    // C legal
+    // --------------------------------------------------
 
-    foo(p);	// conversion from const T* to T*
-    // C++ sytax error
-    // C legal
+    struct Data* ptr_2 = p;
+    // syntax error in C++, VALID in C
+    // error: invalid conversion from 'const Data*' to 'Data*'
+
+    foo(p);
+    // syntax error in C++, VALID in C
+    // error: invalid conversion from 'const Data*' to 'Data*'
+
+    // --------------------------------------------------
   }
 */
 
 /*
   class Myclass {
   public:
-    void foo();		// non-const member function
-    void bar()const;	// const member function
-    // const makes this pointer const.
+    void foo();       // non-const, non-static member function
+    void bar()const;  // non-static const member function
+    void baz()const;  // non-static const member function
+    // const function's `this` pointer is also const.
 
-    void baz()const;
   private:
-    int mx;
+    int m_x;
   };
 
-  Myclass gx;
+  Myclass global_myclass_obj;
 
+  // non-static, const member function definition
   void Myclass::bar()const
   {
-    mx = 20;		// syntax error
-    this->mx = 20;		// syntax error
-    Myclass::mx = 20;	// syntax error
-    // These 3 lines are same.
-    // We are trying to change data member(mx) of the Myclass object that, this pointer points to.
+    // -------------------------------------------------------
+
+    m_x = 20;          // syntax error
+    // error: assignment of member 'Myclass::mx' in read-only object
+
+    this->m_x = 20;		// syntax error
+    // error: assignment of member 'Myclass::mx' in read-only object
+
+    Myclass::m_x = 20; // syntax error
+    // error: assignment of member 'Myclass::mx' in read-only object
+
+    // These 3 lines are equivalent.
+    // Becuase of `this` pointer is const Myclass* inside
+    // const non-static member function, we can not change the value of
+    // non-static data members of the class.
+
+    // -------------------------------------------------------
 
     Myclass m;
-    *this = m;		// syntax error
+    *this = m;        // syntax error
+    // error: passing 'const Myclass' as
+    // 'this' argument discards qualifiers
 
-    gx.mx = 15;		// legal
-    // this pointer points to the address of Myclass object
-    // which called bar() const member function.
+    // -------------------------------------------------------
 
-    // changing gx objects(different object)(this pointer is not pointing gx)
-    // is perfectly legal.
+    global_myclass_obj.m_x = 15;		// VALID
 
-    foo();			// syntax error.
-    // hidden parameter(this pointer) is const Myclass*
-    // when we call foo() function which is non-const member function
-    // and its hidden parameter is Myclass*
-    // we are forcing conversion from const T* to T*, which is syntax error.
+    // we are in Myclass's non-static member function
+    // so we can access global Myclass object's private data member.
 
-    baz();			// legal
-    // baz() is const member function so
-    // sending const T*(hidden parameter)(this pointer) to const T* is legal.
+    // `this pointer` we have inside `Myclass::bar() const`
+    // non-static member function have a different address from
+    // global Myclass object's `this pointer`.
 
-    CALLING NON CONST MEMBER FUNCTION INSIDE CONST MEMBER FUNCTION IS NOT LEGAL!!
+    // because global Myclass object's `this pointer` is not const
+    // (because global Myclass object is not const),
+    // changing global Myclass object's data member is legal.
+
+    // -------------------------------------------------------
+
+    foo();      // syntax error.
+    // error: passing 'const Myclass' as
+    // 'this' argument discards qualifiers
+
+    // inside Myclass::bar() const non-static member function.
+    // hidden parameter(`this` pointer) is const Myclass*
+    // when "foo" function(non-const member function) is called
+    // from Myclass::bar() function,
+    // because of "foo" function's hidden parameter is Myclass*,
+    // we are forcing a conversion from const Myclass* to Myclass*,
+    // which is syntax error in C++.
+
+    // conversion from const T* to T* is NOT VALID in C++.
+
+    // -------------------------------------------------------
+
+    baz();      // VALID
+    // inside Myclass::bar() const non-static member function.
+    // hidden parameter(`this` pointer) is const Myclass*
+    // when "baz" function(const member function) is called
+    // from Myclass::bar() function,
+    // because of "baz" function's hidden parameter is const Myclass*,
+    // we are sending const Myclass* to const Myclass*,
+
+    // -------------------------------------------------------
   }
 
-  void Myclass::foo()	// non-const member function
+  // non-static, non-const member function definition
+  void Myclass::foo()
   {
-    bar();	// const member function
-    // conversion from const T*(hidden parameter)(this pointer) to T* is legal.
+    bar();
+    // inside Myclass::foo() non-const, non-static member function.
+    // hidden parameter(`this` pointer) is Myclass*
+    // when "bar" function(const member function) is called
+    // from Myclass::foo() function,
+    // because of "bar" function's hidden parameter is const Myclass*,
+    // we are sending Myclass* to const Myclass*,
+    // which is legal in C++.
 
-    CALLING CONST MEMBER FUNCTION INSIDE NON CONST MEMBER FUNCTION IS LEGAL!!
+    // conversion from T* to const T* is VALID in C++.
   }
 */
 
@@ -949,29 +1074,45 @@
   public:
     void foo();
     void bar()const;
-  private:
-    int mx;
   };
 
   int main()
   {
-    const Myclass cm;
+    // ----------------------------------------------------
 
-    // &cm -> const Myclass* (we are sending &cm to function's hidden variable)
-    cm.foo();	// syntax error. 	sending (const T*) to (T*) is		NOT LEGAL
-    cm.bar();	// legal		sending (constT*) to (const T*)		LEGAL
+    const Myclass cm;
+    // "&cm" expression's data type is const Myclass*
+    // we are sending &cm, when we call non-static member functions
+
+    cm.foo(); // syntax error
+    // error: passing 'const Myclass' as
+    // 'this' argument discards qualifiers
+    // sending const Myclass* to Myclass* is not valid.
+
+    cm.bar(); // VALID
+    // sending const Myclass* to const Myclass*.
+
+    // ----------------------------------------------------
 
     Myclass m;
-    m.foo();	// legal		sending (T*) to (T*)			LEGAL
-    m.bar();	// legal		sending (T*) to (const T*) [conversion]	LEGAL
+    // "&m" expression's data type is Myclass*
+    // we are sending &m, when we call non-static member functions
+
+    m.foo();  // VALID
+    // sending Myclass* to Myclass*.
+    m.bar();  // VALID
+    // sending Myclass* to const Myclass*.
+
+    // ----------------------------------------------------
   }
 */
 
 /*
 
-  1. const member functions can not change non-static data members.
-  2. const member functions can not call non-const member functions.
-  3. we can not assign *this object to any value in const member functions.
+  1. const member functions CAN NOT change non-static data members.
+  2. const member functions CAN NOT call non-const member functions.
+  3. we can not assign any data member, using *this
+    inside non-static const member functions.
   4. const class objects can only call const member functions.
 */
 
@@ -1007,19 +1148,42 @@
   {
     using namespace std;
 
-    vector<int> ivec{ 1,2,3,5,6 };
-    const vector<int> civec{ 1,2,3,5,6 };
+    vector<int> ivec{ 1, 2, 3, 4, 5 };
+    const vector<int> c_ivec{ 1, 2, 3, 4, 5 };
 
-    ivec.at(2) = 99;	// legal
-    civec.at(2) = 99;	// syntax error
+    // ----------------------------------------------------
 
-    // at() member function have 2 overloads(const overloads).
+    ivec.at(2) = 99;    // VALID
+    c_ivec.at(2) = 99;  // syntax error
+    // error: assignment of read-only location
+    // 'c_ivec.std::vector<int>::at(2)'
 
-    // const overload returns const int& -> assigning a value is not legal.
+    // "at" non-static member function
+    // have 2 overloads(const overloads).
+
+    // const overload is returning const int&,
+    // assigning to that reference(const elem) is NOT VALID.
+
     // non-const overload returns int&
+    // assigning to that reference(non-const elem) is VALID.
 
-    ++ivec.front();		// legal
-    ++civec.front();	// syntax error
+    // ----------------------------------------------------
+
+    ++ivec.front();		// VALID
+    ++c_ivec.front(); // syntax error
+    // error: increment of read-only location
+    // 'c_ivec.std::vector<int>::front()'
+
+    // "front" non-static member function
+    // have 2 overloads(const overloads).
+
+    // const overload of front() function returns const int&
+    // assigning to that reference(const elem) is NOT VALID.
+
+    // non-const overload of front() function returns int&
+    // assigning to that reference(non-const elem) is VALID.
+
+    // ----------------------------------------------------
   }
 */
 
@@ -1029,21 +1193,30 @@
     Myclass* foo()const
     {
       return this;	// syntax error
-      // this pointer is const Myclass*
-      // trying to conversion from const T* to T* is not valid.
+      // error: invalid conversion from 'const Myclass*' to 'Myclass*'
+
+      // `this` pointer's data type is const Myclass*
+      // function's return type is Myclass*
     }
 
     Myclass& bar() const
     {
       return *this;	// syntax error.
+      // error: binding reference of type 'Myclass&' to
+      // 'const Myclass' discards qualifiers
+
+      // `this` pointer's data type is const Myclass*
+      // "*this" expression's data type is const Myclass
+      // function's return type is Myclass&
+      // const L value can not bind to non-const L value reference.
     }
   };
 */
 
 /*
-  -------------------
-  | mutable keyword |
-  -------------------
+                      -------------------
+                      | mutable keyword |
+                      -------------------
 */
 
 /*
@@ -1051,27 +1224,34 @@
   public:
     void attack()
     {
-      ++debug_call_count;
+      ++debug_function_call_count;
     }
     void defend()
     {
-      ++debug_call_count;
+      ++debug_function_call_count;
     }
     std::string get_name()const
     {
-      ++debug_call_count;
+      ++debug_function_call_count;
     }
   private:
-    mutable int debug_call_count;
-    // debug_call_count data members value did not have a relation with Fighter objects state.
+    mutable int debug_function_call_count;
+    // debug_function_call_count data member'ss value
+    // did not have a relation with Fighter object's state.
   };
 
-  // In problem domain changing debug_call_count is not changing the state of the object.
-  // Its only purpose is increasing the call_count in every call to member functions.
-  // But because of debug_call_count is a data member of our Fighter class,
-  // in const member functions we can not change data member's value
-  // for these kind of situations we use MUTABLE keyword.
-  // mutable data member is independent from other data members of this class.
+  // In problem domain changing debug_function_call_count
+  // is not changing the state of the object.
+  // Its only purpose is increasing the count in every
+  // call to Fighter class's any member functions.
+  // Because of debug_function_call_count is a data member
+  // of Fighter class, in Fighter class's const member functions
+  // changing its data member's value is not allowed.
+  // For these kind of scenarios "mutable" keyword is used.
+  // "mutable" data member is independent from
+  // other data members of Fighter class.
+
+  // ----------------------------------------------------
 
   class Date {
     int m_day;
@@ -1079,20 +1259,20 @@
     int m_year;
   };
 
-  // if we make m_year data member mutable. It does not make sense.
-  // Our Date class depends on m_year.
+  // Making m_year data member mutable does not make sense.
+  // Date class itself depends on m_year data member's value.
 */
 
 /*
-  #include <mutex>
-
   class RandomEngine {
   public:
     int generate();
-    // non-const member function. It is changing RandomEngines state.
+    // non-static, non-const member function.
+    // changing RandomEngine class's state.
 
     void discard(int n);
-    // non-const member function. It is changing RandomEngines state.
+    // non-static non-const member function.
+    // changing RandomEngine class's state.
   };
 
   class Algo {
@@ -1107,57 +1287,72 @@
     {
       auto val = eng.generate();
       eng.discard(1);
-      // if const function have to change eng state too..
-      // we can use mutable keyword in our RandomEngine data member.
+      // if non-static const function have to change "eng"
+      // object's state, using mutable keyword in
+      // RandomEngine data member is a solution.
     }
   private:
     mutable RandomEngine eng;
-  };
-
-  class Myclass {
-  public:
-    void foo()
-    {
-      mtx.lock();
-      // code...
-      mtx.unlock();
-    }
-
-    void func() const
-    {
-      mtx.lock();
-      // code...
-      mtx.unlock();
-    }
-  private:
-    mutable std::mutex mtx;
   };
 
   int main()
   {
     const RandomEngine eng;
     eng.generate();	// syntax error
-    // calling non const member function with const RandomEngine object
-    // trying to force conversion from hidden parameter (const T*) to (T*)
+    // error: passing 'const RandomEngine' as
+    // 'this' argument discards qualifiers
+
+    // calling non-static non-const member function
+    // with const RandomEngine object is not valid.
+    // Forcing conversion from hidden parameter
+    // const RandomEngine* to RandomEngine*
   }
 */
 
 /*
-  ----------------------------
-  | constructor & destructor |
-  ----------------------------
+  #include <mutex>
+
+  class Myclass {
+  public:
+    void foo()
+    {
+      mtx.lock();
+      // critical section
+      mtx.unlock();
+    }
+
+    void func() const
+    {
+      mtx.lock();
+      // critical section
+      mtx.unlock();
+    }
+  private:
+    mutable std::mutex mtx;
+    // std::mutex member type has to be modified
+    // in Myclass's const member functions.
+  };
 */
 
 /*
-  CONSTRUCTOR (CTOR)	Myclass()
+                  ----------------------------
+                  | constructor & destructor |
+                  ----------------------------
+*/
+
+/*
+  Constuctor(CTOR) -> Myclass()
   -------------------------------
   1. ctor's identifier should be same as class identifier.
   2. there is no return value concept for constructors.
   3. constructor has to be a non-static member function.
-    Can not be a global function or a static member function.
+      can not be a global function.
+      can not be a static member function.
   4. constructor can not be a const member function.
-  5. constructor can not be called with .(dot) or ->(arrorw) [member selection] operators.
-  6. constructors can be in classes public, private and protected sections
+  5. constructor can not be called with "." or "->"
+      [member selection(dot and arrow)] operators.
+  6. constructors can be in class's
+      public, private and protected sections
   7. constructors can be overloaded.
 */
 
@@ -1173,72 +1368,78 @@
     Myclass m;
     Myclass* p = &m;
 
-    m.func();	// valid
-    p->func();	// valid
+    m.func();   // VALID
+    p->func();  // VALID
 
-    m.Myclass();	// sytax error
+    m.Myclass();  // sytax error
     p->Myclass();	// syntax error
+    // error: invalid use of 'Myclass::Myclass'
+
+    // constructor can not be called with member selection operators.
   }
 */
 
 /*
   class Myclass {
-  public:
   private:
-    Myclass();
+    Myclass();  // default ctor is in private section
   };
 
   int main()
   {
-    Myclass m;	// syntax error
-    // access control error.
+    Myclass m;  // syntax error
+    // error: 'Myclass::Myclass()' is private within this context
   }
 */
 
 /*
   class Myclass {
   public:
-    Myclass();
+    Myclass();  // default ctor
     Myclass(int);
     Myclass(int,int);
     Myclass(double);
+    // There are 4 constructor overloads here.
   };
 */
 
 /*
-  DESTRUCTOR (DTOR)	~Myclass()
+  Destructor (DTOR)	-> ~Myclass()
   --------------------------------
   1. dtor's identifier should be same as class identifier.
   2. there is no return value concept for destructors.
   3. destructor has to be a non-static member function.
-    Can not be a global function or a static member function.
+      can not be a global function.
+      can not be a static member function.
   4. destructor can not be a const member function.
-  5. destructor can be in classes public, private and protected sections
-  6. destructor can not be overloaded
-    class can only have a destructor without parameter.
-  7. destructor can be called with .(dot) or ->(arrorw) [member selection] operators.
-    mostly we are not calling destructor with member selection operators.
+  5. destructor can be in classes
+      public, private and protected sections
+  6. destructor can not be overloaded.
+      A class can only have a destructor without a parameter.
+  7. destructor can be called with "." or "->"
+      [member selection(dot and arrow)] operators.
+    -mostly we are not calling destructor with member selection operators.
 */
 
 /*
-  -------------------------------------------------------
-  | RAII idiom (Resource Acquisition Is Initialization) |
-  -------------------------------------------------------
+      -------------------------------------------------------
+      | RAII idiom (Resource Acquisition Is Initialization) |
+      -------------------------------------------------------
 
-  -> Ctor will get the resources of that class object will use.
+  -> Ctor will get the resources of the class object.
   -> Dtor will release the resources that class object have been used.
 
-  ctor will allocate memory in heap (dynamic memory allocation)
-  dtor will gave back the memory (free)
+  - ctor will allocate memory in heap (dynamic memory allocation)
+  - dtor will give back the memory (free)
 
-  ctor will open a file.
-  dtor will close a file.
+  - ctor will open a file.
+  - dtor will close a file.
 
-  ctor will create a database connection
-  dtor will end database connection
+  - ctor will create a database connection
+  - dtor will end the database connection
 
-  ctor will lock mutex
-  dtor will unloack mutex
+  - ctor will lock mutex
+  - dtor will unlock mutex
 
   -> stl container classes, smart pointers, string class
 */
@@ -1246,20 +1447,19 @@
 /*
   default constructor
   --------------------
-  1. a no parameter constructor
-  OR
-  2. it's all parameters have default arguments.
+    - no parameter constructor.
+    - all of its parameters have default arguments.
 */
 
 /*
-  class Myclass{
+  class AClass{
   public:
-    Myclass();		//default ctor
+    AClass();           // default ctor
   };
 
-  class Yourclass{
+  class BClass{
   public:
-    Yourclass(int x = 0);	//default ctor
+    BClass(int x = 0);  // default ctor
   };
 */
 
@@ -1269,53 +1469,59 @@
   -> default ctor
   -> destructor
   -> copy ctor
-  -> move ctor		(C++11)
+  -> move ctor		    (C++11)
   -> copy assignment
-  -> move assignment	(C++11)
-
-  COMPILER CAN DEFAULT SPECIAL MEMBER FUNCTIONS!
+  -> move assignment  (C++11)
 */
 
 /*
-  void func(double) = delete;		// global functions
+  void func(double) = delete;   // global function
 
   class Myclass {
   public:
-    void foo(int) = delete;		// non-static member function
+    void foo(int) = delete;     // non-static member function
   };
 
-  // Deleted functions are declared functions
-  // but calling deleted function is a sythax error.
+  // deleted functions are declared functions.
+  // calling a deleted function will be sythax error.
 
   int main()
   {
     Myclass m;
-    m.foo(12);	//syntax error
-    // function "Myclass::foo(int)"cannot be referenced, it is a deleted function
+    m.foo(12);  // syntax error
+    // error: use of deleted function 'void Myclass::foo(int)'
 
-    func(5.4);	// syntax error
-    // function "func(double)"cannot be referenced, it is a deleted function
+    func(5.4);  // syntax error
+    // error: use of deleted function 'void func(double)'
+
+    bar();      // syntax error
+    // error: 'bar' was not declared in this scope
   }
 
-  // If you not declare a function instead of deleting it,
-  // it is still a syntax error but it is because of namelookup phase(undefined identifier).
+  // Not declaring a function instad of deleting it is a syntax error.
+  // name lookup phase will not find the function identifier.
 */
 
 /*
   void func(int);
   void func(long);
   void func(double) = delete;
-  // There are 3 overloads of this function.
-  // Deleting DOES NOT mean the function does not exists.
-  // Deleted functions will join Function Overload Resolution.
+  // There are 3 function overloads here.
+  // deleting a function does not mean that function does not exists.
+  // deleted function will be in the overload set and
+  // join the function overload resolution process.
 
   int main()
   {
-    func(12);	// legal
-    func(12L);	// legal
-    func(3.4);	// syntax error
-    // in namelookup phase [func(double)] overload will be chosen for func(3.4) call.
-    // Because of func(double) is deleted it is a syntax error.
+    func(12);   // VALID
+    func(12L);  // VALID
+
+    func(3.4);  // syntax error
+    // error: use of deleted function 'void func(double)'
+
+    // in context control phase,
+    // `func(double)`overload will be choosen (exact match)
+    // because of it is a deleted function, will be a syntax error
   }
 */
 
@@ -1335,14 +1541,15 @@
   class Myclass {
   public:
     Myclass(int);
-    // If we declare any constructor other than the default ctor
-    // there won't be any default ctor. (NOT DECLARED)
+    // When any constructor other than the default ctor is declared,
+    // there won't be any default ctor.
+    // default ctor is not declared.
   };
 
   int main()
   {
-    Myclass m;	// syntax error
-    // no default constructor exists for class "Myclass"
+    Myclass m;  // syntax error
+    // error: no matching function for call to 'Myclass::Myclass()'
   }
 */
 
@@ -1350,486 +1557,56 @@
   // 2. User declared
 
   class A {
-    A();
-    // user declared default ctor and will also define it.
+    A();            // user declared to be defined
+    // user will define the default constructor.
   };
 
   class B {
-    B() = default;
-    // default decleration means, compiler will write
-    // user declared default constructors code.
+    B() = default;  // user declared defaulted
+    // user declared default declaration means,
+    // compiler will generate default constructor's code.
   };
 
   class C {
-    C() = delete;
-    // delete decleration means, calling this user declared ctor
-    // will be a syntax error.
+    C() = delete;   // user declared deleted
+    // user declared delete declaration means,
+    // calling user declared ctor will be a syntax error.
   };
 */
 
 /*
   // 3. Implicitly declared
 
-    // -> Implicitly declared defaulted
-  class Myclass {
+  // ------------------------------------------------------
+  // Implicitly declared defaulted
+
+  class AClass {
   public:
-    // all 6 special member functions are implicitly declared defaulted.
+    // all 6 special member functions are
+    // implicitly declared defaulted.
   };
 
-    // -> Implicitly declared deleted
-  class Yourclass {
+  // ------------------------------------------------------
+  // -> Implicitly declared deleted
+  class BClass {
   public:
   private:
     const int mx;
   };
+  // default ctor is implicitly declared deleted
 
   int main()
   {
-    Yourclass y;	// syntax error
-    // C2280 'Yourclass::Yourclass(void)': attempting to reference a deleted function
-    // default ctor is, implicitly declared deleted special member function.
-    // because of const data member can not be default initialize default ctor will throw sythax error
-    // compiler will implicitly delete default constructor.
+    BClass x;	// syntax error
+    // error: use of deleted function 'BClass::BClass()'
+
+    // implicitly declared defaulted default ctor will
+    // default initialize all data members of the class.
+    // because of a const data member can not be default initialized
+    // default ctor will throw an error so because of the error
+    // compiler will implicitly delete the default constructor.
+    // constructor will become implicitly declared deleted.
   }
-*/
-
-/*
-  STORAGE CLASSES (LIFETIME)
-  ==========================
-  -> static storage class
-  -> automatic storage class
-
-  -> dynamic storage class
-  -> thread local storage class (concurrency)
-*/
-
-/*
-  ==========================
-  | STATIC STORAGE CLASSES |
-  ==========================
-*/
-
-/*
-  --------------------
-  | global variables |
-  --------------------
-*/
-
-/*
-  class Myclass {
-  public:
-    Myclass()
-    {
-      std::cout << "Myclass default ctor.. this: " << this << '\n';
-    }
-
-    ~Myclass()
-    {
-      std::cout << "Myclass dtor.. this: " << this << '\n';
-    }
-  };
-
-  class Yourclass {
-  public:
-    Yourclass()
-    {
-      std::cout << "Yourclass default ctor.. this: " << this << '\n';
-    }
-
-    ~Yourclass()
-    {
-      std::cout << "Yourclass dtor.. this: " << this << '\n';
-    }
-  };
-
-
-  Myclass m;	// global variable
-  Yourclass y;	// global variable
-
-  // global variables will be created from top to bottom.
-  // FIRST IN LAST OUT prinsible applied.
-
-  int main()
-  {
-    std::cout << "int main() scope starts" << '\n';
-
-    std::cout << "int main() scope ends" << '\n';
-  }
-
-  // Myclass default ctor.. this: 0048F138	-> FIRST IN
-  // Yourclass default ctor.. this : 0048F139
-  // int main() scope starts
-  // int main() scope ends
-  // Yourclass dtor.. this : 0048F139
-  // Myclass dtor.. this : 0048F138		-> LAST OUT
-*/
-
-/*
-  --------------------------------
-  | static initialization fiasco |
-  --------------------------------
-*/
-
-/*
-  // Every global variable will be constructed before main() function called.
-  // But there is NO guarantee which global variable will become alive first!
-
-  first.cpp
-  ---------------
-  F fx;
-
-  second.cpp
-  ---------------
-  S sx;
-
-  third.cpp
-  ---------------
-  T tx;
-
-  eight.cpp
-  ---------------
-  E ex;
-
-  main.cpp
-*/
-
-/*
-  first.cpp
-  ---------------
-  F g_fx;
-
-  extern S g_sx;
-  F::F()
-  {
-    sx.xyz();
-  }
-
-  // When g_fx variable depends on g_sx variable.
-  // If g_sx become alive before g_fx become alive there will be no problem.
-  // But there is no guarantee that g_sx will become alive first!!!
-
-  second.cpp
-  ---------------
-  S g_sx;
-
-  third.cpp
-  ---------------
-  T g_tx;
-
-  eight.cpp
-  ---------------
-  E g_ex;
-
-  main.cpp
-
-
-  --------------------------------
-  std::cout is also a global variable.
-  Static initialization fiasco do not effect to std::cout global variable
-  -> schwarz idiom - nifty counter.
-*/
-
-/*
-  --------------------------
-  | static local variables |
-  --------------------------
-*/
-
-/*
-  class Myclass {
-  public:
-    Myclass()
-    {
-      std::cout << "Myclass default ctor.. this: " << this << '\n';
-    }
-
-    ~Myclass()
-    {
-      std::cout << "Myclass dtor.. this: " << this << '\n';
-    }
-  };
-
-  class Yourclass {
-  public:
-    Yourclass()
-    {
-      std::cout << "Yourclass default ctor.. this: " << this << '\n';
-    }
-
-    ~Yourclass()
-    {
-      std::cout << "Yourclass dtor.. this: " << this << '\n';
-    }
-  };
-
-  void f1()
-  {
-    static Myclass mx;
-  }
-
-  void f2()
-  {
-    static Yourclass yx;
-  }
-
-  int main()
-  {
-    std::cout << "int main() scope starts" << '\n';
-
-    std::cout << "int main() scope ends" << '\n';
-  }
-  // output ->
-  //	int main() scope starts
-  //	int main() scope ends
-
-  // static local variables are not alive because f1() or f2() did not called.
-*/
-
-/*
-  class Myclass {
-  public:
-    Myclass()
-    {
-      std::cout << "Myclass default ctor.. this: " << this << '\n';
-    }
-
-    ~Myclass()
-    {
-      std::cout << "Myclass dtor.. this: " << this << '\n';
-    }
-  };
-
-  void f1()
-  {
-    static Myclass mx;
-  }
-
-  int main()
-  {
-    std::cout << "int main() scope starts" << '\n';
-    f1();
-    std::cout << "int main() scope ends" << '\n';
-  }
-  // output ->
-  //	int main() scope starts
-  //	Myclass default ctor.. this: 0017E140
-  //	int main() scope ends
-  //	Myclass dtor.. this : 0017E140
-*/
-
-/*
-  class Myclass {
-  public:
-    Myclass()
-    {
-      std::cout << "Myclass default ctor >> this: " << this << '\n';
-    }
-
-    ~Myclass()
-    {
-      std::cout << "Myclass dtor >> this: " << this << '\n';
-    }
-  };
-
-  void foo()
-  {
-    static int call_count{};
-    std::cout << ++call_count << ". call for foo() function\n";
-    static Myclass m;
-  }
-
-  int main()
-  {
-    std::cout << "int main() scope starts" << '\n';
-    foo();
-    foo();
-    foo();
-    std::cout << "int main() scope ends" << '\n';
-  }
-
-  // output ->
-  //	int main() scope starts
-  //	1. call for foo() function
-  //	Myclass default ctor >> this: 005AE144
-  //	2. call for foo() function
-  //	3. call for foo() function
-  //	int main() scope ends
-  //	Myclass dtor >> this : 005AE144
-*/
-
-/*
-    ============================
-    | AUTOMATIC STORAGE CLASS  |
-    ============================
-
-    1.functions local variables
-    2.local and non-static variables in block scopes
-*/
-
-/*
-  class Myclass {
-  public:
-    Myclass()
-    {
-      std::cout << "Myclass default ctor >> this: " << this << '\n';
-    }
-
-    ~Myclass()
-    {
-      std::cout << "Myclass dtor >> this: " << this << '\n';
-    }
-  };
-
-  void foo()
-  {
-    std::cout << "foo statement 1\n";
-    Myclass m;
-    std::cout << "foo statement 2\n";
-  }
-
-  void func()
-  {
-    std::cout << "func statement 1\n";
-
-    {
-      Myclass m;
-    }
-
-    std::cout << "func statement 2\n";
-  }
-
-  int main()
-  {
-    std::cout << "int main() scope starts" << '\n';
-    foo();
-    func();
-    std::cout << "int main() scope ends" << '\n';
-  }
-  // output ->
-  //	int main() scope starts
-  //	foo statement 1
-  //	Myclass default ctor >> this: 0053FA97
-  //	foo statement 2
-  //	Myclass dtor >> this : 0053FA97
-  //	func statement 1
-  //	Myclass default ctor >> this : 0053FAA3
-  //	Myclass dtor >> this : 0053FAA3
-  //	func statement 2
-  //	int main() scope ends
-*/
-
-/*
-  class Myclass {
-  public:
-    Myclass()
-    {
-      std::cout << "Myclass default ctor >> this: " << this << '\n';
-    }
-
-    ~Myclass()
-    {
-      std::cout << "Myclass dtor >> this: " << this << '\n';
-    }
-  };
-
-  class Yourclass {
-  public:
-    Yourclass()
-    {
-      std::cout << "Yourclass default ctor >> this: " << this << '\n';
-    }
-
-    ~Yourclass()
-    {
-      std::cout << "Yourclass dtor >> this: " << this << '\n';
-    }
-  };
-
-  int main()
-  {
-    std::cout << "int main() scope starts" << '\n';
-    for (size_t i = 0; i < 3; i++)
-    {
-      static Yourclass yx;
-      Myclass mx;
-    }
-    std::cout << "int main() scope ends" << '\n';
-  }
-
-  // output ->
-  //	int main() scope starts
-  //	Yourclass default ctor >> this : 006BE140
-  //	Myclass default ctor >> this: 0135FB2B
-  //	Myclass dtor >> this : 0135FB2B
-  //	Myclass default ctor >> this : 0135FB2B
-  //	Myclass dtor >> this : 0135FB2B
-  //	Myclass default ctor >> this : 0135FB2B
-  //	Myclass dtor >> this : 0135FB2B
-  //	int main() scope ends
-  //	Yourclass dtor >> this : 006BE140
-*/
-
-/*
-  class Myclass {
-  public:
-    Myclass()
-    {
-      std::cout << "Myclass default ctor >> this: " << this << '\n';
-    }
-
-    ~Myclass()
-    {
-      std::cout << "Myclass dtor >> this: " << this << '\n';
-    }
-  private:
-    int x, y, z, k;
-  };
-
-  int main()
-  {
-    std::cout << "int main() scope starts" << '\n';
-    Myclass marr[5];
-    std::cout << "int main() scope ends" << '\n';
-  }
-
-  // output ->
-  //	int main() scope starts
-  //	Myclass default ctor >> this : 00A6FB84
-  //	Myclass default ctor >> this : 00A6FB94
-  //	Myclass default ctor >> this : 00A6FBA4
-  //	Myclass default ctor >> this : 00A6FBB4
-  //	Myclass default ctor >> this : 00A6FBC4
-  //	int main() scope ends
-  //	Myclass dtor >> this : 00A6FBC4
-  //	Myclass dtor >> this : 00A6FBB4
-  //	Myclass dtor >> this : 00A6FBA4
-  //	Myclass dtor >> this : 00A6FB94
-  //	Myclass dtor >> this : 00A6FB84
-*/
-
-/*
-  // Print from 0 to 100
-
-  struct Puzzle {
-    Puzzle()
-    {
-      static int x = 0;
-      std::cout << x++ << ' ';
-    }
-  };
-
-  int main()
-  {
-    Puzzle arr[100];
-  }
-*/
-
-/*
-    =========================
-    | DYNAMIC STORAGE CLASS |
-    =========================
-    | new / delete keyword  |
-    -------------------------
 */
 
 /*
@@ -1848,102 +1625,41 @@
 
   int main()
   {
-    std::cout << "int main() started\n";
-    auto p = new Myclass;
-    std::cout << "main() goes on..[1]\n";
-    delete p;
-    std::cout << "main() goes on..[2]\n";
-  }
+    // -----------------------------------------------------------
 
-  // int main() started
-  // Myclass default ctor >> this: 0000021754247470
-  // main() goes on..[1]
-  // Myclass dtor >> this : 0000021754247470
-  // main() goes on..[2]
-*/
+    Myclass m0;	// default initialization
 
-/*
+    // Myclass's default ctor will be called.
+    //	-> if default ctor is in private section  -> syntax error
+    //	-> if default ctor is deleted             -> syntax error
+    //	-> if default ctor is not declared        -> syntax error
+    // Myclass's data members will also be default initialized
+    // so they have intedermined values.
 
-  void* malloc(size_t n);
-  void* operator new(size_t n);
-
-  void free(void*);
-  void operator delete(void*);
-
-  new operator(new expression) and operator new(std)function are different!
-  delete operator(delete expression) and operator delete(std) functions are different!
-
-  operator new function can be fail! If it fails, it will throw an exception!
-  malloc (C) can be failed too. But when it fails, it will return null pointer (NULL)
-*/
-
-/*
-  // for x86 system
-  #include <new>
-  #include <vector>
-
-  std::vector<void*> vec;
-
-  int main()
-  {
-    try
-    {
-      for (int i = 0; i < 1'000'000; ++i)
-      {
-        void* vp = operator new(1024u * 1024u);
-        vec.push_back(vp);
-        std::cout << i << '\n';
-      }
-    }
-    catch (const std::exception& ex)
-    {
-      std::cout << "execption caught: " << ex.what() << '\n';
-    }
-  }
-*/
-
-/*
-  ----------pseudo code-----------
-
-  auto p = new Fighter;
-  void* vp = operator new(sizeof(Fighter));			// call operator new	-> resource allocation
-  Fighter* p = (static_cast<Fighter*>(vp))->Figher();		// call constructor
-
-  delete p;
-  p->~Fighter();							// call destructor
-  operator delete(p);						// call operator delete	-> resource deallocation
-*/
-
-/*
-  class Myclass {
-  public:
-    Myclass()
-    {
-      std::cout << "Myclass default ctor >> this: " << this << '\n';
-    }
-
-    ~Myclass()
-    {
-      std::cout << "Myclass dtor >> this: " << this << '\n';
-    }
-  };
-
-  int main()
-  {
-
-    Myclass m0;	// default initialization.
-    // classes default ctor will be called.
-    //	-> if default ctor is in private section	-> syntax error
-    //	-> if default ctor is deleted			-> syntax error
-    //	-> if default ctor is not declared		-> syntax error
-    // classes data members have intedermined values.
+    // -----------------------------------------------------------
 
     Myclass m1{};	// value initialization
-    // classes default ctor will be called.
-    // first zero init apllied for class data members.
+    // Myclass's default ctor will be called.
+    // at first Myclass's data members will be zero initialized.
 
-    Myclass m[10];
-    // for every member in c style array will call default ctor.
+    // -----------------------------------------------------------
+
+    Myclass m[3];
+    // default constructor will be called for every member in array.
+
+    // -----------------------------------------------------------
+
+    // output ->
+    //  Myclass default ctor  >> this: 0x4e9c7ff88f
+    //  Myclass default ctor  >> this: 0x4e9c7ff88e
+    //  Myclass default ctor  >> this: 0x4e9c7ff88b
+    //  Myclass default ctor  >> this: 0x4e9c7ff88c
+    //  Myclass default ctor  >> this: 0x4e9c7ff88d
+    //  Myclass dtor          >> this: 0x4e9c7ff88d
+    //  Myclass dtor          >> this: 0x4e9c7ff88c
+    //  Myclass dtor          >> this: 0x4e9c7ff88b
+    //  Myclass dtor          >> this: 0x4e9c7ff88e
+    //  Myclass dtor          >> this: 0x4e9c7ff88f
   }
 */
 
@@ -1953,24 +1669,42 @@
     Myclass() = default;
     Myclass(int x)
     {
-      std::cout << "Myclass(int x) x = " << x << " this = " << this << '\n';
+      std::cout << "Myclass(int x) -> x = " << x
+                << " this = " << this << '\n';
     }
   };
 
   int main()
   {
+    // -----------------------------------------------------------
+    Myclass m1(1);      // direct initialization
+    // output -> Myclass(int x) x = 1 this = 0x2d3bbffe5f
 
-    Myclass m1(1);		// direct initialization
-    // output -> Myclass(int x) x = 1 this = 004FFE87
-    // narrowing conversion IS VALID (warning but not syntax error)
+    Myclass m1_2(1.3);  // direct initialization
+    // output -> Myclass(int x) -> x = 1 this = 0x2d3bbffe5e
+    // narrowing conversion(double -> int) VALID in direct initialization
 
-    Myclass m2{ 2 };	// direct list initialization
-    // can not send 2.3(dobule) in direct list initalization  -> narrowing conversion IS NOT VALID
-    // output -> Myclass(int x) x = 2 this = 004FFE7B
-    // Myclass m2{2.3}; will be syntax error
+    // -----------------------------------------------------------
 
-    Myclass m3 = 3;		// copy initialization
-    // output -> Myclass(int x) x = 3 this = 004FFE6F
-    // narrowing conversion IS VALID (warning but not syntax error)
+    Myclass m2{ 2 };    // direct list initialization
+    // // output -> Myclass(int x) x = 2 this = 0x2d3bbffe5d
+
+    Myclass m2_2{2.3}; // syntax error
+    // error: narrowing conversion of '2.2999999999999998e+0'
+    // from 'double' to 'int'
+
+    // narrowing conversion(double -> int) syntax error in
+    // direct list initialization
+
+    // -----------------------------------------------------------
+
+    Myclass m3 = 3;     // copy initialization
+    // output -> Myclass(int x) x = 3 this = 0x2d3bbffe5c
+
+    Myclass m3_2 = 3.3; // copy initialization
+    // output -> Myclass(int x) -> x = 3 this = 0x2d3bbffe5b
+    // narrowing conversion(double -> int) VALID in copy initialization
+
+    // -----------------------------------------------------------
   }
 */
