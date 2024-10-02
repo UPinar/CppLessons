@@ -354,3 +354,7 @@
     - `std::scoped_lock` variadic class template **(C++17)**
   - `std::call_once` & `std::once_flag`
   - condition variable
+  - atomic 
+    - `std::atomic_flag`
+    - compare and swap(CAS)
+  TODO: add 

@@ -4671,3 +4671,682 @@ paralelism :
     //  ... finished waiting. i == 1
   }
 */
+
+/*
+                          ----------
+                          | atomic |
+                          ----------
+*/
+
+/*
+  atomic işlem : bölünemeyen işlem
+    öyle bir işlem ki, birden fazla parça ile yapılıyor olsa dahi
+    o parçaların arasına başka bir thread'deki bir işlem giremez.
+
+  ++x;
+    - read
+    - modify
+        ---> başka bir thread burada araya girebilir 
+        ---> örneğin x'in değerini okuyabilir.
+    - write
+
+  böyle işlemler atomik olarak yapılmaz ise ve böyle değişkenler 
+  birden fazla thread tarafından kullanılan değişkenler ise
+  data race oluşur ve tanımsız davranışa(ub) yol açar.
+
+  - bir işlemin atomik olması demek, başka bir thread'in
+    -> ya bir işlem tamamlanmadan önce değişkenin eski değerini görmesi
+    -> ya da işlem tamanlandıktan sonra, değişkenin yeni değerini 
+      görmesi demektir.
+
+  - atomik değişkenler torn read/write riskini ortadan kaldırır.
+
+  - iki ayrı işlem atomik ise, bu iki işlemin oluşturduğu ifadedeki
+    işlemlerin toplamı atomik olmak zorunda değil.
+
+    ++x + y++;  // x ve y atomik değişkenler
+    "++x + y++" ifadesi(expression) atomik değildir.
+
+  - atomik bir tür üstünde yapılan atomik bir işlem lock-free olmak 
+    zorunda değil. Derleyici bu işlemi arka planda bir lock ile
+    gerçekleştirebilir.
+*/
+
+// TODO: memory model ile alakali olan kismi bir daha izle
+
+/*
+  memory model : multithread çalışacak programların bellekteki 
+    okuma, yazma işlemleri ile paylaşılan değişkenler arasındaki 
+    ilişkileri tanımlayan bir dokümandır.
+
+
+  <--- check sequential_consistency.png --->
+  <--- check sequential_consistency_2.png --->
+  sequencial consistent : her threaddeki program sıralaması korunmak
+    zorunda.
+
+  - Java language's memory model is sequencial consistent.
+*/  
+
+/*
+        -------- happens-before relationship --------
+
+  - A ve B iki operasyon olsun. Bu operasyonlar aynı thread'de 
+    gerçekleştirilen operasyonlar olabildiği gibi 
+    farklı thread'lerde gerçekleştirilen operasyonlar da olabilir. 
+
+  - Eğer A operasyonunun etkileri, B operasyonunu yürütecek thread'de 
+    B operasyonu yürütüldüğünde görülür durumda ise,
+    A happens before B garantisi söz konusudur.
+
+  - happens-before ilişkisi "zamansal olarak daha önce gerçekleşme" 
+    ilişkisine göre çok daha güçlü bir durumdur.
+
+  - Eğer A operasyonu B operasyonuna göre zamansal açıdan 
+    daha önce gerçekleştiriliyor ise bu A'nın etkilerinin 
+    B'yi yürütecek thread'de, 
+    B yürütülmeden önce görülür olma garantisi değildir.
+    caching, store buffer vs gibi mekanizmalar 
+    operasyonun etkilerinin 
+    diğer thread'lerde görülmesini geciktirebilir.
+*/
+
+/*
+        -------- synchronizes with relationship --------
+
+  Thread creation : The completion of the constructor for a thread
+  object T synchronizes with the start of the invocation 
+  of the thread function for T.
+
+  thread sınıfı türünden bir nesne oluşturup, onun ctor'una
+  bir workload verildiğinde, eğer ctor'un kodunun 
+  çalışması tamamlanmışsa, workload olarak çalışan fonksiyonun 
+  çağrısı ile bir senkronizasyon yaratılmış olur.
+
+  -> if there is a synchronizes with relationship it will 
+    guarantees happens-before relationship.
+
+  Thread join : The completion of the execution of a thread 
+  function for a thread object T synchronizes with(the return of)
+  a join operation on T.
+
+  Mutex unlock/lock : All prior unlock operations on a mutex M
+  synchronize with (the return of) a lock operation on M.
+  <--- check synchronizes_with_mutex.png --->
+
+*/
+
+/*
+  #include <thread>
+  #include <cassert>
+
+  int shared_variable = 0;
+
+  // Work_C (general execution of this function)
+  void func()
+  {
+    // Spot_D
+    assert(shared_variable == 1);
+
+    ++shared_variable;
+  }
+
+  int main()
+  {
+    shared_variable = 1;    
+    // Spot_A
+    std::thread tx{ func }; 
+    // Spot_B
+
+    tx.join();
+    // Spot_E
+
+    assert(shared_variable == 2);
+
+    // because of Spot_B(thread's ctor's code is executed) and 
+    // Work_C(workload is on execution or already executed) 
+    // have a synchronizes with relationship
+
+    // - so it is guaranteed that Spot_A and Spot_D 
+    //  have a happens-before relationship 
+    // - It is guaranteed that shared_variable's value is 1
+    //  when "func" is started executing. 
+
+    // - It is guaranteed that in Spot_E shared_variable's 
+    //  value is 2 because thread is already been executed.
+
+    // Work_C's completion of execution synchronizes with
+    // Spot_E(join operation's execution) 
+  }
+*/
+
+/*
+  #include <atomic>
+
+  int main()
+  {
+    std::cout.setf(std::ios::boolalpha);
+
+    std::atomic<int> x;
+    std::atomic<long long int> y;
+
+    std::cout << x.is_lock_free() << '\n';  // output -> true
+    std::cout << y.is_lock_free() << '\n';  // output -> true
+
+
+    constexpr auto b = std::atomic<long long int>::is_always_lock_free;
+    // std::atomic class template have 
+    // constexpr static data member `is_always_lock_free`
+    // for compile time operations
+    // if sometimes or always not lock free, it will be false
+    // else it will be true
+
+    std::cout << b << '\n';  // output -> true
+  }
+*/
+
+/*
+  #include <atomic>
+
+  int main()
+  {
+    std::atomic_flag f;   // Always lock-free guaranteed
+  }
+*/
+
+/*
+  #include <atomic>
+
+  int main()
+  {
+    using namespace std;
+
+    cout << boolalpha;
+
+    // -----------------------------------------------------
+
+    // std::atomic_flag flag_x{ false };  // syntax error
+    // std::atomic_flag flag_y{ true };   // syntax error
+
+    std::atomic_flag flag_1 = ATOMIC_FLAG_INIT; 
+    // initialization C++17 and before, ATOMIC_FLAG_INIT's value
+    // is implementation-defined
+
+    std::atomic_flag flag_2;                
+    // since C++20, default initialization is valid and it has 
+    // false value
+
+    // -----------------------------------------------------
+
+    // "test" member function is added in C++20 
+    cout << "flag_1 = " << flag_1.test() << '\n'; 
+    // output -> flag_1 = false
+    cout << "flag_2 = " << flag_2.test() << '\n'; 
+    // output -> flag_2 = false
+
+    auto old_flag_1_value = flag_1.test_and_set();
+    cout << "old_flag_1_value = " << old_flag_1_value << '\n';
+    // output -> old_flag_1_value = false
+    cout << "flag_1 = " << flag_1.test() << '\n';
+    // output -> flag_1 = true
+
+    // -----------------------------------------------------
+
+    flag_1.clear();
+    cout << "flag_1 = " << flag_1.test() << '\n';
+    // output -> flag_1 = false
+
+    // -----------------------------------------------------
+  }
+*/
+
+/*
+  #include <thread>
+  #include <atomic>
+  #include <mutex>
+  #include <vector>
+
+  class SpinLockMutex{
+  public:
+    SpinLockMutex()
+    // : m_atomic_flag{ ATOMIC_FLAG_INIT } // C++17 and before
+    {
+      m_atomic_flag.clear();
+    }
+
+    void lock()
+    {
+      while(m_atomic_flag.test_and_set())
+        ; // null statement
+    }
+    void unlock()
+    {
+      m_atomic_flag.clear();
+    }
+  private:
+    std::atomic_flag m_atomic_flag; 
+    // C++20 value will be false when default ctor
+  };
+
+  SpinLockMutex mtx;
+  unsigned long long counter = 0;
+
+  void func()
+  {
+    for (int i = 0; i < 100'000; ++i)
+    {
+      mtx.lock();
+      ++counter;
+      mtx.unlock();
+    }
+  }
+
+  int main()
+  {
+    std::vector<std::thread> tvec;
+
+    for (int i = 0; i < 10; ++i)
+      tvec.emplace_back(func);
+
+    for (auto& tx : tvec)
+      tx.join();
+
+    std::cout << "counter = " << counter << '\n';
+    // output -> counter = 1'000'000
+  }
+*/
+
+/*
+  // atomic_flag and atomic<bool> are not the types.
+
+  #include <atomic>
+
+  int main()
+  {
+    using namespace std;
+
+    cout << boolalpha;
+
+    // -----------------------------------------------------------
+
+    std::atomic<bool> flag_1; // default init of std::atomic<bool>
+    // indetermined(garbage) value before C++20
+    // false since C++20
+
+    cout << "flag_1 = " << flag_1 << '\n'; 
+    // output -> flag_1 = false 
+
+    // -----------------------------------------------------------
+
+    atomic flag_2 = false;   // CTAD(C++17)
+    atomic flag_3 = 10;      // CTAD(C++17)
+
+    cout << "flag_2 = " << flag_2 << '\n';
+    // output -> flag_2 = false
+
+    cout << "flag_3 = " << flag_3 << '\n';
+    // output -> flag_3 = 10
+
+    // -----------------------------------------------------------
+
+    // non copy constructible and non move constructible
+
+    std::atomic<bool>{ flag_2 }; // syntax error
+    // error: use of deleted function 
+    // 'std::atomic<bool>::atomic(const std::atomic<bool>&)'
+
+    flag_1 = flag_2; // syntax error
+    // error: use of deleted function 
+    // 'std::atomic<bool>& 
+    //    std::atomic<bool>::operator=(const std::atomic<bool>&)'
+
+    // -----------------------------------------------------------
+
+    flag_1 = true;
+    flag_2 = false;
+    flag_1.store(false);
+    flag_2.store(true);
+
+    cout << "flag_1 = " << flag_1 << '\n';    // operator T() const
+    // output -> flag_1 = false
+
+    cout << "flag_2 = " << flag_2 << '\n';    // operator T() const
+    // output -> flag_2 = true
+
+    // -----------------------------------------------------------
+
+    auto b = flag_1.exchange(true);
+    // exchange member function returns the old value  
+    // and sets the new value
+
+    cout << "b = " << b << '\n';
+    // output -> b = false
+    cout << "flag_1 = " << flag_1 << '\n';
+    // output -> flag_1 = true
+    cout << "flag_1.load() = " << flag_1.load() << '\n';
+    // output -> flag_1.load() = true
+
+    // -----------------------------------------------------------
+  }
+*/
+
+/*
+                  --------------------------
+                  | Compare and Swap (CAS) |
+                  --------------------------
+*/
+
+/*
+  #include <atomic>
+
+  int main()
+  {
+    std::cout << std::boolalpha;
+
+    std::atomic<int> a;
+
+    // ----------------------------------------------------------
+
+    std::cout << "a = " << a << '\n';
+    // output -> a = 0
+    std::cout << "a.load() = " << a.load() << '\n';
+    // output -> a.load() = 0
+
+    // ----------------------------------------------------------
+
+    // if "a" is not equal to "expected" 
+    // "a" will not be set
+    // "expected" will be set to "a"'s value
+    // and function will return false
+
+    a.store(11);
+    int expected = 22;
+    bool result = a.compare_exchange_strong(expected, 88);
+
+    std::cout << "a = " << a << '\n';
+    // output -> a = 11
+    std::cout << "result = " << result << '\n';
+    // output -> result = false
+    std::cout << "expected = " << expected << '\n';
+    // output -> expected = 11
+
+    // ----------------------------------------------------------
+
+    // if "a" is equal to "expected" 
+    // "a" will be set to desired(2nd argument)
+    // "expected" will not be set
+    // and function will return true
+
+    a = 33;
+    expected = 33;
+    result = a.compare_exchange_strong(expected, 55);
+
+    std::cout << "a = " << a << '\n';
+    // output -> a = 55
+    std::cout << "result = " << result << '\n';
+    // output -> result = true
+    std::cout << "expected = " << expected << '\n';
+    // output -> expected = 33
+
+    // ----------------------------------------------------------
+  }
+*/
+
+/*
+  // ------------------------ Problem ------------------------
+  #include <atomic>
+
+  int main()
+  {
+    using namespace std;
+
+    atomic<int> a = 10; 
+
+    // *= operation is not atomic
+    // - We want to to a *= 50 operation atomically
+
+
+    // -----------------------------------------------------
+
+    // - lots of thread can change the value of "a" 
+    //  between load and store
+
+    int temp  = a.load();
+      // ---> if another thread changes the value of "a" to 100
+    a.store(temp * 50);
+    // our thread will still use the old value of "a"(temp)
+    // and change it to 500(10 * 50) instead of 5000(100 * 50)
+  }
+*/
+
+/*
+  // ------------------------ Solution ------------------------
+
+  #include <atomic>
+
+  int main()
+  {
+    using namespace std;
+
+    atomic<int> a = 10; 
+
+    // *= operation is not atomic
+    // - We want to to a *= 50 operation atomically
+
+    int temp = a.load();
+
+    // -----------------------------------------------------
+
+    // "a" has been changed to 100
+    // in first iteration of the loop
+    // a.compare_exchange_strong(temp, temp * 50)
+    // will return false 
+    // temp will be set to 100
+
+    // in second iteration of the loop
+    // a.compare_exchange_strong(temp, temp * 50)
+    // will return true
+    // a will be set to 100 * 50 = 5000
+
+    while (!a.compare_exchange_weak(temp, temp * 50))
+      ; // null statement
+
+    // -----------------------------------------------------
+  }
+*/
+
+/*
+  #include <atomic>
+
+  int main()
+  {
+    using namespace std;
+
+    atomic<int> a = 10;
+
+    ++a;
+    a++;
+    a = 5;
+    a.load();
+    a += 5;
+    a -= 10;
+    a &= 4;
+    a ^= 4;
+    a |= 4;
+    auto result = a.exchange(450);
+    
+    int expected = 12;
+    int desired = 100;
+    a.compare_exchange_strong(expected, desired);
+    // compare_exchange_strong function have a set guarantee
+    // if false expected will be set to a's value
+    // if true a will be set to desired's value
+
+    // <---- check compare_exchange_weak.png ---->
+    // inside loop compare_exchange_weak can be used
+  }
+*/
+
+/*
+  #include <atomic>
+
+  int main()
+  {
+    std::atomic<int> x;
+
+    int val = ++x;  // atomic<T>::operator++()
+    std::cout << "val = " << val << '\n';
+    // output -> val = 1
+    std::cout << "x = " << x << '\n';
+    // output -> x = 1
+
+    val = x++;      // atomic<T>::operator++(int)
+    std::cout << "val = " << val << '\n';
+    // output -> val = 1
+    std::cout << "x = " << x << '\n';
+    // output -> x = 2
+  }
+*/
+
+/*
+  #include <atomic>
+  #include <concepts>
+
+  template <std::integral T>
+  void atomic_inc(std::atomic<T>& x)
+  {
+    T val{ x };
+    while (!x.compare_exchange_weak(val, val + 1)) {}
+  }
+*/
+
+/*
+  <--- check atomic_type_operations_before_cpp20.png --->
+*/
+
+/*
+  #include <atomic>
+  #include <thread>
+
+  class AtomicCounter{
+  public:
+    AtomicCounter() : m_counter{ 0 } {}
+    AtomicCounter(int val) : m_counter{ val } {}
+    int operator++()    { return ++m_counter; }
+    int operator++(int) { return m_counter++; }
+    int operator--()    { return --m_counter; }
+    int operator--(int) { return m_counter--; }
+    int get() const { return m_counter.load(); }
+    operator int() const { return m_counter.load(); }
+  private:
+    std::atomic<int> m_counter;
+  };
+
+  AtomicCounter cnt;
+
+  void foo()
+  {
+    for (int i = 0; i < 1'000'000; ++i)
+      ++cnt;
+  }
+
+  int main()
+  {
+    std::thread tx_arr[10];
+
+    for (auto& tx : tx_arr)
+      tx = std::thread{ foo };
+
+    for (auto& tx : tx_arr)
+      tx.join();
+
+    std::cout << "cnt = " << cnt.get() << '\n';
+    // output -> cnt = 10'000'000
+    std::cout << "cnt = " << cnt << '\n';
+    // output -> cnt = 10'000'000
+  }
+*/
+
+/*
+  #include <atomic>
+
+  int main()
+  {
+    int a[] = { 11, 22, 33, 44, 55, 66 };
+    std::atomic<int*> aptr = a;
+
+    std::cout << *aptr.load() << '\n';  // output -> 11
+    std::cout << *aptr << '\n';         // output -> 11
+
+    ++aptr;
+    std::cout << *aptr << '\n';         // output -> 22
+
+    aptr += 2;
+    std::cout << *aptr << '\n';         // output -> 44
+  }
+*/
+
+/*
+  <--- check sequiential_consistency_example.png --->
+*/
+
+/*
+  #include <atomic>
+  #include <thread>
+  #include <cassert>
+
+  std::atomic_bool x_flag, y_flag;
+  std::atomic<int> ival;
+
+  void set_x()
+  {
+    x_flag.store(true);
+  }
+
+  void set_y()
+  {
+    y_flag.store(true);
+  }
+
+  void read_x_then_y()
+  {
+    while (!x_flag.load())
+      ; // null statement
+
+    if (y_flag.load())
+      ++ival;
+  }
+
+  void read_y_then_x()
+  {
+    while (!y_flag.load())
+      ; // null statement
+
+    if (x_flag.load())
+      ++ival;
+  }
+
+  void func()
+  {
+    x_flag = false;
+    y_flag = false;
+    ival = 0;
+
+    std::thread t1{ set_x };
+    std::thread t2{ set_y };
+    std::thread t3{ read_x_then_y };
+    std::thread t4{ read_y_then_x };
+    t1.join();
+    t2.join();
+    t3.join();
+    t4.join();
+
+    assert(ival != 0);
+  }
+
+  int main()
+  {
+    for (int i = 0; i < 10000; ++i)
+      func();
+  }
+*/
