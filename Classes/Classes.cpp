@@ -35,14 +35,14 @@
 
 /*
   class Data {
-    int mx, my;			            // non-static data members
-    static double msval 		    // static data member
+    int mx, my;                 // non-static data members
+    static double msval         // static data member
 
-    void foo(int)			          // non-static member function
-    static void func(int,int)	  // static member function
+    void foo(int)               // non-static member function
+    static void func(int,int)   // static member function
 
-    class Nested{};			        // member type
-    using integer = int;		    // member type alias
+    class Nested{};             // member type
+    using integer = int;        // member type alias
   };
 */
 
@@ -100,8 +100,8 @@
 */
 
 /*
-  void foo(double); // promotion
-  void foo(int);    // conversion
+  void foo(double);     // promotion
+  void foo(int);        // conversion
 
   class Myclass {
   private:
@@ -137,16 +137,16 @@
 /*
   qualified name(nitelenmiş isim) scopes
   ---------------------------------------
-  a.x		-> member selection operator ('.')
+  a.x         -> member selection operator ('.')
     name lookup in a's class scope
 
-  ptr->x		-> member selection operator ('->')
+  ptr->x      -> member selection operator ('->')
     name lookup in ptr's class scope
 
-  ::x		-> unary scope resolution operator ('::')
+  ::x         -> unary scope resolution operator ('::')
     name lookup in global namespace scope
 
-  Myclass::x	-> binary scope resolution operator ('::')
+  Myclass::x  -> binary scope resolution operator ('::')
     name lookup in Myclass's(class/namespace) scope
 */
 
@@ -218,7 +218,7 @@
 
   class Myclass {
   public:
-    int func(int)		// member function
+    int func(int)   // member function
     {
       return 11;
     }
@@ -243,13 +243,13 @@
     int x, y, z;
   };
 
-  void foo(struct Data* p,int);	// global namespace scope
+  void foo(struct Data* p,int); // global namespace scope
   // ------- C Code -------
 
   // ------- C++ Code -------
   class Myclass {
   public:
-    void func(int);		// class scope
+    void func(int);   // class scope
     // void func(Myclass* p, int) -> hidden parameter is Myclass*
   };
   // ------- C++ Code -------
@@ -399,7 +399,7 @@
       // ...
     }
 
-    void func(int x);		// member function declaration
+    void func(int x);   // member function declaration
     void foo(double x); // member function declaration
 
     inline void baz(float x);	// inline member function declaration
@@ -519,18 +519,18 @@
   public:
     void func(int x);
   private:
-    int mx;		// private data member
+    int mx;   // private data member
   };
 
-  int mx;			// global variable
+  int mx;     // global variable
 
   void Myclass::func(int x)
   {
-    int mx;		// local variable
+    int mx;   // local variable
     mx = 12;
     // assignment to local variable.
 
-    ::mx = 14;  // ("::op1" unary scope resolution operator)
+    ::mx = 14;        // ("::op1" unary scope resolution operator)
     // assignment to global variable.
 
     Myclass::mx = 20; // ("op1::op2" binary scope resolution operator)
@@ -599,7 +599,7 @@
 
   void Myclass::foo()
   {
-    foo(3);	// syntax error
+    foo(3); // syntax error
     // error: no matching function for call to 'Myclass::foo(int)'
 
     // namelookup will start from local scope, failed.
@@ -610,7 +610,7 @@
     ::foo(3); // VALID
     // namelookup will start from global namespace scope.
 
-    foo();          // VALID
+    foo();  // VALID
     // namelookup will start from local scope, failed.
     // namelookup will continue from class scope, succeeded.
     // context control will succeed.
@@ -658,7 +658,7 @@
   class Myclass {
   public:
     int bar(int);
-    int bar(int);	// syntax error
+    int bar(int); // syntax error
     // error: 'int Myclass::bar(int)' cannot be overloaded with
     // 'int Myclass::bar(int)'
   };
@@ -988,13 +988,13 @@
   {
     // -------------------------------------------------------
 
-    m_x = 20;          // syntax error
+    m_x = 20;           // syntax error
     // error: assignment of member 'Myclass::mx' in read-only object
 
-    this->m_x = 20;		// syntax error
+    this->m_x = 20;     // syntax error
     // error: assignment of member 'Myclass::mx' in read-only object
 
-    Myclass::m_x = 20; // syntax error
+    Myclass::m_x = 20;  // syntax error
     // error: assignment of member 'Myclass::mx' in read-only object
 
     // These 3 lines are equivalent.
@@ -1011,7 +1011,7 @@
 
     // -------------------------------------------------------
 
-    global_myclass_obj.m_x = 15;		// VALID
+    global_myclass_obj.m_x = 15;    // VALID
 
     // we are in Myclass's non-static member function
     // so we can access global Myclass object's private data member.
@@ -1026,7 +1026,7 @@
 
     // -------------------------------------------------------
 
-    foo();      // syntax error.
+    foo();    // syntax error.
     // error: passing 'const Myclass' as
     // 'this' argument discards qualifiers
 
@@ -1042,7 +1042,7 @@
 
     // -------------------------------------------------------
 
-    baz();      // VALID
+    baz();    // VALID
     // inside Myclass::bar() const non-static member function.
     // hidden parameter(`this` pointer) is const Myclass*
     // when "baz" function(const member function) is called
@@ -1169,7 +1169,7 @@
 
     // ----------------------------------------------------
 
-    ++ivec.front();		// VALID
+    ++ivec.front();   // VALID
     ++c_ivec.front(); // syntax error
     // error: increment of read-only location
     // 'c_ivec.std::vector<int>::front()'
@@ -1372,7 +1372,7 @@
     p->func();  // VALID
 
     m.Myclass();  // sytax error
-    p->Myclass();	// syntax error
+    p->Myclass(); // syntax error
     // error: invalid use of 'Myclass::Myclass'
 
     // constructor can not be called with member selection operators.
