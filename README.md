@@ -89,12 +89,11 @@
        - new/delete keyword
      
 ### [Special Member Functions](https://github.com/UPinar/CppLessons/tree/main/SpecialMemberFunctions)
-  - copy constructor
-  - constructor(member) initializer list [MIL]
-  - implicitly declared defaulted copy ctor
-  - copy assignment
-  - move ctor and move assignment
-  - implicitly declared move members
+  - implicitly declared default ctor
+  - constructor(member) initializer list (MIL)
+  - deep and shallow copy in copy constructor
+  - deep and shallow copy in copy assignment
+  - move members
   
 ### [Terms For Classes](https://github.com/UPinar/CppLessons/tree/main/TermsForClasses)
   - moved-from state
