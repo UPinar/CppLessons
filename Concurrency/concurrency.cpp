@@ -4712,7 +4712,7 @@ paralelism :
     gerçekleştirebilir.
 */
 
-// TODO: memory model ile alakali olan kismi bir daha izle
+// TODO: memory model ile alakali olan kismi duzenleyip tekrar ekle
 
 /*
   memory model : multithread çalışacak programların bellekteki 
