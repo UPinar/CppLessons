@@ -1140,8 +1140,8 @@
 */
 
 /*
-  ->	after C++17 some copy ellisions which are compiler optimization,
-      becomes standart(mandtory copy ellision).
+  ->	after C++17 some copy elisions which are compiler optimization,
+      becomes standart(mandtory copy elision).
 
   ->  if copy elision is not mandatory, and if user delete the copy ctor
     it will cause syntax error. If it is mandatory, deleting copy ctor
@@ -1153,7 +1153,7 @@
 
   - if functions parameter variable's type is a class type,
     and we can this function with a PRValue expression.
-    Mandatory Copy Ellision will be applied.
+    Mandatory Copy Elision will be applied.
 */
 
 /*
@@ -1186,28 +1186,28 @@
     foo(Myclass{});
     // "Myclass{}" is a PRValue expression(R) 
 
-    // if no mandatory copy ellision will be applied
+    // if no mandatory copy elision will be applied
     //  1 - Myclass default ctor will be called for temp object
     //  2 - Myclass move or copy ctor will be called
     //      (copy ctor for this scenario - move ctor not declared) 
     //      for function's parameter variable.
 
     // output -> Myclass default ctor
-    // because of the mandatory copy ellision only default ctor
+    // because of the mandatory copy elision only default ctor
     
     // ------------------------------------------------------
 
     foo(Myclass{12});
     // "Myclass{12}" is a PRValue expression(R)
 
-    // if no mandatory copy ellision will be applied
+    // if no mandatory copy elision will be applied
     //  1 - Myclass(int) ctor will be called for temp object
     //  2 - Myclass move or copy ctor will be called
     //      (copy ctor for this scenario - move ctor not declared) 
     //      for function's parameter variable.
 
     // output -> Myclass(int) ctor
-    // because of the mandatory copy ellision only Myclass(int) ctor
+    // because of the mandatory copy elision only Myclass(int) ctor
 
     // ------------------------------------------------------
   }
@@ -1244,7 +1244,7 @@
     // "Myclass{12}" is a PRValue expression(R)
     // output -> Myclass(int) ctor
 
-    // because of those copy ellisions are mandatory
+    // because of those copy elisions are mandatory
     // no need for copy or move members.
   }
 */
@@ -1259,26 +1259,80 @@
     Myclass m1;
     foo(m1);
     // "m1" is an LValue expression
-    // no copy ellision will be applied.
+    // no copy elision will be applied.
     // default ctor for m1 variable 
     // and copy ctor for function's parameter variable.
 
     foo(Myclass{});	
     // "Myclass{}" is a PRValue expression(R)
-    // mandatory copy ellision will be applied.
+    // mandatory copy elision will be applied.
     // only default ctor will be called for parameter variable.
   }
 */
 
-// TODO: Add assembly code for the first mandatory copy ellision scenerio.
+/*
+  class Myclass{
+  public:
+    Myclass() : m_x(11), m_y(22) {}
+    Myclass(Myclass& other) : m_x(other.m_x), m_y(other.m_y) {}
+  private:
+    int m_x, m_y;
+  };
+
+  void foo(Myclass mx){}
+
+  int main()
+  {
+    foo(Myclass{});
+  }
+
+  // compiled with x86-64 gcc 14.2 -std=c++17 -O0
+  //  Myclass::Myclass() [base object constructor]:
+  //    push rbp
+  //    mov rbp, rsp
+  //    mov QWORD PTR [rbp-8], rdi
+  //    mov rax, QWORD PTR [rbp-8]
+  //    mov DWORD PTR [rax], 11
+  //    mov rax, QWORD PTR [rbp-8]
+  //    mov DWORD PTR [rax+4], 22
+  //    nop
+  //    pop rbp
+  //    ret
+  //  foo(Myclass):
+  //    push rbp
+  //    mov rbp, rsp
+  //    mov QWORD PTR [rbp-8], rdi          : mx = &Myclass{}
+  //    nop
+  //    pop rbp
+  //    ret
+  //  main:
+  //    push rbp
+  //    mov rbp, rsp
+  //    sub rsp, 16
+  //    lea rax, [rbp-8]                    : rax = &Myclass{}
+  //    mov rdi, rax                        : rdi = &Myclass{}
+  //    call Myclass::Myclass()             : Myclass{} default ctor
+  //    lea rax, [rbp-8]                    : rax = &Myclass{}
+  //    mov rdi, rax                        : rdi = &Myclass{}
+  //    call foo(Myclass)
+  //    mov eax, 0
+  //    leave
+  //    ret
+
+  // temp object(Myclass{}) has been constructed in main function
+  // before calling foo function.
+  // and the constructed temp object's address has been passed to 
+  // "foo" function instead of constructing a new object
+  // using the copy constructor for "foo" function's parameter variable
+*/
 
 /*
-  -----------------------------------------------
-  | Scenerio 2 (Return Value Optimization)[RVO] |
-  -----------------------------------------------
-  If a functions return value type is a class type,
-  and this function is returning a PR value expression.
-  Mandatory Copy Ellision will be applied.
+                  <----- SCENARIO_2 ----->
+
+  - if function's return value type is a class type,
+    and this function is returning a PRValue expression.
+    Mandatory copy elision will be applied.
+  - it is called (Unnamed)Return Value Optimization(RVO)
 */
 
 /*
@@ -1301,23 +1355,38 @@
 
   Myclass foo()
   {
-    // code
-    return Myclass{};
+    return Myclass{};     // returning PRValue expression(R)
   }
 
   Myclass bar()
   {
-    // code
-    return Myclass{ 12 };
+    return Myclass{ 12 }; // returning PRValue expression(R)
   }
 
   int main()
   {
-    Myclass m1 = foo();		// output -> Myclass default ctor
-    // In normal, in foo() function default ctor will be called for temp object
-    // Then for [Myclass m = foo()] statement copy ctor will be called.
+    // ------------------------------------------------------
+
+    Myclass m1 = foo();   
+    // output -> Myclass default ctor
+
+    // Normally inside "foo" function default ctor will be called
+    // for temp object(Myclass{}). For m1 object in main 
+    // copy ctor will be called.
+    // But because of mandatory copy elision, only default ctor
+    // will be called for m1 object.
+
+    // ------------------------------------------------------
 
     Myclass m2 = bar();		// output -> Myclass(int) ctor
+
+    // Normally inside "bar" function int parameter ctor will be called
+    // for temp object(Myclass{12}). For m2 object in main
+    // copy ctor will be called.
+    // But because of mandatory copy elision, only int parameter ctor
+    // will be called for m2 object.
+
+    // ------------------------------------------------------
   }
 */
 
@@ -1348,21 +1417,88 @@
 
   int main()
   {
-    Myclass m1 = foo();		// output -> Myclass default ctor
-    Myclass m2 = bar();		// output -> Myclass(int) ctor
+    Myclass m1 = foo();   // output -> Myclass default ctor
+    Myclass m2 = bar();   // output -> Myclass(int) ctor
 
-    // No syntax error when user deletes the copy ctor.
-    // Because this copy elision becomes mandatory copy elision with C++17.
+    // With C++17, RVO is become mandatory copy elision.
+    // so deleted copy ctor will not cause syntax error.
   }
 */
 
 /*
-  --------------------------------------------------------
-  | Scenerio 3 (Named Returned Value Optimization)[NRVO] |
-  --------------------------------------------------------
-  NRVO is NOT a Mandatory copy elision !!!
-  for NRVO a callable copy/move ctor is required.
+  class Myclass{
+  public:
+    Myclass() : m_x(11), m_y(22) {}
+    Myclass(Myclass& other) : m_x(other.m_x), m_y(other.m_y) {}
+  private:
+    int m_x, m_y;
+  };
 
+  Myclass foo()
+  {
+    return Myclass{};
+  }
+
+  int main()
+  {
+    Myclass m1 = foo();
+  }
+
+  // compiled with x86-64 gcc 14.2 -std=c++17 -O0
+  //   Myclass::Myclass() [base object constructor]:
+  //    push rbp
+  //    mov rbp, rsp
+  //    mov QWORD PTR [rbp-8], rdi
+  //    mov rax, QWORD PTR [rbp-8]
+  //    mov DWORD PTR [rax], 11
+  //    mov rax, QWORD PTR [rbp-8]
+  //    mov DWORD PTR [rax+4], 22
+  //    nop
+  //    pop rbp
+  //    ret
+  //  foo():
+  //    push rbp
+  //    mov rbp, rsp
+  //    sub rsp, 16
+  //    mov QWORD PTR [rbp-8], rdi
+  //    mov rax, QWORD PTR [rbp-8]
+  //    mov rdi, rax
+  //    call Myclass::Myclass() ----> default ctor is called inside foo
+  //    mov rax, QWORD PTR [rbp-8]
+  //    leave
+  //    ret
+  //  main:
+  //    push rbp
+  //    mov rbp, rsp
+  //    sub rsp, 16
+  //    lea rax, [rbp-8]   : rax is holding a storage for Myclass object
+  //    mov rdi, rax       : that storage is passed to foo function
+  //    call foo()
+  //    mov eax, 0
+  //    leave
+  //    ret
+
+  // inside "main" function, a storage have been created for 
+  // Myclass object before calling the "foo" function.
+  // That storage address has been passed to "foo" function
+  // as a hidden parameter(because "foo" does not have any parameter).
+  // Inside "foo" function default ctor of Myclass has been called
+  // The address that have been sent to "foo" from "main" function 
+  // is passed to the default ctor of Myclass.
+*/
+
+
+/*
+                    <----- SCENARIO_3 ----->
+
+  - if function's return value type is a class type,
+    and this function is returning a named object.
+    Named Return Value Optimization(NRVO) will be applied.
+
+  - NRVO is not a mandatory copy elision 
+    it is a compiler optimization.
+
+  - deleted copy or move ctor will cause syntax error.
 */
 
 /*
@@ -1370,19 +1506,21 @@
 
   std::string get_str()
   {
-    std::string str;
-    // code... (string manipulations)
-    return str;
+    std::string str;  // "str" is named object
+    return str;       // LValue to XValue conversion(R)
   }
 
   int main()
   {
     std::string retval = get_str();
-    // In normal, for str object in get_str() function, default ctor will be called.
-    // Move ctor will be called for [std::string retval = get_str()] statement.
+    // Normally for "str" object inside get_str() function
+    // default ctor will be called
+    // and for "retval" object in "main" function
+    // move ctor will be called because 
+    // "get_str()" is a XValue expression(R).
 
-    // But because of named return value optimization,  str object inside get_str() function
-    // we be constructed as retval object.
+    // Because of NRVO, "str" object inside get_str() function
+    // will be constructed as retval object.
   }
 */
 
@@ -1418,11 +1556,9 @@
 
   Myclass foo()
   {
-    Myclass m{ 12 };
-    m.setx(45);
-    // code
-    m.setx(23);
-    return m;
+    Myclass named_m{ 12 };      // named object
+    named_m.setx(23);
+    return named_m;
   }
 
   int main()
@@ -1432,7 +1568,6 @@
     // output ->
     //	Myclass(int) ctor
     //	m_x = 23
-    // Only int parameter ctor called!!	-> NRVO(Named Return Value Optimization)
   }
 */
 
@@ -1449,6 +1584,7 @@
     }
 
     Myclass(const Myclass& other) = delete;
+    Myclass(Myclass&& other) = delete;
 
     void setx(int val)
     {
@@ -1462,9 +1598,11 @@
   {
     Myclass m{ 12 };
     m.setx(45);
-    return m;
-    // Because of NRVO is not a mandatory copy elision
-    // deleted copy ctor will be a syntax error !!!!
+    return m; // syntax error
+    // error: use of deleted function 'Myclass::Myclass(Myclass&&)'
+
+    // NRVO is not a mandatory copy elision
+    // so deleted move ctor will cause syntax error.
   }
 
   int main()
@@ -1474,9 +1612,79 @@
 */
 
 /*
-  --------------------
-  | pessimistic move |
-  --------------------
+  class Myclass{
+  public:
+    Myclass() : m_x(11), m_y(22) {}
+    Myclass(Myclass& other) : m_x(other.m_x), m_y(other.m_y) {}
+
+    int m_x, m_y;
+  };
+
+  Myclass foo(){
+    Myclass named_mx;   // named object
+    return named_mx;
+  }
+
+  int main()
+  {
+    Myclass m1 = foo();
+    m1.m_x = 45;
+  }
+
+  // compiled with x86-64 gcc 14.2 -std=c++17 -O0
+  //  Myclass::Myclass() [base object constructor]:
+  //    push rbp
+  //    mov rbp, rsp
+  //    mov QWORD PTR [rbp-8], rdi
+  //    mov rax, QWORD PTR [rbp-8]
+  //    mov DWORD PTR [rax], 11
+  //    mov rax, QWORD PTR [rbp-8]
+  //    mov DWORD PTR [rax+4], 22
+  //    nop
+  //    pop rbp
+  //    ret
+  //  foo():
+  //    push rbp
+  //    mov rbp, rsp
+  //    sub rsp, 16
+  //    mov QWORD PTR [rbp-8], rdi
+  //    mov rax, QWORD PTR [rbp-8]
+  //    mov rdi, rax
+  //    call Myclass::Myclass()
+  //    nop
+  //    mov rax, QWORD PTR [rbp-8]
+  //    leave
+  //    ret
+  //  main:
+  //    push rbp
+  //    mov rbp, rsp
+  //    sub rsp, 16
+  //    lea rax, [rbp-8]  
+  //      -> rax = storage address of Myclass object WILL BE constructed
+  //    mov rdi, rax
+  //      -> storage address is passed to "foo" function
+  //    call foo()
+  //    mov DWORD PTR [rbp-8], 45
+  //    mov eax, 0
+  //    leave
+  //    ret
+
+  // storage for Myclass object has been created in "main" function
+  // before calling "foo" function. That storage address has been passed
+  // to "foo" function as a hidden parameter.
+  // Inside "foo" function, default ctor of Myclass has been called
+  // with the address that has been passed from "main" function.
+  // "foo" function will return the address of Myclass object
+  // in rax register, but that address will not be used in "main" function.
+  // because the storage has alreadt been created in "main" and
+  // "main" does know the address already.
+*/
+
+
+/*
+                      --------------------
+                      | pessimistic move |
+                      --------------------
 */
 
 /*
@@ -1500,32 +1708,39 @@
 
   Myclass foo()
   {
-    Myclass x;
+    Myclass named_mx;
+    return named_mx;
+    // return std::move(named_mx);	-> pessimistic move
 
-    return x;
-    // return std::move(x);	-> pessimistic move..
+    // when returning automatic storage duration object,
+    // compiler will convert "named_mx" which is LValue expression
+    // to XValue expression. So for "m1" object in "main" function
+    // move assignment will be called.
 
-    // When returning automatic storage duration object
-    // compiler will change L value object to X value object
-    // so move assignment will call for this scenerio.
+    // becuase of "named_mx" becomes an XValue expression
+    // using "std::move" is not needed and called pessimistic move.
   }
 
   int main()
   {
     Myclass m1;
-    m1 = foo();	// output -> move assignment called
+    m1 = foo(); // output -> move assignment called
   }
 */
 
 /*
-  #include <memory>
+  #include <memory>   // std::unique_ptr
 
   std::unique_ptr<int> foo()
   {
-    std::unique_ptr<int> up{ new int };
+    std::unique_ptr<int> named_up{ new int };
 
-    return up;	// no syntax error
-    // because up will convert L value to X value.
+    return named_up;  // VALID
+
+    // std::unique_ptr is a move only type
+    // because of "named_up" is an LValue expression
+    // and will converted to XValue expression
+    // so returning "named_up" is valid.
   }
 
   int main()
@@ -1533,12 +1748,22 @@
     std::unique_ptr<int> up1{ new int };
     std::unique_ptr<int> up2{ new int };
 
-    up1 = up2;			// copy assignment deleted
-    auto up3 = up1;			// copy constructor deleted
-    // UNIQUE POINTERS ARE MOVE ONLY TYPES!!!
+    // ------------------------------------------------------
 
-    up1 = std::move(up2);		// move assignment legal
-    auto up3 = std::move(up2);	// move constructor legal
+    up1 = up2;      // syntax error       
+    // copy assignment operator function is deleted
+
+    auto up3 = up1; // syntax error
+    // copy ctor is deleted
+
+    // ------------------------------------------------------
+
+    up1 = std::move(up2);       // VALID
+    // move assignment operator function will be called
+    auto up3 = std::move(up2);  // VALID
+    // move ctor will be called
+    
+    // ------------------------------------------------------
   }
 */
 
@@ -1548,14 +1773,18 @@
 
   std::ofstream create_text_file(const std::string& filename)
   {
-    std::ofstream ofs{ filename };
+    std::ofstream named_ofs{ filename };
 
-    if (!ofs) {
+    if (!named_ofs) {
       throw std::runtime_error{ filename + "can not be created!" };
     }
 
-    return ofs;	// move only type
-    // because compiler convert L value ofs to X value it won't be a syntax error.
+    return named_ofs;   // VALID
+    // std::ofstream is a move only type
+    // "named_ofs" is an LValue expression
+    // compiler will convert that to XValue expression
+    // before returning it.
+    // so returning "named_ofs" is valid.
   }
 
   int main()
@@ -1566,14 +1795,31 @@
       exit(EXIT_FAILURE);
     }
 
-    auto x = ofs;				// no copy constructor
-    auto y = std::move(ofs);		// move constructor is valid.
-    // std::ofstream IS MOVE ONLY TYPE
+    // ------------------------------------------------------
 
-    std::ofstream fs;
+    auto ofs_1 = ofs; // syntax error
+    // copy ctor is deleted
 
-    fs = create_text_file("hello.txt");	// move assignment will be called
+    // ------------------------------------------------------
+
+    auto ofs_2 = std::move(ofs);  // VALID
+    // move ctor will be called
+
+    // ------------------------------------------------------
+    
+    std::ofstream ofs_3;
+    ofs_3 = create_text_file("hello.txt");  // VALID
+    // move assignment will be called
+
+    // ------------------------------------------------------
   }
+*/
+
+/*
+      |------------------------------------------------------|
+      |------------------------------------------------------|
+      |------------------------------------------------------|
+      |------------------------------------------------------|
 */
 
 /*
@@ -1588,18 +1834,20 @@
     std::string str(100'000, 'A');
 
     foo(str);
-    // foo functions parameter variable copy ctor will be called
-    // deep copy will be applied
-    bar(str);
-    // no ctor will be called.
+    // copy ctor will be called. 
+    // copy ctor will do a deep copy.
 
-    // bar(str) will be the winner in this scenerio performance way.
+    bar(str);
+    // call by reference, no ctor will be called.
+
+    // performance wise calling "bar" function 
+    // is far better than calling "foo" function.
   }
 */
 
 /*
   #include <string>
-  #include <algorithm>
+  #include <algorithm>    // std::reverse
 
   void foo(std::string s)
   {
@@ -1608,129 +1856,262 @@
 
   void bar(const std::string& s)
   {
-    auto sc = s;	// copy ctor will be called.
-    std::reverse(sc.begin(),sc.end());
+    auto sc = s;  // copy ctor will be called.
+    std::reverse(sc.begin(),sc.end());  
   }
 
   int main()
   {
-
     const char* ptr = "hello";
 
+    // ------------------------------------------------------
+
     bar(ptr);
-    // temp object will be created for const char* to std::string conversion
-    // const std::string& s(parameter variable) will bind to temp object.
-    // then inside bar() function we will create its copy.
-    // 2 TIME COPY
+    // temp std::string object will be created 
+    // by using std::string(const char*) constructor
+    // "bar" functions const L value reference parameter variable 
+    // will bind to that temporary object.
+    // inside "bar" function copy ctor will be called.
+    // characters of "ptr" object will be copied for 2 times.
 
-    foo(ptr);	// only std::string(const char*) ctor will be called
-    // 1 TIME COPY
+    // ------------------------------------------------------
 
-    foo(pr value expression); // copy ellision will be applied
+    foo(ptr);
+    // std::string(const char*) ctor will be called
+    // for creating parameter variable object.
+    // characters of "ptr" object will be copied for 1 time.
+
+    // ------------------------------------------------------
+
+    foo("hello");
+    // "hello" is a PRValue expression(R)
+    // mandatory copy elision will be applied. (Scenario_1)
+    // only std::string(const char*) constructor will be called.
+    // no copy will be done.
+
+    // ------------------------------------------------------
   }
 */
 
 /*
   #include <string>
 
-  class Person {
+  class Person_1{
   public:
-    // Person(const std::string& addr) : m_address(addr){}
+    Person_1(std::string name) : m_name{ std::move(name) } {}
+  private:
+    std::string m_name;
+  };
+
+  class Person_2 {
+  public:
+    Person_2(const std::string& name) : m_name( name ){}
     // std::string classes copy ctor will be called
     // in initializing phase [m_address(addr)]
     // (IF L value comes) -> REF semantic + copy ctor
     // (IF R value comes) -> REF semantics + copy ctor
-
-    Person(std::string addr) :m_address{std::move(addr)} {}
-    // std::string classes move ctor will be called
-    // in initializing phase [m_address(addr)]
-    // (IF L value comes) -> copy ctor + move ctor
-    // (IF R value comes) -> copy ellision + move ctor
   private:
-    std::string m_address;
+    std::string m_name;
   };
 
   int main()
   {
-    std::string x;
+    std::string str{ "Istanbul" };
 
-    Person per(x);
+    // ------------------------------------------------------
+
+    Person_1 person_1_1(str);
+    // "str" is an LValue expression
+    // copy ctor will be called for parameter variable initialization
+    // move ctor will be called for initializing m_name data member.
+    // -> copy ctor + move ctor
+
+    // ------------------------------------------------------
+
+    Person_1 person_1_2(std::string{"Ankara"});
+    // "std::string{"Ankara"}" is a PRValue expression(R)
+    // mandatory copy elision will be applied for parameter variable
+    // only std::string(const char*) ctor will be called.
+    // move ctor will be called for initializing m_name data member.
+    // -> copy elision + move ctor
+
+    // ------------------------------------------------------
+
+    Person_2 person_2_1(str);
+    // "str" is an LValue expression
+    // call by reference(reference semantics) will be applied 
+    // for parameter variable.
+    // copy ctor will be called for initializing m_name data member.
+    // -> REF semantics + copy ctor
+
+    // ------------------------------------------------------
+
+    Person_2 person2_2(std::string{ "Izmir" });
+    // "std::string{"Izmir"}" is a PRValue expression
+    // R value std::string object will bind to const L value reference
+    // reference semantics will be applied for parameter variable.
+    // because of "name"(parameter variable) is LValue expression
+    // copy ctor will be called for initializing m_name data member.
+    // -> REF semantics + copy ctor
+
+    // ------------------------------------------------------
   }
 */
 
 /*
-  ------------------------
-  | reference qualifiers |	// Modern CPP
-  ------------------------
+                -------------------------------------
+                | reference qualifiers (Modern C++) |
+                -------------------------------------
+*/
+
+/*
+  #include <utility>  // std::move
+
+  class AClass{
+  public:
+    void set_lvalue_rvalue();
+    // can be called with L value and R value objects
+
+    void set_lvalue() &; // L value reference qualified
+    // can only be called with L value objects
+  };
+
+  int main()
+  {
+    // ------------------------------------------------------
+
+    AClass a1;
+
+    a1.set_lvalue_rvalue();         // VALID
+    // "a1" is an LValue expression
+
+    a1.set_lvalue();                // VALID
+    // "a1" is an LValue expression
+
+    AClass{}.set_lvalue_rvalue();   // VALID
+    // "AClass{}" is a PRValue expression(R)
+
+    AClass{}.set_lvalue();          // syntax error
+    // error: passing 'AClass' as 'this' argument discards qualifiers
+
+    // ------------------------------------------------------
+
+    AClass a2;
+
+    (a2 = a1).set_lvalue_rvalue();  // VALID
+    // "a2 = a1" is an LValue expression
+
+    (a2 = a1).set_lvalue();         // VALID
+    // "a2 = a1" is an LValue expression
+
+    // ------------------------------------------------------
+
+    std::move(a1).set_lvalue_rvalue();  // VALID
+    // "std::move(a1)" is an XValue expression(R)
+
+    std::move(a1).set_lvalue();         // syntax error
+    //  error: passing 'AClass' as 'this' argument discards qualifiers
+   
+    // ------------------------------------------------------
+  }
+*/
+
+/*
+  class Myclass_1 {
+  public:
+    Myclass_1& operator=(const Myclass_1&) = default;
+    // both L value and R value objects can be sent
+    // to copy assignment operator
+  };
+
+  class Myclass_2 {
+  public:
+    Myclass_2& operator=(const Myclass_2&) & = default;
+    // L value reference qualified copy assignment
+  };
+
+  int main()
+  {
+    // ------------------------------------------------------
+
+    Myclass_1 m1;
+
+    Myclass_1{} = m1;           // VALID
+    Myclass_1{}.operator=(m1);  // VALID
+    // Those 2 lines are equivalent.
+
+    Myclass_1{} = Myclass_1{};              // VALID
+    Myclass_1{}.operator=(std::move(m1));   // VALID
+
+    // copy assignment operator can be called with R value 
+    // Myclass_1 object because of Myclass_1 copy assignment 
+    // does not have reference qualifier.
+
+    // ------------------------------------------------------
+
+    // copy assignment operator can not be called with R value 
+    // Myclass_2 object because of Myclass_2 copy assignment
+    // has L value reference qualifier.
+
+    Myclass_2 m2;
+    Myclass_2 m2_2;
+
+    Myclass_2{} = m2;           // syntax error
+    std::move(m2) = m2_2;       // syntax error
+
+    // ------------------------------------------------------
+  }
 */
 
 /*
   class Myclass {
   public:
-    Myclass& operator=(const Myclass&) = default;
-    // Myclass& operator=(const Myclass&)& = default;
-    void set();
-    void set_lref()&;	// only can call with L value objects
+    void foo() &;
+    // "foo" member function is L value reference qualified.
+
+    void bar() &&;
+    // "bar" member function is R value reference qualified.
   };
 
   int main()
   {
-    Myclass x;
-    x.set();			// valid
-    Myclass{}.set();		// valid
+    // ------------------------------------------------------    
 
-    Myclass y;
-    (x = y).set();			// valid
+    Myclass mx;
+    mx.foo();     // VALID
+    mx.bar();     // syntax error
+    // "mx" is an LValue expression (L value object)
+    // error: passing 'Myclass' as 'this' argument discards qualifiers
 
-    x.set_lref();			// valid
-    Myclass{}.set_lref();		// not valid
-    std::move(x).set_lref();	// not valid
+    // ------------------------------------------------------    
 
-    Myclass{} = y;
-    Myclass{}.operator=(y);
-    // if we it is valid because compiler's default copy ctor
-    // does not have reference qualifier
+    Myclass{}.foo();  // syntax error
+    Myclass{}.bar();  // VALID
 
-    // If we add reference qualifier to copy assignment
-    // [Myclass& operator=(const Myclass&)& = default]
-    // [Myclass{}.operator=(y)] or [Myclass{} = y] are not valid
+    // "Myclass{}" is a PRValue expression(R)
+    // error: passing 'Myclass' as 'this' argument discards qualifiers
+
+    // ------------------------------------------------------    
   }
 */
 
 /*
-  class Myclass {
-  public:
-    void foo()&;		// L value reference qualified
-    void bar()&&;		// R value reference qualified
-  };
-
-  int main()
-  {
-    Myclass m;
-    m.foo();		// legal
-    m.bar();		// not valid
-
-    Myclass{}.foo();	// not valid
-    Myclass{}.bar();	// legal
-  }
-*/
-
-/*
-  // we can overload reference qualifiers in non-static member functions
+  // reference qualifiers can be overloaded 
+  // in non-static member functions
 
   class Myclass {
   public:
-    void foo()&
+    void foo() &
     {
       std::cout << "foo() for L values\n";
     }
 
-    void foo()const&
+    void foo() const &
     {
       std::cout << "foo() for const L values\n";
     }
 
-    void foo()&&
+    void foo() &&
     {
       std::cout << "foo() for R values\n";
     }
@@ -1738,13 +2119,27 @@
 
   int main()
   {
-    Myclass m;
-    m.foo();			// output -> foo() for L values
+    // ------------------------------------------------------
 
-    Myclass{}.foo();		// output -> foo() for R values
-    std::move(m).foo();		// output -> foo() for R values
+    Myclass m;
+    m.foo();  // output -> foo() for L values
+    // "m" is an LValue expression
+
+    // ------------------------------------------------------
+
+    Myclass{}.foo();      // output -> foo() for R values
+    std::move(m).foo();   // output -> foo() for R values
+
+    // "Myclass{}" is a PRValue expression(R) 
+    // "std::move(m)" is a XValue expression(R)
+
+    // ------------------------------------------------------
 
     const Myclass cm;
-    cm.foo();			// output -> foo() for const L values
+    cm.foo();   // output -> foo() for const L values
+
+    // "cm" is an LValue expression and const qualified
+
+    // ------------------------------------------------------
   }
 */

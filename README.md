@@ -103,10 +103,10 @@
   - conversion constructor
   - explicit constructor
   - copy elision
-     - Mandatory copy elision scenerios
+     - Mandatory Copy Elision scenarios
      - Named Return Value Optimization [NRVO]
   - pessimistic move
-  - reference qualifiers
+  - reference qualifiers (Modern C++)
   
 ### [`friend` Declerations](https://github.com/UPinar/CppLessons/tree/main/FriendDeclerations)
   - to a global function
