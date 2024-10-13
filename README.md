@@ -108,7 +108,7 @@
   - pessimistic move
   - reference qualifiers (Modern C++)
   
-### [`friend` Declarations](https://github.com/UPinar/CppLessons/tree/main/FriendDeclerations)
+### [`friend` Declarations](https://github.com/UPinar/CppLessons/tree/main/FriendDeclarations)
   - `friend` declared global(free) function
   - `friend` declared other class's specific member function
   - `friend` declared other class(all of other classes member functions)
