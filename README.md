@@ -108,10 +108,10 @@
   - pessimistic move
   - reference qualifiers (Modern C++)
   
-### [`friend` Declerations](https://github.com/UPinar/CppLessons/tree/main/FriendDeclerations)
-  - to a global function
-  - to another classes member function
-  - to another classes all functions(whole class)
+### [`friend` Declarations](https://github.com/UPinar/CppLessons/tree/main/FriendDeclerations)
+  - `friend` declared global(free) function
+  - `friend` declared other class's specific member function
+  - `friend` declared other class(all of other classes member functions)
   
 ### [Operator Overloading](https://github.com/UPinar/CppLessons/tree/main/OperatorOverloading)
   - const correctness for operator overloading 
