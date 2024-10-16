@@ -326,33 +326,44 @@
     // ----------------------------------------------------
 
     std::cout << bs;    
+    // output -> 00000101
+
+    putchar('\n');
+
     operator<<(std::cout, bs);
-    // Those 2 lines are equivalent.
     // output -> 00000101
 
     putchar('\n');
 
     // ----------------------------------------------------
 
-    // "<<" is a left assosiative operator
-
     std::cout << (bs << 5);     
+    // output -> 10100000
+
+    putchar('\n');
+
     operator<<(std::cout, bs.operator<<(5));
-    // Those 2 lines are equivalent.
     // output -> 10100000
 
     putchar('\n');
 
     // ----------------------------------------------------
 
+    // "<<" is a left associative operator
+
     std::cout << bs << 5;
+    // output -> 000001015
+
+    std::putchar('\n');
+
     operator<<(std::cout, bs).operator<<(5);
-    // output -> 101000005
-    // Those 2 lines are equivalent.
+    // output -> 000001015
 
     // ----------------------------------------------------
   }
 */
+
+// TODO: --------- continue from here ---------
 
 /*
   Q.1 : Why there is global operator functions?
