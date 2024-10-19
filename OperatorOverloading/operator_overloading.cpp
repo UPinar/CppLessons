@@ -363,51 +363,56 @@
   }
 */
 
-// TODO: --------- continue from here ---------
 
 /*
-  Q.1 : Why there is global operator functions?
+  Q.1 : 
+  Why there is global operator functions?
   What if whole operator functions are member operator functions?
 
-  Think about a wrapper class for int type called Mint, and have a data member of int inside.
-  When we try to add (Mint + int) in member operator+ function it is okay.
-  Mint.operator+(int)
-  Because [this pointer]'s type is Mint class type.
+  Mint class has an int data member. It is a wrapper class for int.
+  (Mint + int) 
+  can be applied with Mint.operator+(int) member operator function.
 
-  For the logic, (int + Mint) needs to be same with (Mint + int)
-  But when we use an expression like [int + Mint], because of int is not a Mint class object
-  [this pointer] can not represent int.
-  int.operator+(Mint) not valid
-
-  That is why there is global operator functions.
-  operator+(int,Mint) or operator+(Mint,int) are valid and results are same.
+  (int + Mint) should be same with (Mint + int)
+  to make this possible, global operator functions are needed.
+  with global operator function,
+  operator+(int,Mint) and 
+  operator+(Mint,int) can be called.
 */
 
+
 /*
-  class Date {
-  public:
-    Date(int, int, int);
+  struct Date {
+    Date(int d, int m, int y) : m_d{ d }, m_m{ m }, m_y{ y } {}
+    int m_d, m_m, m_y;
   };
 
-  std::ostream& operator<<(std::ostream& os, const Date&)
+  std::ostream& operator<<(std::ostream& os, const Date& d)
   {
-    return os << "hello";
+    return os << d.m_d << '/' << d.m_m << '/' << d.m_y;
   }
 
   int main()
   {
-    Date mydate{ 3,5,1998 };
+    Date dx{ 1, 1, 2001 };
 
-    std::cout << mydate;
-    operator<<(std::cout, mydate);
+    std::cout << dx << '\n';    // output -> 1/1/2001
+    operator<<(std::cout, dx);  // output -> 1/1/2001
   }
 */
 
 /*
-  // a + b is an R value expression	// operator overload will return Myclass
-  // a = x; is an L value expression	// operator overload will return Myclass&
-  // ++x is L value expression		// operator overload will return Myclass&
-  // x++ is R value expression		// operator overload will return Myclass
+  "a + b" is RValue expression
+    operator overload function will return value type.
+
+  "a = x" is LValue expression
+    operator overload function will return L value reference type.
+
+  "++x" is LValue expression
+    operator overload function will return L value reference type.
+
+  "x++" is RValue expression
+    operator overload function will return value type
 */
 
 /*
@@ -415,100 +420,123 @@
   public:
     Date(int, int, int);
 
-    // member operator function
-    Date operator+(int)const;	// a + 2 is R value -> [Date] is return type NOT [Date&]
+    // member operator+ function will generate RValue expression
+    Date operator+(int)const;	
+    // return type is Date 
 
-    //int operator-(const Date&)const;
-    // because of two Date's will applied it is better using gloabal operator function
+    // int operator-(const Date&)const;
+    // Two Date object will be used in 
+    // operator-() function 
+    // better to use global operator function
 
-    Date& operator+=(int);		// a += 2; is L value expression -> [Date&] is return type
-    // [atama operatorleri L value olusturur.]
+    // member operator+= function will generate LValue expression
+    Date& operator+=(int);
+    // return type is Date&
+
+    // assignment operators will generate LValue expression
   };
 
-  // global operator function
+  // global operator- function
   int operator-(const Date&, const Date&);
 
   int main()
   {
-    Date mydate{ 12,5,1977 };
-    int n = 100;
+    // ----------------------------------------------------
 
-    auto future_date = mydate + n;
+    Date dx{ 12, 5, 1977 };
 
-    Date dx{ 12,5,1977 };
-    Date dy{ 11,4,1963 };
+    auto dy = dx + 100; // member operator+ function called
+    // Date dy = dx.operator+(100);
 
-    int difference = dx - dy;
+    // ----------------------------------------------------
+
+    Date d1{ 1, 1, 2001 };
+    Date d2{ 2, 2, 2002 };
+
+    int d_diff = d2 - d1;   // global operator- function called
+    // int d_diff = operator-(d2, d1);
+
+    // ----------------------------------------------------
   }
 */
 
 /*
   #include <string>
+
   int main()
   {
-    std::string name{ "uygar" };
+    std::string city{ "istanbul" };
 
-    auto x = name[0];
-    // [] subscript(index) operator expressions are Lvalue expressions
-    // char& operator[]() return type needs to be [char&]
+    auto x = city[2];
+    // "city[2]" is an LValue expression
+    // [] subscript(index) operator generates an LValue expression
+    
+    // char& operator[](size_t idx);
 
-    name[1] = 't';
-    // if the return type is R value this statement becomes meaningless
+    city[0] = 'I';
+    // because of [] subscript operator generates an LValue expression
+    // assignment to city[0] is VALID.
   }
 */
 
 /*
-  ==============================================
-  | const correctness for operator overloading |
-  ==============================================
+            ----------------------------------------------
+            | const correctness for operator overloading |
+            ----------------------------------------------
 */
 
 /*
-
+  // "m1 + m2" will generate RValue expression
+  // both Matrix objects will not change so better 
+  // making operator+ function const
 
   class Matrix {
   public:
-    // a + b -> a and b are not going to change [R value]
-    Matrix operator+(const Matrix&) const;
-    // [const Matrix&] -> const for b
-    // [const at the end] is for *this, for a
+    Matrix operator+(const Matrix& m2) const;
+    // (const Matrix&) -> m2 object is const 
+    // const member function -> *this(m1) object is const
   };
 
-  // for global operator function
-  Matrix operator+(const Matrix&, const Matrix&);
-  // first const is for a, second const is for b
+  Matrix operator+(const Matrix& m1, const Matrix& m2);
+  // both m1 and m2 objects are const
 */
 
+
 /*
-  // +x -> x is not going to change [PR value -> R value]
+  // "+m1" is PRValue expression
+  // Matrix object will not change so better
+  // making operator+ function const
 
   class Matrix {
   public:
     Matrix operator+() const;
-    // const at the end is for *this, for x
+    // const member function -> *this(m1) object is const
   };
 
-  // for global operator function
-  Matrix operator+(const Matrix&);
-  // const for x
+  Matrix operator+(const Matrix& m1);
+  // m1 object is const
 */
 
+
 /*
-  // m1 += m2; [m1 is L value and will going to change]
+  // assignment operators will generate LValue expression
+
+  // "m1 += m2" will generate LValue expression
+  // m1 object will be changed but m2 object won't be changed.
 
   class Matrix {
   public:
-    Matrix& operator+=(const Matrix&)
+    Matrix& operator+=(const Matrix& m2)
     {
       return *this;
     }
-    // [const Matrix&] -> const for m2
-    // [no const at the end] because *this(m1) will change
+    // (const Matrix&) -> m2 object is const 
+    // non-const member functions -> *this(m1) object is non-const
   };
 
-  // for global operator function
-  //Matrix& operator+=(Matrix&, const Matrix&);
-  // no const for m1, const for m2
+  Matrix& operator+=(Matrix& m1, const Matrix& m2);
+  // m1 object is non-const
+  // m2 object is const
 */
 
 /*
@@ -516,26 +544,44 @@
   {
     using namespace std;
 
-    cout << "hello\n";		// output -> hello
-    operator<<(cout, "hello\n");	// output -> helo
-    // ostream& operator<<(ostream&, const char*);	// global function
+    // ----------------------------------------------------
 
-    cout.operator<<("hello\n");	// output -> 009A9CE0
-    // ostream& operator<<(void *);	// ostream classes member function
+    // global operator<< function 
+    // ostream& operator<<(ostream&, const char*);
 
+    cout << "hello\n";            // output -> hello
+    operator<<(cout, "world\n");  // output -> world
 
-    char c = 'A';
-    cout << c;		// output -> A
-    operator <<(cout, c);	// output -> A
-    // ostream& operator<<(ostream&, const char);	// global function
+    // ----------------------------------------------------
 
-    cout.operator<<(c);	// output -> 65
-    // ostream& operator<<(int); // ostream classes member function
+    // std::ostream classes member function
+    // ostream& operator<<(const void*); 
+
+    cout.operator<<("hello\n");	  // output -> 0x7ff673065050
+
+    // ----------------------------------------------------
+
+    // global operator<< function
+    // ostream& operator<<(ostream&, const char); 
+
+    char c1 = 'A';
+    cout << c1;             // output -> A
+    operator<<(cout, c1);   // output -> A
+
+    // ----------------------------------------------------
+
+    // std::ostream classes member function
+    // ostream& operator<<(int);
+
+    char c2 = 'A';
+    cout.operator<<(c2);   // output -> 65
+
+    // ----------------------------------------------------
   }
 */
 
 /*
-  // Endl is an ostream maniplator
+  // std::endl is an ostream maniplator function
   std::ostream& Endl(std::ostream& os)
   {
     os.put('\n');
@@ -546,21 +592,41 @@
   int main()
   {
     using namespace std;
+
     int ival{ 24 };
 
-    cout << ival << Endl << ival << Endl;
-    cout.operator<<(ival).operator<<(Endl).operator<<(ival).operator<<(Endl);
-    // output ->	24
-    //				24
-    // ostream& operator<<(ostream& (*fp)(ostream&)) // ostream classes member function
+    // ----------------------------------------------------
+
+    // global operator<< functions
+    // ostream& operator<<(ostream&, int);
+    // ostream& operator<<(ostream&, ostream& (*fp)(ostream&));
+
+    cout << ival << Endl << ival << Endl; 
+    // output -> 
+    //  24 
+    //  24
+
+    // ----------------------------------------------------
+
+    // std::ostream classes member functions
+    // ostream& operator<<(int);
+    // ostream& operator<<(ostream& (*fp)(ostream&));
+
+    cout.operator<<(ival).operator<<(Endl).
+          operator<<(ival).operator<<(Endl);
+    // output ->
+    //  24
+    //  24
+
+    // ----------------------------------------------------
   }
 */
 
 /*
-  // we can write our own maniplator function
+  // We can write our own std::ostream manipulator functions
   std::ostream& dashline(std::ostream& os)
   {
-    return os << "\n--------------------------------------------------\n";
+    return os << "\n--------------\n";
   }
 
   int main()
@@ -571,30 +637,48 @@
     double dval{ 524.2343 };
     long lval{ 23432L };
 
-    cout << ival << dashline << dval << dashline << lval << dashline;
+    cout  << ival << dashline 
+          << dval << dashline 
+          << lval << dashline;
+
+    // output ->
+    //  345
+    //  --------------
+    //  524.234
+    //  --------------
+    //  23432
+    //  --------------
   }
 */
 
 /*
-  C++ is a powerful language with Zero cost abstraction classes.
-  Mint class will be a wrapper class to an int.
+  in C++ zero cost abstraction classes can be created.
   <chrono> class is a wrapper class in std
 */
 
 /*
-  Do not write a member operator function and global operator function doing the same job.
-  This will cause ambiguity errors.
+  - do not write global operator function and 
+    a member operator function doing the same job.
+    Will cause ambiguity error.
 
-  It is better to write member operator function
-  if an operator changes (sets) class Object [set functions] (++, --)
+  - if operator function setting the class object (set functions)
+    better to write member operator function.
+    operator++(), operator--()
+  
+  - if there is a simetric operation 
+    (a + b) and (b + a) will generate logical results.
+    better to write global operator function.
+    operator+(), operator*(), operator-() ...
 
-  It is better to write global operator function
-  for simetric operations (a + b == b + a) [multiplication, addition, substraction]
-
-  It is better to write global operator function
-  for comparison operations [==, > , <, >=, <= ,!=]
+  - for comparison operations, 
+    because of two class objects being used
+    better to write global operator function.
+    operator==(), operator<(), operator>() ...
 */
-// ------------------>
+
+// ----------------------------------------------------
+// TODO: CONTINUE FIXING FROM HERE
+// ----------------------------------------------------
 
 /*
   // ostream and istream << and >> operator overloading

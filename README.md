@@ -114,6 +114,7 @@
   - `friend` declared other class(all of other classes member functions)
   
 ### [Operator Overloading](https://github.com/UPinar/CppLessons/tree/main/OperatorOverloading)
+  - global and member operator overload functions
   - const correctness for operator overloading 
   - overloading assignment operators
   - overloading arithmetic operators
