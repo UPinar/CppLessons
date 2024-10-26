@@ -115,16 +115,16 @@
   
 ### [Operator Overloading](https://github.com/UPinar/CppLessons/tree/main/OperatorOverloading)
   - global and member operator overload functions
-  - const correctness for operator overloading 
+  - `const` correctness for operator overloading 
   - overloading assignment operators
   - overloading arithmetic operators
   - overloading increment and decrement operators
-  - [[nodiscard]] Attribute
+  - `[[nodiscard]]` attribute
   - overloading subscript operator
-  - dereferencing & arrow(member selection) operator overload
-  - function call operator overload
-  - type-cast operator overload function
-  - enum type global operator functions
+  - overloading dereferencing & arrow operators
+  - overloading function call operator
+  - overloading type-cast operator function
+  - enum type's global operator overload functions
   
 ### [`static` In Classes](https://github.com/UPinar/CppLessons/tree/main/staticInClass)
   - static member variables

@@ -1,200 +1,279 @@
 #ifndef MINT_HPP
 #define MINT_HPP
 
-// do not include <iostream>
-// include <ostream> and <istream>
+/*
+  "istream" and "ostream" classes will be used in
+  operator overload functions
+    - if operator overload functions will be defined in header(.h) file
+    (header only library)
+    include <ostream> and <istream> modules
 
-// if you will define 
-// friend std::ostream& operator<<(std::ostream&, const Mint&); 
-// and friend std::istream& operator>>(std::istream&, Mint&);
-// global operator overload functions in .cpp file 
-// just include lightweight library, #include <iosfwd> in header(.h) file
-// <iosfwd> includes ostream and istream function forward declerations
+    - if operator overload functions will be defined in source(.cpp) file
+    include <iosfwd> module in header file
 
-// if you will define them in header file
-// include <ostream> and <istream>
+  <iosfwd> module have ostream and istream forward declarations
+  do not include <iostream> module
+*/
 
 #include <ostream>
 #include <istream>
 
-class Mint {
+class Mint
+{
 public:
-	// if we don't want an implicit conversion from int to Mint, we need to make ctor explicit.
-	explicit Mint(int x = 0) : mx{ x } {}
+  explicit Mint(int x = 0) : m_x{ x } {} // explicit ctor
+  // implicit conversion from int to Mint is not allowed
 
-	// <---------------------------------------------------------------------------->
+  // -------------------------------------------------------
 
-	// we can not write member function for ostream class, that is why << and >> functions 
-	// will be global operator functions [hidden friend member functions]
-	
-	// inserter function [inserting data to ostream object]
-	friend std::ostream& operator<<(std::ostream& os, const Mint& mint)
-	{
-		return os << '(' << mint.mx << ')';
-		// return os.operator<<(mint.mx);
-	}
+  // operator<< and operator>> functions must be global functions
+  // because ostream and istream classes are not our classes
+  // - can be global operator overload function
+  // - can be hidden friend operator overload function
 
-	// extractor function [extracting data from istream object]
-	friend std::istream& operator>>(std::istream& is, Mint& mint)
-	{
-		// return is >> mint.mx;
-		return is.operator>>(mint.mx);
-	}
+  // operator<< : inserter function(inserting data to ostream object)
+  friend std::ostream& operator<<(std::ostream &os, const Mint &mint)
+  {
+    return os << mint.m_x;
+    return os.operator<<(mint.m_x);
+    // Those 2 lines are equivalent.
+  }
 
-	// <---------------------------------------------------------------------------->
+  // operator>> : extractor function(extracting data from istream object)
+  friend std::istream& operator>>(std::istream &is, Mint &mint)
+  {
+    return is.operator>>(mint.m_x);
+    return is >> mint.m_x;
+    // Those 2 lines are equivalent.
+  }
 
-	// FROM C++ 20
-	// auto operator<=>(const Mint&) = default; [SPACESHIP OPERATOR]
+  // -------------------------------------------------------
 
-	// because of these functions are friends, they can reach Mint classes private section
-	// global operator overload function
+  // since C++20
+  // auto operator<=>(const Mint&) = default; 
+  // spaceship(three-way comparison) operator function can be defaulted
 
-	[[nodiscard]] friend bool operator==(const Mint& lhs, const Mint& rhs)
-	{
-		return lhs.mx == rhs.mx;
-	}
-	// [!= operator overload function is outside of the class]
+  [[nodiscard]] 
+  friend bool operator==(const Mint &lhs, const Mint &rhs)
+  {
+    return lhs.m_x == rhs.m_x;
+  }
+  // [!= operator overload function is outside of the class]
 
-	[[nodiscard]] friend bool operator<(const Mint& lhs, const Mint& rhs)
-	{
-		return lhs.mx < rhs.mx;
-	}
-	// [>, >=, <= operators overload functions are outside of the class]
+  [[nodiscard]] 
+  friend bool operator<(const Mint &lhs, const Mint &rhs)
+  {
+    return lhs.m_x < rhs.m_x;
+  }
 
-	// <---------------------------------------------------------------------------->
+  // friend declared global operator overload functions
+  // (hidden friend functions)
+  // can reach private data members of Mint class
+  // because of friend declaration
 
-	// [ASSIGNMENT OPERATORS WILL RETURN L VALUE] 
-	// [member operator functions]
-	Mint& operator+=(const Mint& other)
-	{
-		mx += other.mx;
-		return *this;
-	}	
+  // operator!=() function can be written by using operator==() function
+  // operator> - operator>= - operator<= functions 
+  // can be written by using operator<() function
+  
+  // -------------------------------------------------------
 
-	Mint& operator-=(const Mint& other)
-	{
-		mx -= other.mx;
-		return *this;
-	}
+  // assignment operator overload functions 
+  // will return L value reference(object itself)
+  // assignment operator functions are member functions.
 
-	Mint& operator/=(const Mint& other)
-	{
-		if (other.mx == 0)
-			throw std::runtime_error{ "divided by zero error" };
+  // assignment by sum operator overload function
+  Mint& operator+=(const Mint &other)
+  {
+    m_x += other.m_x;
+    return *this;
+  }
 
-		mx /= other.mx;
-		return *this;
-	}
-	Mint& operator*=(const Mint& other)
-	{
-		mx *= other.mx;
-		return *this;
-	}
+  // assignment by difference operator overload function
+  Mint& operator-=(const Mint &other)
+  {
+    m_x -= other.m_x;
+    return *this;
+  }
 
-	// <---------------------------------------------------------------------------->
+  // assignment by quotient operator overload function
+  Mint& operator/=(const Mint &other)
+  {
+    if (other.m_x == 0)
+      throw std::runtime_error{"divided by zero error"};
 
-	// [INCREMENT AND DECREMENT OPERATORS]
-	// prefix increment member operator overload function [++operator] [returns L value]
-	Mint& operator++()
-	{
-		++mx;
-		return *this;
-	}
+    m_x /= other.m_x;
+    return *this;
+  }
 
-	// postfix increment member operator overload function [operator++] [returns R value]
-	// have dummy int parameter
-	Mint operator++(int)
-	{
-		Mint temp{ *this };
-		operator++(); // calling prefix increment operator member function
-		return temp;
-	}
+  // assignment by product operator overload function
+  Mint& operator*=(const Mint &other)
+  {
+    m_x *= other.m_x;
+    return *this;
+  }
 
-	Mint& operator--()
-	{
-		--mx;
-		return *this;
-	}
+  // -------------------------------------------------------
 
-	Mint operator--(int)
-	{
-		Mint temp{ *this };
-		operator--(); // calling prefix decrement operator member function
-		return temp;
-	}
+  // increment and decrement operator overload functions
+  // are member functions.
 
-	// <---------------------------------------------------------------------------->
+  // prefix increment and decrement operator overload functions
+  // returns L value reference(object itself)
 
-	// member (sign) operator+ overload  function -> return value is [Rvalue] -> +x
-	Mint operator+() const
-	{
-		return *this;
-	}
-	// member (sign) operator- overload  function -> return value is [Rvalue] -> -x
-	Mint operator-() const
-	{
-		return Mint{ -mx };
-	}
+  // postfix increment and decrement operator overload functions
+  // returns R value
+
+  // prefix increment operator overload function
+  Mint& operator++()
+  {
+    ++m_x;
+    return *this;
+  }
+  
+  // prefix decrement operator overload function
+  Mint& operator--()
+  {
+    --m_x;
+    return *this;
+  }
+
+  // postfix increment operator overload function (dummy int parameter)
+  Mint operator++(int)
+  {
+    Mint temp{ *this };
+    operator++(); // calling prefix increment operator function
+    return temp;
+  }
+
+  // postfix decrement operator overload function (dummy int parameter)
+  Mint operator--(int)
+  {
+    Mint temp{ *this };
+    operator--(); // calling prefix decrement operator function
+    return temp;
+  }
+
+  // -------------------------------------------------------
+
+  // sign operator overload functions returns R value
+  // sign operator overload functions are member functions
+
+  // sign operator(plus) overload function 
+  Mint operator+() const
+  {
+    return *this;
+  }
+
+  // sign operator(minus) overload function
+  Mint operator-() const
+  {
+    return Mint{ -m_x };
+  }
 
 private:
-	int mx;
+  int m_x;
 };
 
-// <---------------------------------------------------------------------------->
+// -------------------------------------------------------
+// -------------------------------------------------------
 
-// [SIMETRIC OPERATORS, IT IS BETTER TO OVERLOAD AS A GLOBAL OPERATOR FUNCTIONS]
+// 1. better to use global operator overload functions 
+// for simetric operations.
 
-// no need to use friend because operator!= function is not accessing private members of Mint class
-// == operator overload function is reaching private members.
-// we are calling operator== overload function in operator!= overload function.
-[[nodiscard]] inline bool operator!=(const Mint& lhs, const Mint& rhs)
-{
-	return !operator==(lhs, rhs);
-	// return !(lhs == rhs);
-}
+// 2. if a function will be defined outside of the class
+// in header(.h) file, it must be declared as `inline` function
 
-[[nodiscard]] inline bool operator>(const Mint& lhs, const Mint& rhs)
+// -------------------------------------------------------
+// -------------------------------------------------------
+
+// global comparison operator overload functions
+
+// operator!= can call hidden friend operator== overload function
+// so making operator!= as an hidden friend function is not necessary
+
+// global operator!= overload function
+[[nodiscard]] 
+inline bool operator!=(const Mint &lhs, const Mint &rhs)
 {
-	// (a > b) -> (b < a) 
-	return operator<(rhs, lhs);
-	// return rhs < lhs
-}
-[[nodiscard]] inline bool operator<=(const Mint& lhs, const Mint& rhs)
-{
-	// (a <= b) ->  !(b < a)
-	return !operator<(rhs, lhs);
-	// return !(rhs < lhs);
-}
-[[nodiscard]] inline bool operator>=(const Mint& lhs, const Mint& rhs)
-{
-	// (a >= b) ->  !(a < b)
-	return !operator<(lhs, rhs);
-	// return !(lhs < rhs);
+  return !operator==(lhs, rhs);
+  return !(lhs == rhs);
+  // Those 2 lines are equivalent.
 }
 
-// <---------------------------------------------------------------------------->
+// '>', '<=', '>=' operations can be written by using '<' operation
+// so making those functions as hidden friend functions is not necessary
+// because they can call hidden friend '<' operator overload function
 
-// [ARITHMETIC OPERATOS]
-// not reaching private section of Mint class [no need to be a friend operator overload function]
-[[nodiscard]] inline Mint operator+(const Mint& r1, const Mint& r2)
+// global operator> overload function
+[[nodiscard]] 
+inline bool operator>(const Mint &lhs, const Mint &rhs)
 {
-	return Mint{ r1 } += r2;
+  // (a > b) -> (b < a)
+  return operator<(rhs, lhs);
+  return rhs < lhs;
+  // Those 2 lines are equivalent.
+}
 
-	// Mint temp{ r1 };
-	// temp += r2;
-	// return temp;
-}
-[[nodiscard]] inline Mint operator-(const Mint& r1, const Mint& r2)
+// global operator<= overload function
+[[nodiscard]] 
+inline bool operator<=(const Mint &lhs, const Mint &rhs)
 {
-	return Mint{ r1 } -= r2;
+  // (a <= b) -> !(b < a)
+  return !operator<(rhs, lhs);
+  return !(rhs < lhs);
+  // Those 2 lines are equivalent.
 }
-[[nodiscard]] inline Mint operator/(const Mint& r1, const Mint& r2)
+
+// global operator>= overload function
+[[nodiscard]] 
+inline bool operator>=(const Mint &lhs, const Mint &rhs)
 {
-	return Mint{ r1 } /= r2;
+  // (a >= b) -> !(a < b)
+  return !operator<(lhs, rhs);
+  return !(lhs < rhs);
+  // Those 2 lines are equivalent.
 }
-[[nodiscard]] inline Mint operator*(const Mint& r1, const Mint& r2)
+
+// -------------------------------------------------------
+
+// arithmetic operator overload functions
+
+// '+' operation can be written by using '+=' operation
+// '-' operation can be written by using '-=' operation
+// '*' operation can be written by using '*=' operation
+// '/' operation can be written by using '/=' operation
+
+// so making those operator overload functions as 
+// hidden friend function is not necessary
+
+// global operator+ overload function 
+[[nodiscard]] 
+inline Mint operator+(const Mint &r1, const Mint &r2)
 {
-	return Mint{ r1 } *= r2;
+  return Mint{ r1 } += r2;
 }
+
+// global operator- overload function
+[[nodiscard]] 
+inline Mint operator-(const Mint &r1, const Mint &r2)
+{
+  return Mint{r1} -= r2;
+}
+
+// global operator/ overload function
+[[nodiscard]] 
+inline Mint operator/(const Mint &r1, const Mint &r2)
+{
+  return Mint{r1} /= r2;
+}
+
+// global operator* overload function
+[[nodiscard]] 
+inline Mint operator*(const Mint &r1, const Mint &r2)
+{
+  return Mint{r1} *= r2;
+}
+
+// -------------------------------------------------------
 
 #endif // MINT_HPP

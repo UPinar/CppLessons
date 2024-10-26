@@ -676,147 +676,165 @@
     operator==(), operator<(), operator>() ...
 */
 
-// ----------------------------------------------------
-// TODO: CONTINUE FIXING FROM HERE
-// ----------------------------------------------------
+/*
+          ------------------------------------------------
+          | overloading inserter and extractor operators |
+          ------------------------------------------------
+*/
 
 /*
-  // ostream and istream << and >> operator overloading
-  #include "mint.h"
+  #include "mint.hpp"
+  
+  int main()
+  {
+    Mint m1{}, m2{};
+
+    std::cout << m1;
+    operator<<(std::cout, m1);
+    // Those 2 lines are equivalent.
+
+    std::cin >> m2;
+    operator>>(std::cin, m2);
+    // Those 2 lines are equivalent.
+  }
+*/
+
+/*
+  #include "mint.hpp"
 
   int main()
   {
     Mint m1{}, m2{};
 
-    // std::cout << m1;
-    // operator<<(std::cout, m1);
-    // these two lines are same
-
-    // std::cin >> m2;
-    // operator>>(std::cin, m1);
-    // these two lines are same
-
     std::cout << "Write two numbers: ";
     std::cin >> m1 >> m2;
+    // input -> Write two numbers: 11 22
 
     std::cout << "m1 = " << m1 << " m2 = " << m2;
+    // output -> m1 = 11 m2 = 22
   }
 */
 
 /*
-  ====================================
-  | overloading comparison operators |
-  ====================================
+              ------------------------------------
+              | overloading comparison operators |
+              ------------------------------------
 */
 
 /*
   ---------------------------------------
-  ==	equality operators
-  !=
+  |         equality operators          |
   ---------------------------------------
-  <
-  <=	relational operators(simetric operators)
-  >	it is better overloading global function
-  >=
+    ==    : equal to 
+    !=    : not equal
   ---------------------------------------
-
-
-  == -> !(=)
-
-  a < b	// if we write operator< overload function, we can write >, >=, <= with using operator< function
-  a > b	->  !(b < a)
-  a >= b	->	!(a < b)
-  a <= b  ->  !(b < a)
+  |         relational operators        |
+  ---------------------------------------
+    <     : less than
+    <=    : less or equal
+    >	    : greater than  
+    >=    : greater or equal
+  ---------------------------------------
+  ---------------------------------------
+          a != b  -> a !(==) b
+          a > b   ->  !(b < a)
+          a >= b  ->  !(a < b)
+          a <= b  ->  !(b < a)
+  ---------------------------------------
+  ---------------------------------------
 */
 
 /*
-  #include "mint.h"
+  #include "mint.hpp"
 
   int main()
   {
     Mint m1{ 243 }, m2{ 345 };
 
     if (m1 < m2)
-    {
-      std::cout << "true\n";
-    }
-    if (m2 >= Mint{345})
-    {
-      std::cout << "true\n";
-    }
+      std::cout << "(m1 < m2)\n";
+    // output -> (m1 < m2)
+    
+    if (m2 >= Mint{ 345 })
+      std::cout << "(m2 >= 345)\n";
+    // output -> (m2 >= 345)
   }
 */
 
 /*
-  ====================================
-  | overloading assignment operators |
-  ====================================
+              ------------------------------------
+              | overloading assignment operators |
+              ------------------------------------
 */
 
 /*
-  #include "mint.h"
+  #include "mint.hpp"
+  // check 
+
   int main()
   {
     Mint m1{ 243 }, m2{ 345 };
-    std::cout << "m1 = " << m1 << '\n';	// output -> (243)
+    std::cout << "m1 = " << m1 << '\n';
+    // output -> m1 = 243
 
     m1 += m2;
-    std::cout << "m1 = " << m1 << '\n';	// output -> (588)
+    std::cout << "m1 = " << m1 << '\n';
+    // output -> m1 = 588
   }
 */
 
 /*
-  ====================================
-  | overloading arithmetic operators |
-  ====================================
+              ------------------------------------
+              | overloading arithmetic operators |
+              ------------------------------------
 */
 
 /*
-  #include "mint.h";
+  #include "mint.hpp"
 
   int main()
   {
     Mint m1{ 243 }, m2{ 345 };
 
     std::cout << m1 + m2 + Mint{ 102 } << '\n';
+    // output -> 690
   }
 */
 
 /*
-  =================================================
-  | overloading increment and decrement operators |
-  =================================================
+          -------------------------------------------------
+          | overloading increment and decrement operators |
+          -------------------------------------------------
 */
 
 /*
-  #include "mint.h"
+  #include "mint.hpp"
 
   int main()
   {
     Mint m1{ 34 }, m2{ 34 };
 
     // prefix operator++
-    auto my = ++m1;
-    std::cout << "m1 = " << m1 << '\n'; // output -> (35)
-    std::cout << "my = " << my << '\n'; // output -> (35)
+    auto mx = ++m1;
+    std::cout << "m1 = " << m1 << '\n';   // m1 = 35
+    std::cout << "mx = " << mx << '\n';   // my = 35
 
     // postfix operator++
-    auto mz = m2++;
-    std::cout << "m2 = " << m2 << '\n'; // output -> (35)
-    std::cout << "mz = " << mz << '\n'; // output -> (34)
+    auto my = m2++;
+    std::cout << "m2 = " << m2 << '\n';   // m2 = 35
+    std::cout << "my = " << my << '\n';   // my = 34
   }
 */
 
-/*	---------------------------
-  | [[nodiscard]] Attribute |
-  ---------------------------
+/*	
+                    ---------------------------
+                    | [[nodiscard]] Attribute |
+                    ---------------------------
 */
 
 /*
-  // [[nodiscard]] Attribute
-  // warning C4834: discarding return value of function with 'nodiscard' attribute
-
-  [[nodiscard]] int square(int x)
+  [[nodiscard]] 
+  int square(int x)
   {
     return x * x;
   }
@@ -826,159 +844,180 @@
     int ival{ 33 };
 
     square(ival);
+    // warning: ignoring return value of 'int square(int)', 
+    // declared with attribute 'nodiscard' 
   }
 
-  // [[nodiscard]] attribute in comparison and arithmetic operator overload functions is a good practice.
+  // for comparison and arithmetic operator overload functions
+  // it is a good practice to use [[nodiscard]] attribute
 */
 
+
 /*
-  ==================================
-  | overloading subscript operator |
-  ==================================
+              ----------------------------------
+              | overloading subscript operator |
+              ----------------------------------
 */
 
 /*
   #include <vector>
 
-  class ivector {
+  class int_vector {
   public:
-    ivector();
-    ivector(std::size_t size);
+    int_vector();
+    int_vector(std::size_t size);
 
-    // CONST OVERLOADING
-    int& operator[](std::size_t);			// non-const member function
-    const int& operator[](std::size_t) const;	// const member function
+    // const overloads 
+    int& operator[](std::size_t);
+    // non-const member function
+    const int& operator[](std::size_t) const;
+    // const member function
   };
 
   int main()
   {
-    ivector vec(100);
+    // ----------------------------------------------------
 
-    vec[3] = 12;		// for changing the value (writing purpose)
-    auto val = vec[45];	// for reading purpose
+    int_vector vec(100);  // size_t parameter constructor
+
+    vec[3] = 12;        // for writing purpose
+    auto val = vec[45]; // for reading purpose
 
 
     std::vector ivec{ 3, 6, 8, 1, 2 };
-    const std::vector cvec{ 3, 6, 8, 1, 2 };
+    const std::vector civec{ 3, 6, 8, 1, 2 };
 
-    auto a = ivec[2];
-    auto b = cvec[2];
-    ivec[3] = 6;
-    cvec[3] = 6; // sythax error
+    // ----------------------------------------------------
 
-    // front() and back() functions are CONST OVERLOADED member functions of std::vector class
+    int a = ivec[2];          // VALID  (reading)
+    const int b = civec[2];   // VALID  (reading)
 
-    ivec.front() = 87;	// legal
-    cvec.front() = 87;	// sythax error
-    ivec.back() = 90;	// legal
-    cvec.back() = 90;	// sythax error
+    ivec[3] = 6;    // VALID
+    civec[3] = 6;   // syntax error
+    // error: assignment of read-only location 
+    // 'civec.std::vector<int, std::allocator<int> >::operator[](3)'
 
-    // multi-index overload (C++23 standards)
-    // can be used overloading operator[] for multi dimensional arrays
+    // ----------------------------------------------------
+
+    // "front" and "back" member functions of std::vector class 
+    // have const overloads
+
+    ivec.front() = 87;    // VALID 
+    civec.front() = 87;   // syntax error
+    //  error: assignment of read-only location 
+    // 'civec.std::vector<int, std::allocator<int> >::front()'
+
+
+    ivec.back() = 90;     // VALID
+    civec.back() = 90;    // sythax error
+    // error: assignment of read-only location 
+    // 'civec.std::vector<int, std::allocator<int> >::back()'
   }
 */
 
 /*
-  ===================================
-  | dereferencing operator overload |
-  =============================================
-  | member selection(arrow) operator overload |
-  =============================================
+          ------------------------------------------------
+          |       overloading dereferencing operator     |
+          ------------------------------------------------
+          | overloading member selection(arrow) operator |
+          ------------------------------------------------
 */
 
 /*
   template <typename T>
   class UniquePtr {
   public:
-    // default ctor
-    UniquePtr() : mp{nullptr}{}
+    UniquePtr() : m_p{ nullptr } {}    // default constructor
 
-    // destructor
-    ~UniquePtr()
+    ~UniquePtr()    // destructor
     {
-      if (mp)
-        delete mp;
+      if (m_p)
+        delete m_p;
     }
 
-    explicit UniquePtr(T *p) : mp{p}{}
+    explicit UniquePtr(T *p) : m_p{ p }{} 
+    // explicit constructor for preventing implicit conversion
 
-    // move ctor
-    UniquePtr(UniquePtr&& other) : mp{ other.mp }
+    // move constructor
+    UniquePtr(UniquePtr&& other) : m_p{ other.m_p }
     {
-      other.mp = nullptr; // for not creating a dangling pointer after move ctor
+      other.mp = nullptr; // to prevent double deletion 
     }
+
     // move assignment
     UniquePtr& operator=(UniquePtr&& other)
     {
       if (this == &other)
         return *this;
+      // if the same object is assigned to itself, return itself
 
-      mp = other.mp;
-      other.mp = nullptr;
+      m_p = other.m_p;
+      other.m_p = nullptr;  // to prevent double deletion
 
       return *this;
     }
-    // copy ctor and copy assignment are deleted because one of move members user declared.
+
+    // copy members are deleted 
+    // because of one of the move member is user declared.
 
     T* get()
     {
-      return mp;
+      return m_p;
     }
+    
     T* release()
     {
-      auto ret = mp;
-      mp = nullptr;
+      auto ret = m_p;
+      m_p = nullptr;
       return ret;
     }
 
     // dereferencing operator overload
     T& operator*()
     {
-      return *mp;
+      return *m_p;
     }
 
-    // arrow operator is a binary operator but its overloads like unary operator.
-    // arrow operator overload
-    // uptr.operator->()->foo();
-    // [uptr.operator->()] expression needs be to pointer for to create an expression like this [(T*)->foo()]
-    // [Return type needs to be a pointer type]
+    // arrow operator is a binary operator
+    // but its overload function is like a unary operator
+
     T* operator->()
     {
-      return mp;
+      return m_p;
     }
 
   private:
-    T* mp;
+    T* m_p;
   };
 
   class Myclass {
   public:
-    void foo();
-    void bar();
+    void foo(){ std::cout << "Myclass::foo()\n";}
+    void bar(){ std::cout << "Myclass::bar()\n";}
   };
 
   int main()
   {
     UniquePtr<Myclass> uptr{ new Myclass };
 
-    (*uptr).bar();
-    // *uptr is Myclass object
+    (*uptr).bar();            // output -> Myclass::bar()
 
-    uptr->foo();
-    // uptr.operator->()->foo();
+
+    uptr->foo();              // output -> Myclass::foo()
+    uptr.operator->()->foo(); // output -> Myclass::foo()
+    // Those 2 lines are equivalent
   }
 */
 
 /*
-  ===================================
-  | function call operator overload |
-  ===================================
+            --------------------------------------
+            | overloading function call operator |
+            --------------------------------------
 */
 
 /*
   class Functor {
   public:
-    // can have a default argument
     void operator()(int x = -1)
     {
       std::cout << "void Functor::operator()(int x)\n";
@@ -990,11 +1029,27 @@
   int main()
   {
     Functor fn;
-    std::cout << "&fn = " << &fn << '\n';
-    fn();
 
-    // fn(12);
-    // fn.operator()(12);
+    std::cout << "&fn = " << &fn << '\n';
+    // output -> &fn = 0x220d7ffdff
+
+    fn();
+    // output -> 
+    //  void Functor::operator()(int x)
+    //  x = -1
+    //  this = 0x220d7ffdff
+
+    fn(22);
+    // output -> 
+    //  void Functor::operator()(int x)
+    //  x = 22
+    //  this = 0x220d7ffdff
+
+    fn.operator()(44);
+    // output ->
+    //  void Functor::operator()(int x)
+    //  x = 44
+    //  this = 0x220d7ffdff
   }
 */
 
@@ -1002,25 +1057,52 @@
   class Myclass {
   public:
     // function call operator can be overloaded
-    void operator()(int);
-    void operator()(double);
-    void operator()(char);
-    void operator()(const char*);
+    void operator()(int) 
+    { 
+      std::cout << "void Myclass::operator()(int)\n"; 
+    }
+  
+    void operator()(double)
+    { 
+      std::cout << "void Myclass::operator()(double)\n"; 
+    }
+
+    void operator()(char)
+    { 
+      std::cout << "void Myclass::operator()(char)\n"; 
+    }
+
+    void operator()(const char*)
+    { 
+      std::cout << "void Myclass::operator()(const char*)\n"; 
+    }
   };
 
   int main()
   {
     Myclass m;
-    m(12);
+
+    m(12);  
+    // output -> void Myclass::operator()(int)
+
+    m("hello world");
+    // output -> void Myclass::operator()(const char*)
+
+    m(3.4);
+    // output -> void Myclass::operator()(double)
+
+    m('A');
+    // output -> void Myclass::operator()(char)
   }
 */
 
 /*
-  #include <cstdlib>
+  #include <cstdlib>  // std::rand
 
   class Random {
   public:
     Random(int low, int high) : m_low(low), m_high(high) {}
+
     int operator()()
     {
       return std::rand() % (m_high - m_low + 1) + m_low;
@@ -1042,54 +1124,65 @@
   {
     Random rand1{ 2300, 2360 };
     Random rand2{ 40, 45 };
-    Random rand3{ 1'000'000, 1'001'000 };
-
 
     foo(rand1);
+    // output -> 2341 2345 2351 2326 2315 2347 2310 2317 2300 2303
     foo(rand2);
-    foo(Random{ 129,1231 });
+    // output -> 45 45 41 43 41 45 41 42 43 40
+    foo(Random{ 129, 1231 });
+    // output -> 533 394 722 282 421 378 1005 1197 1096 170
   }
 */
 
 /*
-  ========================================
-  | type-cast operator overload function |
-  ========================================
-  // needs to be member operator function CAN NOT BE GLOBAL OPERATOR FUNCTION
+            -------------------------------------------
+            | overloading type-cast operator function |
+            -------------------------------------------
 */
 
 /*
-  class Myclass {
+  - must be a member function, can not be a global function!
+*/
+
+/*
+  class Myclass { 
   public:
-    // type-cast to int operator overload function, return type is int
+    // type-cast to int operator overload function
+    // operator int() function's return type is `int`
     operator int() const
     {
       std::cout << "Myclass::operator int() this = " << this << '\n';
       return 198;
     }
-    // [operator int() const] function lets Myclass type implicitly convert to int type [user defined conversion]
+    // calling operator int() function,
+    // Myclass object can implicitly converted to int type
+    // -- User Defined Conversion --
   };
 
   int main()
   {
     Myclass m;
     int ival{};
-    std::cout << "&m = " << &m << '\n';
 
-    // ival = m;
-    // ival = m.operator int();
+    std::cout << "&m = " << &m << '\n'; 
+    // output -> &m = 0xdabbffc8b
+
+    ival = m;
+    ival = m.operator int();
     ival = static_cast<int>(m);
-    // These 3 lines are same
+    // These 3 lines are equivalent.
+    // output -> Myclass::operator int() this = 0xdabbffc8b
 
-    std::cout << "varInt = " << ival << '\n';
+    std::cout << "ival = " << ival << '\n';
+    // output -> ival = 198
   }
 */
 
 /*
-  user-defined conversion
+  User Defined Conversion(UDC)
   ------------------------
-  conversion ctor
-  type-cast operator overload function
+  - conversion ctor
+  - type-cast operator overload function
 */
 
 /*
@@ -1102,25 +1195,33 @@
   {
     Myclass m;
     double dval{};
-
-    dval = m;
-    // Myclass object will convert to int [operator int() const] user-defined conversion
-    // int will implicitly conver to double standart conversion
-
-    dval = (double)(m.operator int());
-    // same lines
-
     bool flag;
-    flag = m; // legal
-    // conversion from Myclass to int (UDC)
-    // conversion from int to bool (standart conversion)
+
+    // ----------------------------------------------------
+    
+    dval = m;
+    dval = (double)(m.operator int());
+    // These 2 lines are equivalent.
+
+    // Myclass ===> int ===> double
+    // Myclass ===> int  (UDC)
+    // int ===> double  (standart conversion)
+
+    // ----------------------------------------------------
+
+    flag = m;
+    // Myclass ===> int ===> bool
+    // Myclass ===> int  (UDC)
+    // int ===> bool  (standart conversion)
+
+    // ----------------------------------------------------
   }
 */
 
 /*
   class Myclass {
   public:
-     explicit operator int()const;
+    explicit operator int() const;
   };
 
   int main()
@@ -1128,13 +1229,23 @@
     Myclass m;
     int ival{};
 
+    // ----------------------------------------------------
+
     ival = m; // syntax error
+    // error: cannot convert 'Myclass' to 'int' in assignment
+
+    // because of the explicit operator int() function
+    // convertion from Myclass to int can not be done implicitly
+
+    // ----------------------------------------------------
 
     ival = static_cast<int>(m);
     ival = (int)m;
     ival = int(m);
     ival = m.operator int();
-    // These 4 lines can be used when type cast operator overload is explicit
+    // These 4 lines are equivalent.
+
+    // ----------------------------------------------------
   }
 */
 
@@ -1142,20 +1253,23 @@
   class Counter {
   public:
     Counter() = default;
-    explicit Counter(int x) : mc{ x } {}
+    explicit Counter(int x) : m_c{ x } {}
 
-    // inserter function [hidden friend]
-    friend std::ostream& operator<<(std::ostream& os,const Counter& c)
+    // hidden friend function operator<< overload
+    friend std::ostream& operator<<(std::ostream& os, 
+                                    const Counter& c)
     {
-      return os << '(' << c.mc << ')';
+      return os << '(' << c.m_c << ')';
     }
 
+    // prefix operator++ overload function
     Counter& operator++()
     {
-      ++mc;
+      ++m_c;
       return *this;
     }
 
+    // postfix operator++ overload function
     Counter operator++(int)
     {
       Counter temp{ *this };
@@ -1163,12 +1277,12 @@
       return temp;
     }
 
-    explicit operator int()const
+    explicit operator int() const
     {
-      return mc;
+      return m_c;
     }
   private:
-    int mc{};
+    int m_c{};
   };
 
   int main()
@@ -1176,99 +1290,153 @@
     Counter mycounter{ 34 };
 
     for (size_t i = 0; i < 10; i++)
-    {
-      ++mycounter;
-    }
-    mycounter++;
+      ++mycounter;  
+      // prefix operator++ overload function
+    
+    mycounter++;  
+    // postfix operator++ overload function
 
     auto x1 = static_cast<int>(mycounter);
     auto x2 = (int)mycounter;
     auto x3 = int(mycounter);
+    // operator int() overload function
 
-    std::cout << "x1 = " << x1 << '\n';
-    std::cout << "x2 = " << x2 << '\n';
-    std::cout << "x3 = " << x3 << '\n';
+    std::cout << "x1 = " << x1 << '\n';   // output -> x1 = 45
+    std::cout << "x2 = " << x2 << '\n';   // output -> x2 = 45
+    std::cout << "x3 = " << x3 << '\n';   // output -> x3 = 45
 
-    operator<<(std::cout, mycounter);
+    operator<<(std::cout, mycounter); // output -> (45)
+    // hidden friend operator<< overload function 
   }
 */
 
 /*
-  #include <memory>
+  #include <memory>  // std::unique_ptr
+
   class Myclass{};
 
   int main()
   {
-    // These are all sythax errors because
-    // Myclass did not have a bool operator overload functoion
     Myclass m1, m2;
 
-    auto x = m1 && m2;			// not legal
-    auto x = m1 || m2;			// not legal
-    while (m1) {}				// not legal
-    if (m2) {}				// not legal
+    // ----------------------------------------------------
 
-    auto x3 = std::cin && std::cout;	// legal
-    if (std::cin){}				// legal
-    while (std::cout){}			// legal
+    auto x = m1 && m2;  // syntax error
+    // error: no match for 'operator&&'
+    // (operand types are 'Myclass' and 'Myclass')
+
+    auto x = m1 || m2;  // syntax error
+    // error: no match for 'operator||' 
+    // (operand types are 'Myclass' and 'Myclass')
+
+
+    while (m1) {}       // syntax error
+    // error: could not convert 'm1' from 'Myclass' to 'bool'
+
+
+    if (m2) {}          // syntax error
+    // error: could not convert 'm2' from 'Myclass' to 'bool'
+
+    // all of them are syntax error because 
+    // Myclass does not have operator bool() overload function
+
+    // ----------------------------------------------------
+
+    auto x3 = std::cin && std::cout;  // VALID
+    if (std::cin){}                   // VALID
+    while (std::cout){}               // VALID
 
     std::unique_ptr<int> uptr{ new int };
-    if(uptr.operator bool()){}		// legal
+    if(uptr.operator bool()){}        // VALID
+
+    // all of them are VALID because
+    // std::cin, std::cout, std::unique_ptr classes
+    // do have operator bool() overload function
+    
+    // ----------------------------------------------------
   }
 */
 
 /*
   class Myclass {
   public:
-    explicit operator bool()const;
+    explicit operator bool() const;
   };
 
   int main()
   {
     Myclass m;
 
-    int x = m;
-    bool b = m;
-    // explicit operator bool overload function is not legal
+    // ----------------------------------------------------
 
-    if (m) {}
-    auto val = m ? 10 : 20;
-    while (m) {}
-    bool b = !m;
-    b = m || m;
-    b = m && m;
-    // explicit operator bool overload function is legal when used in logic context
-    // [LOJIK BAGLAM]
+    int x = m;    // syntax error
+    // error: cannot convert 'Myclass' to 'int' in initialization
+    bool b = m;   // syntax error
+    // error: cannot convert 'Myclass' to 'bool' in initialization
+
+    // ----------------------------------------------------
+
+    if (m) {}                 // VALID
+    auto val = m ? 10 : 20;   // VALID
+    while (m) {}              // VALID
+    bool b = !m;              // VALID
+    b = m || m;               // VALID
+    b = m && m;               // VALID
+
+    // when Myclass object is used in logical context(lojik bağlam)
+    // its explicit operator bool() overload function will be called
+
+    // ----------------------------------------------------
   }
 */
 
 /*
-   class A {
+   class AClass {
    public:
-    operator bool() const
-    {
-      return true;
-    }
+    operator bool() const { return true; }
    };
 
    int main()
    {
-    A a1, a2;
+    AClass a1, a2;
 
-    // These 2 lines are same
-    auto x =  a1 + a2; // type of x is int
-    // auto x = a1.operator bool() + a2.operator bool();
-    std::cout << "x = " << x << '\n';
+    // ----------------------------------------------------
 
-    auto y = A{};	// type of y is A
-    auto z = +A{};	// type of z is int -> from A to bool UDR, from bool to int promotion(standart) conversion
+    auto x1 =  a1 + a2; 
+    auto x2 = a1.operator bool() + a2.operator bool();
+    // Those 2 lines are equivalent.
+
+    // a1 ===> bool ===> int
+    // a2 ===> bool  (UDC)
+    // bool ===> int  (integral promotoion)(standart conversion)
+
+    // "x1" and "x2" data types are `int`
+
+    std::cout << "x1 = " << x1 << '\n';   // output -> x1 = 2
+    std::cout << "x2 = " << x2 << '\n';   // output -> x2 = 2
+
+    // ----------------------------------------------------
+
+    auto x3 = AClass{};
+    // "x3" data type is `AClass`
+
+    // ----------------------------------------------------
+
+    auto x4 = +AClass{};	
+    // AClass ===> bool ===> int
+    // AClass ===> bool  (UDC)
+    // bool ===> int  (integral promotoion)(standart conversion)
+
+    // "x4" data type is `int`
+
+    // ----------------------------------------------------
    }
 */
 
 /*
-  =======================================
-  | enum type global operator functions |
-  =======================================
+          --------------------------------------------------
+          | enum type's global operator overload functions |
+          --------------------------------------------------
 */
 
 /*
@@ -1282,9 +1450,10 @@
     Saturday,
   };
 
+  // global operator<< overload function
   std::ostream& operator<<(std::ostream& os, const Weekday& wd)
   {
-    // for using as a lookup table
+    // lookup table
     static const char* const p[] = {
       "Sunday",
       "Monday",
@@ -1298,33 +1467,34 @@
     return os << p[static_cast<int>(wd)];
   }
 
-  // prefix
+  // prefix operator++ overload function
   Weekday& operator++(Weekday& wd)
   {
-    using enum Weekday; // C++ 20
-    return wd = wd == Saturday ? Sunday : static_cast<Weekday>(static_cast<int>(wd) + 1);
+    using enum Weekday; // C++20
+    return wd = (wd == Saturday) 
+        ? Sunday 
+        : static_cast<Weekday>(static_cast<int>(wd) + 1);
   }
-  // postfix
+  
+  // postfix operator++ overload function
   Weekday operator++(Weekday& wd, int)
   {
     Weekday temp{ wd };
-    operator++(wd); // calling prefix++
+    operator++(wd);
     return temp;
   }
 
   int main()
   {
-    // prefix
-    auto wd{ Weekday::Monday };
-
-    for (size_t i = 0; i < 24; i++)
-    {
-      std::cout << ++wd << '\n';
-    }
-
-    // postfix
+    auto wd1{ Weekday::Monday };
     auto wd2{ Weekday::Saturday };
-    std::cout << wd2++ << '\n'; 	// output -> Saturday
-    std::cout << wd2 << '\n';	// output -> Sunday
+
+    std::cout << ++wd1 << '\n'; // output -> Tuesday
+    // prefix operator++ overload function
+
+    std::cout << wd2++ << '\n';   // output -> Saturday
+    // postfix operator++ overload function
+
+    std::cout << wd2 << '\n';     // output -> Sunday
   }
 */
