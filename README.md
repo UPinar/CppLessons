@@ -126,13 +126,15 @@
   - overloading type-cast operator function
   - enum type's global operator overload functions
   
-### [`static` In Classes](https://github.com/UPinar/CppLessons/tree/main/staticInClass)
-  - static member variables
+### [`static` in Classes](https://github.com/UPinar/CppLessons/tree/main/static_in_class)
+  - static member variable
+  - `inline` static member variable
+  - `constexpr` static member variable
   - static member functions
+  - member function pointer
+  - named constructor idiom
+  - dynamic object only class
   - singleton design pattern
-  - remove-erase idiom
-  - range based for loop
-  - if with initializer
   
 ### [Composition / Containment](https://github.com/UPinar/CppLessons/tree/main/Containment)
   - composition / containment
@@ -357,3 +359,8 @@
   - atomic 
     - `std::atomic_flag`
     - compare and swap(CAS)
+
+### [Not Related](https://github.com/UPinar/CppLessons/tree/main/not_related)
+  - range based for loop
+  - pointer to an array
+  - if with initializer (C++17)

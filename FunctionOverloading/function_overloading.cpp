@@ -232,7 +232,7 @@
 
   void foo(int(int));     // func(int(*)(int));
   void foo(int(*)(int));
-  // NO overloading, function redecelaration
+  // NO overloading, function redeclaration
 */
 
 /*
