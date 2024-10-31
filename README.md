@@ -1,11 +1,11 @@
 # CppLessons
 
-### [Reference Semantics](https://github.com/UPinar/CppLessons/tree/main/ReferenceSematics)
+### [Reference Semantics](https://github.com/UPinar/CppLessons/tree/main/reference_semantics)
   - L value references
   - pointer semantics 
   - reference semantics
   
-### [Type Deduction](https://github.com/UPinar/CppLessons/tree/main/TypeDeduction)
+### [Type Deduction](https://github.com/UPinar/CppLessons/tree/main/type_deduction)
   - `auto` type deduction
     - `auto`   x = expr
     - `auto&`  y = expr
@@ -18,34 +18,34 @@
     - decltype(expression)
   - unevaluated context (İşlem kodu üretilmeyen bağlam) 
   
-### [Default Arguments](https://github.com/UPinar/CppLessons/tree/main/DefaultArguments)
+### [Default Argument](https://github.com/UPinar/CppLessons/tree/main/default_argument)
   - default arguments
   - maximal munch
   
-### [Typecast Operators](https://github.com/UPinar/CppLessons/tree/main/TypecastOperators)
+### [Typecast Operators](https://github.com/UPinar/CppLessons/tree/main/typecast_operators)
   - (target type) Cstyle cast
   - static_cast
   - const_cast
   - reinterpret_cast
   - dynamic_cast
   
-### [Enumeration Types](https://github.com/UPinar/CppLessons/tree/main/EnumerationTypes)
+### [Enumeration Types](https://github.com/UPinar/CppLessons/tree/main/enumeration_types)
   - old-school(conventional) enum's problems
   - incomplete type
   - scoped & unscoped enums
   
-### [`constexpr` Keyword](https://github.com/UPinar/CppLessons/tree/main/ConstexprKeyword)
+### [`constexpr` Keyword](https://github.com/UPinar/CppLessons/tree/main/constexpr)
   - constexpr variables
   - constexpr functions
   
-### [Inline Functions](https://github.com/UPinar/CppLessons/tree/main/InlineFunctions)
+### [Inline Functions](https://github.com/UPinar/CppLessons/tree/main/inline_functions)
   - inline functions
     - inline expansion optimization
     - One Definition Rule (ODR)
     - `static` vs `inline` functions
   - inline variables **C++17**
   
-### [Function Overloading](https://github.com/UPinar/CppLessons/tree/main/FunctionOverloading)
+### [Function Overloading](https://github.com/UPinar/CppLessons/tree/main/function_overloading)
   - function signature
   - Function Overload Resolution
     - variadic conversion 
@@ -56,7 +56,7 @@
       - conversion
   - name decoration(mangling)
   
-### [Classes](https://github.com/UPinar/CppLessons/tree/main/Classes)
+### [Classes](https://github.com/UPinar/CppLessons/tree/main/classes)
   - name lookup - context control - access control
   - qualified names scopes
   - non-static data members
@@ -77,7 +77,7 @@
       - Implicitly declared defaulted
       - Implicitly declared deleted
   
-### [Storage Classes](https://github.com/UPinar/CppLessons/tree/main/StorageClasses)
+### [Storage Class](https://github.com/UPinar/CppLessons/tree/main/storage_class)
   - Storage Classes(Lifetime)
      - Static storage class
      	 - global variables 
@@ -88,14 +88,14 @@
      - Dynamic storage class 
        - new/delete keyword
      
-### [Special Member Functions](https://github.com/UPinar/CppLessons/tree/main/SpecialMemberFunctions)
+### [Special Member Functions](https://github.com/UPinar/CppLessons/tree/main/special_member_functions)
   - implicitly declared default ctor
   - constructor(member) initializer list (MIL)
   - deep and shallow copy in copy constructor
   - deep and shallow copy in copy assignment
   - move members
   
-### [Terms For Classes](https://github.com/UPinar/CppLessons/tree/main/TermsForClasses)
+### [Terms For Classes](https://github.com/UPinar/CppLessons/tree/main/terms_for_classes)
   - moved-from state
   - default member initializer
   - delegated constructor
@@ -108,12 +108,12 @@
   - pessimistic move
   - reference qualifiers (Modern C++)
   
-### [`friend` Declarations](https://github.com/UPinar/CppLessons/tree/main/FriendDeclarations)
+### [`friend` Declarations](https://github.com/UPinar/CppLessons/tree/main/friend_declarations)
   - `friend` declared global(free) function
   - `friend` declared other class's specific member function
   - `friend` declared other class(all of other classes member functions)
   
-### [Operator Overloading](https://github.com/UPinar/CppLessons/tree/main/OperatorOverloading)
+### [Operator Overloading](https://github.com/UPinar/CppLessons/tree/main/operator_overloading)
   - global and member operator overload functions
   - `const` correctness for operator overloading 
   - overloading assignment operators
@@ -136,7 +136,7 @@
   - dynamic object only class
   - singleton design pattern
   
-### [Composition / Containment](https://github.com/UPinar/CppLessons/tree/main/Containment)
+### [Composition / Containment](https://github.com/UPinar/CppLessons/tree/main/composition_containment)
   - composition / containment
   - special member functions incomposition
   
