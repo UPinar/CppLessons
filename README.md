@@ -140,9 +140,9 @@
   - composition / containment
   - special member functions incomposition
   
-### [Nested Types](https://github.com/UPinar/CppLessons/tree/main/NestedTypes)
+### [Nested Types](https://github.com/UPinar/CppLessons/tree/main/nested_types)
   - nested types
-  - pimpl idiom
+  - Pimpl idiom (pointer to implementation)
  
 ### [`namespace`(s)](https://github.com/UPinar/CppLessons/tree/main/Namespaces)
   - using decleration

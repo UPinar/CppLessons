@@ -58,7 +58,7 @@
     // when we default initialize "bx" object, 
     // BClass's implicitly declared defaulted default ctor will be called.
     // BClass's constructor will call AClass's default ctor
-    // for default initialize its member type variable m_AClass.
+    // for default initialize its member object m_AClass.
   }
 */
 
@@ -84,7 +84,7 @@
     // when we default initialize "bx" object, 
     // BClass's implicitly declared defaulted default ctor will be called.
     // Then BClass's constructor will call AClass's default ctor
-    // to default initialize its member type variable m_AClass.
+    // to default initialize its member object m_AClass.
     // But AClass does not have a default ctor because  
     // AClass(int) ctor user declared.
 
@@ -121,7 +121,7 @@
     // when we default initialize "bx" object,
     // BClass's implicitly declared defaulted default ctor will be called.
     // Then BClass's constructor will call AClass's default ctor
-    // to default initialize its member type variable m_AClass.
+    // to default initialize its member object m_AClass.
     // But AClass's default ctor is private section 
     // so inside BClass's constructor, 
     // AClass's default ctor is not reachable it will cause error.
@@ -148,7 +148,7 @@
     // BClass's default ctor is user declared defined
     // so compiler can not implicitly delete it.
     // but constructor needs to call AClass's default ctor
-    // to default initialize its member type variable m_AClass.
+    // to default initialize its member object m_AClass.
     // but AClass does not have a default ctor because
     // AClass(int) ctor user declared.
     // so BClass's default ctor will be a syntax error.
@@ -194,13 +194,13 @@
     void f1()
     {
       m_member.public_member_func(); // VALID
-      // reaching member type object's public section is VALID.
+      // reaching member object object's public section is VALID.
 
       m_member.private_member_func(); // syntax error
       // error: 'void Member::private_member_func()' 
       // is private within this context
 
-      // reaching member type object's private section is INVALID.
+      // reaching member object object's private section is INVALID.
     }
   };
 */
@@ -226,14 +226,14 @@
     Member* mp_member;  // VALID
 
     // pointer's size is known by the compiler
-    // even the member type itself is an incomplete type
+    // even the member object itself is an incomplete type
 
     // ------------------------------------------------
 
     Member& mr_member;  // VALID
 
     // reference's size(same as pointers) is known by the compiler
-    // even the member type itself is an incomplete type
+    // even the member object itself is an incomplete type
 
     // ------------------------------------------------
   };
@@ -295,9 +295,9 @@
 
   class Myclass {
   private:
-    AClass m_AClass;  // member type
-    BClass m_BClass;  // member type
-    CClass m_CClass;  // member type
+    AClass m_AClass;  // member object
+    BClass m_BClass;  // member object
+    CClass m_CClass;  // member object
   public:
     // default constructor
     Myclass() : m_AClass(), m_BClass(), m_CClass() {}
@@ -359,9 +359,9 @@
 
     // user declared copy constructor
     BClass(const BClass& other) : m_ival(other.m_ival) {}
-    // m_AClass member type is not initialized 
+    // m_AClass member object is not initialized 
     // in constructor initializer list
-    // so to initialize m_AClass member type 
+    // so to initialize m_AClass member object 
     // AClass's default ctor will be called.
   };
 
