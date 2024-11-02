@@ -144,14 +144,14 @@
   - nested types
   - Pimpl idiom (pointer to implementation)
  
-### [`namespace`(s)](https://github.com/UPinar/CppLessons/tree/main/Namespaces)
-  - using decleration
-  - using namespace (directive) decleration
+### [`namespace`](https://github.com/UPinar/CppLessons/tree/main/namespace)
+  - `using` declaration
+  - `using namespace` (directive) declaration
   - unnamed namespace
   - namespace alias
-  - argument dependent lookup
-  - inline namespace
-  - versioning with inline namespaces
+  - argument dependent lookup(ADL)
+  - `inline` namespace
+  - versioning with `inline` namespaces
   
 ### [`std::string` Class](https://github.com/UPinar/CppLessons/tree/main/StringClass)
   - using iterator and index interfaces in std::string class functions
