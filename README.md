@@ -153,13 +153,12 @@
   - `inline` namespace
   - versioning with `inline` namespaces
   
-### [`std::string` Class](https://github.com/UPinar/CppLessons/tree/main/StringClass)
-  - using iterator and index interfaces in std::string class functions
-  - std::initializer_list class
-  - constexpr static data member string::npos
-  - three-way comparison(spaceship) operator [ <=> ]
-  - std::string_view class (C++ 17)
+### [`std::string`](https://github.com/UPinar/CppLessons/tree/main/std_string)
+  - `std::string` class interface
+  - constexpr static data member `std::string::npos`
+  - search member functions of `std::string` class
   - remove-erase idiom
+  - `std::string_view` class (C++ 17)
   
 ### [Inheritance](https://github.com/UPinar/CppLessons/tree/main/Inheritance)
   - inheritance and name-lookup
@@ -364,3 +363,4 @@
   - range based for loop
   - pointer to an array
   - if with initializer (C++17)
+  - `std::initializer_list` class template
