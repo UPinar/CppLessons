@@ -41,7 +41,7 @@
 ### [Inline Functions](https://github.com/UPinar/CppLessons/tree/main/inline_functions)
   - inline functions
     - inline expansion optimization
-    - One Definition Rule (ODR)
+    - One Definition Rule - (ODR)
     - `static` vs `inline` functions
   - inline variables **C++17**
   
@@ -90,7 +90,7 @@
      
 ### [Special Member Functions](https://github.com/UPinar/CppLessons/tree/main/special_member_functions)
   - implicitly declared default ctor
-  - constructor(member) initializer list (MIL)
+  - constructor(member) initializer list - (MIL)
   - deep and shallow copy in copy constructor
   - deep and shallow copy in copy assignment
   - move members
@@ -104,7 +104,7 @@
   - explicit constructor
   - copy elision
      - Mandatory Copy Elision scenarios
-     - Named Return Value Optimization [NRVO]
+     - Named Return Value Optimization - (NRVO)
   - pessimistic move
   - reference qualifiers (Modern C++)
   
@@ -149,7 +149,7 @@
   - `using namespace` (directive) declaration
   - unnamed namespace
   - namespace alias
-  - argument dependent lookup(ADL)
+  - argument dependent lookup - (ADL)
   - `inline` namespace
   - versioning with `inline` namespaces
   
@@ -160,28 +160,28 @@
   - remove-erase idiom
   - `std::string_view` class (C++ 17)
   
-### [Inheritance](https://github.com/UPinar/CppLessons/tree/main/Inheritance)
-  - inheritance and name-lookup
+### [Inheritance](https://github.com/UPinar/CppLessons/tree/main/inheritance)
+  - inheritance and name lookup
   - inheritance and access control
   - special member functions in inheritance
-  - using declerations in inheritance
+  - `using` declerations in inheritance
   - inherited constructor
   - run-time polymorphism
   - virtual dispatch mechanism
-  - NVI (Non Virtual Interface Idiom)
-  - virtual constuctor(Clone) idiom
+  - non-virtual interface idiom - (NVI)
+  - `virtual` constuctor(clone) idiom
   - variant return type (covariance)
   - virtual destructor
-  - `final` (contextual) keyword
-  - RTTI Run Time Type Identification(information)
-    - `dynamic_cast` operator for RTTI
-    - `typeid` operator for RTTI
+  - `final` keyword
+  - run time type identification(information) - (RTTI)
+    - `dynamic_cast` operator
+    - `typeid` operator
   - private inheritance
-    - EBO (Empty Base Optimization)
-  - restricted polymophism
+    - empty base optimization - (EBO)
+  - restricted polymorphism
   - protected inheritance
   - multiple inheritence
-	  - DDD (Dreadful Diamond on Derivation)
+	  - dreadful diamond on derivation - (DDD)
 	  - virtual inheritance
 
 ### [Exception Handling](https://github.com/UPinar/CppLessons/tree/main/ExceptionHandling)
