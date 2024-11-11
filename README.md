@@ -160,7 +160,7 @@
   - remove-erase idiom
   - `std::string_view` class (C++ 17)
   
-### [Inheritance](https://github.com/UPinar/CppLessons/tree/main/inheritance)
+### [Inheritance](https://github.com/UPinar/CppLessons/tree/main/Inheritance)
   - inheritance and name lookup
   - inheritance and access control
   - special member functions in inheritance
@@ -184,14 +184,20 @@
 	  - dreadful diamond on derivation - (DDD)
 	  - virtual inheritance
 
-### [Exception Handling](https://github.com/UPinar/CppLessons/tree/main/ExceptionHandling)
+### [Exception Handling](https://github.com/UPinar/CppLessons/tree/main/exception_handling)
   - stack unwinding
   - rethrow statement
   - exception dispatcher
   - translating an exception
   - exception guarantees
   - `noexcept` keyword
+    - `noexcept` specifier
+    - `noexcept` operator
   - constructors & exceptions
+  - some exception classes
+    - `std::bad_alloc`
+    - `std::bad_cast`
+    - `std::bad_typeid`
   - function try block
   
 ### [Templates](https://github.com/UPinar/CppLessons/tree/main/Templates)
