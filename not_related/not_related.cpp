@@ -1,9 +1,9 @@
 #include <iostream>
 
 /*
-                    ------------------------
-                    | range based for loop |
-                    ------------------------
+                      ------------------------
+                      | range based for loop |
+                      ------------------------
 */
 
 /*
@@ -144,8 +144,8 @@
 
     // using if with initializer (C++17) for scope leakage problem
 
-    if (auto iter = find(begin(ivec), end(ivec), 78); iter != end(ivec))
-      std::cout << iter - begin(ivec) << '\n';
+    if (auto it = find(begin(ivec), end(ivec), 78); it != end(ivec))
+      std::cout << it - begin(ivec) << '\n';
     // output -> 4
     
     // ------------------------------------------------
@@ -171,9 +171,9 @@
 */
 
 /*
-            ----------------------------------------
-            | std::initializer_list class template |
-            ----------------------------------------
+              ----------------------------------------
+              | std::initializer_list class template |
+              ----------------------------------------
 */
 
 /*
@@ -271,7 +271,7 @@
     std::cout << "init_list.size() = " << init_list.size() << '\n';
     // output -> init_list.size() = 5
 
-    for (auto iter = init_list.begin(); iter != init_list.end(); ++iter)
+    for (auto it = init_list.begin(); it != init_list.end(); ++it)
       std::cout << *iter << " ";
     // output -> 1 2 3 4 5
 
@@ -411,3 +411,589 @@
     // output -> Myclass(std::initializer_list<int>)
   }
 */
+
+/*
+                    ----------------------------
+                    | std::pair class template |
+                    ----------------------------
+*/
+
+/*
+  // std::pair is an aggregate class
+
+  #include <utility>    // std::pair
+  #include <string>
+
+  template <typename T, typename U>
+  struct Pair {
+    T m_first{};
+    U m_second{};
+  };
+
+  std::pair<int, std::string> foo();
+  // 2 different type can be return with std::pair
+
+  int main()
+  {
+    std::pair<int, double> p1;
+    std::cout << p1.first << '\n';    // output -> 0
+    std::cout << p1.second << '\n';   // output -> 0.0
+    // default ctor is value initializing data members
+
+    std::pair <int, std::string> p2;
+    std::cout << p.first << '\n';           // output -> 0
+    std::cout << p.second.size() << '\n';   // output -> 0
+
+    // in std::pair's default initialization
+    // std::string's default ctor will be called
+  }
+*/
+
+/*
+  #include <utility>    // std::pair
+  #include <string>
+
+  int main()
+  {
+    // ---------------------------------------------------
+
+    std::pair<int, double> p1{ 1, 2.5 };
+    // pair(const T& x, const U& y) constructor is being called.
+
+    std::cout << p1.first << '\n';    // output -> 1
+    std::cout << p1.second << '\n';   // output -> 2.5
+
+    // ---------------------------------------------------
+
+    std::pair <std::string, double> p2{ "hello", 2.3 };
+    std::cout << p2.first << '\n';    // output -> hello
+    std::cout << p2.second << '\n';   // output -> 2.3
+
+    // ---------------------------------------------------
+  }
+*/
+
+/*
+  #include <utility>    // std::pair
+  #include <string>
+
+  int main()
+  {
+    std::pair p3{ 4, 5.5 }; 
+    std::pair<int, double> p4{ 4, 5.5 };
+    // Those 2 lines are equivalent.
+    // CTAD (Class Template Argument Deduction)
+    // ---------------------------------------------------
+  }
+*/
+
+/*
+  #include <utility>    // std::pair
+  #include <string>
+
+  template <typename T, typename U>
+  struct Pair {
+  public:
+    T m_first{};
+    U m_second{};
+
+    Pair() = default;
+    Pair(const T& first, const U& second) 
+      : m_first(first), m_second(second) {}
+
+    // member template constructor function
+    template <typename A, typename B>
+    Pair(const Pair<A, B>& other) 
+      : m_first(other.m_first), m_second(other.m_second) {}
+
+    // member template copy assignment operator
+    template <typename A, typename B>
+    Pair& operator=(const Pair<A, B>& other)
+    {
+      m_first = other.m_first;
+      m_second = other.m_second;
+      return *this;
+    }
+  };
+
+  int main()
+  {
+    // ---------------------------------------------------
+
+    std::pair<double, double> p1{ 3.14, 6.28 };
+    std::pair<int, int> p2{ 11, 22 };
+
+    p2 = p1;  // VALID
+    p1 = p2;  // VALID
+
+    // ---------------------------------------------------
+
+    std::pair<std::string, double> p3;
+    std::pair<const char*, int> p4{ "hello", 22 };
+    p3 = p4;  // VALID
+
+    // conversion from const char* to std::string is allowed
+
+    // ---------------------------------------------------
+  }
+*/
+
+/*
+  template <typename T, typename U>
+  struct Pair {
+    T m_first{};
+    U m_second{};
+
+    Pair() = default;
+    Pair(const T& first, const U& second) 
+      : m_first(first), m_second(second) {}
+
+    // conversion constructor (member template)
+    template <typename A, typename B>
+    Pair(const Pair<A, B>& other) 
+      : m_first(other.m_first), m_second(other.m_second) {}
+  };
+
+  int main()
+  {
+    Pair<double, double> p1{ 2.2, 4.4 };
+    Pair<int, int> p2{ 11, 22 };
+
+    p1 = p2;
+  }
+*/
+
+/*
+  #include <utility>  // std::pair, std::make_pair
+
+  template <typename T, typename U>
+  std::pair<T, U> Make_Pair(const T& first, const U& second)
+  {
+    return std::pair<T, U>(first, second);
+  }
+
+  int main()
+  {
+    auto p1 = Make_Pair(12, 4.5);
+    // "Make_Pair(12, 4.5)" is a PRValue expression(R)
+  }
+*/
+
+/*
+  #include <utility>  // std::pair, std::make_pair
+  #include <string>
+
+  // inserter operator overload for std::pair
+  template <typename T, typename U>
+  std::ostream& operator<<( std::ostream& os, 
+                            const std::pair<T, U>& p)
+  {
+    return os << '[' << p.first << ", " << p.second << ']';
+  }
+
+  int main()
+  {
+    std::pair<int, double> p1{ 2, 4.4 };
+    std::cout << p1 << '\n';  // output -> [2, 4.4]
+
+    std::cout << std::make_pair(12, 5.5) << '\n';
+    // output -> [12, 5.5]
+
+    std::string str{ "hello" };
+    std::cout << std::make_pair(std::make_pair(11, 3.3), 
+                                std::make_pair( str, 44L)) << '\n';
+    // output -> [[11, 3.3], [hello, 44]]
+  }
+*/
+
+/*
+  #include <utility>  // std::make_pair
+
+  template <typename T, typename U>
+  bool operator<( const std::pair<T, U>& lhs, 
+                  const std::pair<T, U>& rhs)
+  {
+    return (lhs.first < rhs.first || !(rhs.first < lhs.first)) && 
+            lhs.second < rhs.second;
+  }
+
+  int main()
+  {
+    std::cout << std::boolalpha;
+
+    auto p1 = std::make_pair(1, 11);
+    auto p2 = std::make_pair(2, 22);
+
+    std::cout <<  (p1 < p2) << '\n';  // output -> true
+  }
+*/
+
+/*
+  #include <utility>  // std::make_pair
+  #include <string> 
+
+  int main()
+  {
+    using namespace std::literals;
+
+    auto p1 = std::make_pair("hello", 11);
+    // p1.first data member's type is const char*
+
+    auto p2 = std::make_pair("world"s, 12);
+    auto p3 = std::make_pair(operator""s("world", 6), 12);
+    // Those 2 lines are equivalent.
+    // p2.first data member's type is std::string
+  }
+*/
+
+/*
+  #include <utility>  // std::pair
+  #include <string>
+
+  int main()
+  {
+    int x{ 10 };
+    std::string str{ "hello" };
+
+    // ---------------------------------------------------
+
+    std::pair<int, std::string> p1{ x, str };
+    p1.first *= 11;
+    p1.second += " world";
+
+    std::cout << p1.first << ' ' << p1.second << '\n';
+    // output -> 110 hello world
+
+    std::cout << "x = " << x << '\n';       
+    // output -> x = 10
+    std::cout << "str = " << str << '\n';
+    // output -> str = hello
+
+
+    // ---------------------------------------------------
+
+    std::pair<int&, std::string&> p2{ x, str };
+    p2.first *= 22;
+    p2.second += " galaxy";
+
+    std::cout << p2.first << ' ' << p2.second << '\n';
+    // output -> 220 hello galaxy
+
+    std::cout << "x = " << x << '\n';       
+    // output -> x = 220
+    std::cout << "str = " << str << '\n';
+    // output -> str = hello galaxy
+
+    // ---------------------------------------------------
+  }
+*/
+
+/*
+                      ----------------------
+                      | perfect forwarding |
+                      ----------------------
+*/
+
+/*
+  #include <utility>  // std::move
+
+  class Myclass{};
+
+  void foo(Myclass&)
+  {
+    std::cout << "foo(Myclass&)" << '\n';
+  }
+
+  void foo(const Myclass&)
+  {
+    std::cout << "foo(const Myclass&)" << '\n';
+  }
+
+  void foo(Myclass&&)
+  {
+    std::cout << "foo(Myclass&&)" << '\n';
+  }
+
+  void foo(const Myclass&&)
+  {
+    std::cout << "foo(const Myclass&&)" << '\n';
+  }
+
+  void call_foo(Myclass& r)
+  {
+    foo(r);
+  }
+
+  void call_foo(const Myclass& r)
+  {
+    foo(r);
+  }
+
+  void call_foo(Myclass&& r)
+  {
+    foo(std::move(r));
+  }
+
+  void call_foo(const Myclass&& r)
+  {
+    foo(std::move(r));
+  }
+
+  // if "foo" function have 2 parameters 
+  // 16(4^2) "call_foo" overloads need to be written
+
+  // if "foo" function have n parameters
+  // 4^n "call_foo" overloads need to be written
+
+  int main()
+  {
+    Myclass mx;
+    const Myclass cx;
+
+    foo(mx);                  // output -> foo(Myclass&)
+    call_foo(mx);             // output -> foo(Myclass&)
+
+    foo(cx);                  // output -> foo(const Myclass&)
+    call_foo(cx);             // output -> foo(const Myclass&)
+
+    foo(Myclass{});           // output -> foo(Myclass&&)
+    call_foo(Myclass{});      // output -> foo(Myclass&&)
+
+    foo(std::move(cx));       // output -> foo(const Myclass&&)
+    call_foo(std::move(cx));  // output -> foo(const Myclass&&)
+  }
+*/
+
+/*
+  #include <utility>  // std::forward, std::move
+
+  class Myclass{};
+
+  void foo(Myclass&)
+  {
+    std::cout << "foo(Myclass&)" << '\n';
+  }
+
+  void foo(const Myclass&)
+  {
+    std::cout << "foo(const Myclass&)" << '\n';
+  }
+
+  void foo(Myclass&&)
+  {
+    std::cout << "foo(Myclass&&)" << '\n';
+  }
+
+  void foo(const Myclass&&)
+  {
+    std::cout << "foo(const Myclass&&)" << '\n';
+  }
+
+  template <typename T>
+  void forward_foo(T&& r) // universal reference parameter
+  {
+    foo(std::forward<T>(r));
+  }
+
+  int main()
+  {
+    Myclass mx;
+    const Myclass cx;
+
+    forward_foo(mx);                // output -> foo(Myclass&)
+    forward_foo(cx);                // output -> foo(const Myclass&)
+    forward_foo(Myclass{});         // output -> foo(Myclass&&)
+    forward_foo(std::move(cx));     // output -> foo(const Myclass&&)
+  }
+*/
+
+/*
+  // "bar" function does have 2 parameters
+  template <typename T, typename U>
+  void forward_bar(T&& t, U&& u)
+  {
+    bar(std::forward<T>(t), std::forward<U>(u));
+  }
+
+  // "func" function does have N parameters
+  template <typename ...Args>
+  void forward_func(Args&& ...args)
+  {
+    func(std::forward<Args>(args)...);
+  }
+*/
+
+/*
+  template <typename T>
+  class Vector {
+  public:
+    void push_back(const T&);
+    // const L value reference parameter
+
+    void push_back(T&&);  
+    // R value reference parameter (NOT universal reference)
+
+    // (move overloads)
+  };
+*/
+
+/*
+  #include <utility>  // std::move
+
+  template <typename T>
+  class Myclass {
+  public:
+    void foo(T&&);
+    // "foo"'s parameter is R value reference
+
+    template <typename U>
+    void func(U&&);
+    // "func" parameter is universal reference
+  };
+
+  int main()
+  {
+    Myclass<int> mx;
+    int x{};
+    int y{};
+
+    // ---------------------------------------------------
+
+    mx.foo(x);  // syntax error
+    // error: cannot bind rvalue reference of type 'int&&' 
+    // to lvalue of type 'int'
+
+    mx.foo(std::move(x));  // VALID
+
+    // "foo" function have a R value reference parameter
+    // it can not be called with L value expressions.
+
+    // ---------------------------------------------------
+
+    mx.func(y);               // VALID
+    mx.func(std::move(y));    // VALID
+
+    // "func" function have a universal reference parameter
+    // it can be called with L value and R value expressions.
+
+    // ---------------------------------------------------
+  }
+*/
+
+/*
+  template <typename T>
+  void foo(T&&);          
+  // forwarding(universal) reference
+
+  template <typename T>
+  void bar(const T&&); 
+  // const R value reference (NOT universal reference)   
+*/
+
+/*
+  template <typename T>
+  class Myclass {};
+
+  template <typename T>
+  void func(Myclass<T>&&);  
+  // R Value reference (NOT universal reference)
+
+  int main()
+  {
+    Myclass<int> mx;
+
+    func(mx);   // syntax error
+    // error: cannot bind rvalue reference of type 'Myclass<int>&&' 
+    // to lvalue of type 'Myclass<int>'
+  }
+*/
+
+/*
+  #include <utility>  // std::move
+
+  int main()
+  {
+
+    int x = 11;
+    const int cx = 22;
+
+    auto&& var_1 = x;   // VALID
+    auto&& var_2 = cx;  // VALID
+
+    auto&& var_3 = 11;  // VALID
+    auto&& var_4 = std::move(x);  // VALID
+    auto&& var_5 = std::move(cx); // VALID
+  
+    // `auto&&` is a universal reference type
+  }
+*/
+
+/*
+                          --------------
+                          | type alias |
+                          --------------
+*/
+
+/*
+  typedef declarations
+  -------------------------------------------------------
+
+  1. declare a variable from that type.
+  2. add `typedef` keyword in front of the declaration.
+  3. change the variable identifier with the alias identifier.
+
+  1. int x;
+  2. typedef int x;
+  3. typedef int Word;  
+  // Word is an alias for int
+
+  1. int i_arr[10];
+  2. typedef int i_arr[10];
+  3. typedef int i_arr10[10]
+  // i_arr10 is an alias for int[10]
+
+  1. int(*fp)(const char*, const char*);
+  2. typedef int(*fp)(const char*, const char*);
+  3. typedef int(*cmp_func)(const char*, const char*);
+  // cmp_func is an alias for int(*)(const char*, const char*)
+*/
+
+/*
+  typedef int* IPTR;  // IPTR is an alias for int*
+
+  int main()
+  {
+    int x = 10;
+    int y = 12;
+
+    // ---------------------------------------------------
+
+    const IPTR p1 = &x;   // top level const
+    int* const p2 = &x;   // top level const
+    // These 2 lines are equivalent.
+    // p1 and p2's data type is int* const (const pointer to int)
+
+    // ---------------------------------------------------
+
+    *p1 = 55;  // VALID
+    p1 = &y;	 // syntax error
+    // error: assignment of read-only variable 'p1'
+
+    // ---------------------------------------------------
+  }
+*/
+
+/*
+  using declarations
+  -------------------------------------------------------
+  using cmp_func  = int(*)(const char*, const char*);
+  using i_pair    = std::pair<int, int>;
+  using i_arr10   = int[10];
+  using Word      = int; 
+*/
+
+// ---------------------------------------------------
+// ---------------------------------------------------
+// ---------------------------------------------------
+// ---------------------------------------------------
+// ---------------------------------------------------

@@ -201,13 +201,11 @@
   - function try block
   
 ### [Templates](https://github.com/UPinar/CppLessons/tree/main/Templates)
-  - template parameters
   - template argument deduction
-  - function templates
-  - trailing return type int templates
+  - trailing return type
+  - member function template
   - class templates
   - class template argument deduction
-  - perfect forwarding
   - explicit(full) specialization 
   - partial specialization
   - alias templates
@@ -215,14 +213,15 @@
      - using declerations
   - default template parameter
   - variable templates
+    - SFINAE(Substitution Failure Is Not An Error)
   - variadic templates
-  - pack expansion
-  - Using variadic parameters one by one
-     - compile time recursivity
-     - init_list
-     - fold expressions (C++17)
-     - static if
-
+    - pack expansion
+    - compile-time recursivity (eksiltme teknigi)
+    - std::initializer_list technique
+    - fold expressions (C++17)
+      - unary fold  (left, right)
+      - binary fold (left, right)
+    - static if (C++17) 
 
 ### [Standart Template Library(STL)](https://github.com/UPinar/CppLessons/tree/main/StandartTemplateLibrary)
   - iterators 
@@ -370,3 +369,6 @@
   - pointer to an array
   - if with initializer (C++17)
   - `std::initializer_list` class template
+  - `std::pair` class template
+  - perfect forwarding
+  - type alias
