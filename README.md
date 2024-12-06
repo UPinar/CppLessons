@@ -205,7 +205,7 @@
   - trailing return type
   - member function template
   - class templates
-  - class template argument deduction
+  - class template argument deduction (CTAD)
   - explicit(full) specialization 
   - partial specialization
   - alias templates
@@ -223,34 +223,7 @@
       - binary fold (left, right)
     - static if (C++17) 
 
-### [Standart Template Library(STL)](https://github.com/UPinar/CppLessons/tree/main/StandartTemplateLibrary)
-  - iterators 
-  - iterator categories
-    - input iterator
-    - output iterator
-    - forward iterator
-    - bidirectional iterator
-    - random access iterator
-    - contigious iterator (Modern C++)
-  - `std::copy` algorithm
-  - `std::sort` algorithm 
-  - `std::find` algorithm
-  - `std::back_inserter` && `std::front_inserter` algorithms
-  - iterator manipulator functions
-    - `std::advance`
-    - `std::distance`
-    - `std::next` && `std::prev`
-    - `std::iter_swap`
-  - tag dispatch technique
-  - `std::reverse_iterator` (iterator adapter)
-  - `std::count` algorithm
-  - `std::count_if` algorithm
-  - `std::find_if` algorithm
-  - `std::copy_if` algorithm
-  - `std::transform` algorithm
-  - `std::for_each` algorithm`
-  - `std::all_of` && `std::any_of` && `std::none_of` algorithms
-  - `std::max_element` algorithm
+### [Standart Template Library(STL)](https://github.com/UPinar/CppLessons/tree/main/standart_template_library)
   - Standart function objects(standart functors)
   - `std::replace` && `std::replace_if` algorithms
   - `std::reverse_copy` && `std::remove_copy` && `std::remove_copy_if` algorithms
@@ -299,6 +272,31 @@
   - dynamic storage objects
   - placement new expressions
   - overloading operator new() and operator delete() functions as a member function
+  
+### [STL Iterators](https://github.com/UPinar/CppLessons/tree/main/stl_iterators)
+  - iterator categories
+  - const_iterator - iterator adaptor
+  - iterator manipulator functions
+    - `std::advance`
+      - tag dispatch technique
+    - `std::distance`
+    - `std::next` && `std::prev`
+    - `std::iter_swap`
+  - reverse_iterator - iterator adaptor
+
+### [STL Algorithms](https://github.com/UPinar/CppLessons/tree/main/stl_algorithms)
+  - `std::copy`, `std::copy_if`in <algorithm>
+  - `std::sort` in <algorithm> 
+  - `std::find`, `std::find_if` in <algorithm>
+  - `std::back_inserter`, `std::front_inserter` in <iterator>
+  - `std::count`, `std::count_if` in <algorithm>
+  - `std::transform` in <algorithm>
+  - `std::for_each` in <algorithm>
+  - `std::all_of` && `std::any_of` && `std::none_of` in <algorithm>
+  - `std::max_element` in <algorithm>
+  - `std::minmax_element` in <algorithm>
+
+### [STL Containers](https://github.com/UPinar/CppLessons/tree/main/stl_containers)
 
 ### [Smart Pointers](https://github.com/UPinar/CppLessons/tree/main/SmartPointers)
   - `std::unique_ptr` unique pointer

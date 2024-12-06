@@ -1,2 +1,0 @@
-Back to Basics: Classic STL - Bob Steagall - CppCon 2021
-https://www.youtube.com/watch?v=tXUXl_RzkAk&list=PLHTh1InhhwT4TJaHBVWzvBOYhp27UO7mI&index=16
