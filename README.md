@@ -205,7 +205,7 @@
   - trailing return type
   - member function template
   - class templates
-  - class template argument deduction
+  - class template argument deduction (CTAD)
   - explicit(full) specialization 
   - partial specialization
   - alias templates
@@ -223,18 +223,7 @@
       - binary fold (left, right)
     - static if (C++17) 
 
-### [Standart Template Library(STL)](https://github.com/UPinar/CppLessons/tree/main/StandartTemplateLibrary)
-  - iterators 
-  - iterator categories
-    - input iterator
-    - output iterator
-    - forward iterator
-    - bidirectional iterator
-    - random access iterator
-    - contigious iterator (Modern C++)
-  - `std::copy` algorithm
-  - `std::sort` algorithm 
-  - `std::find` algorithm
+### [Standart Template Library(STL)](https://github.com/UPinar/CppLessons/tree/main/standart_template_library)
   - `std::back_inserter` && `std::front_inserter` algorithms
   - iterator manipulator functions
     - `std::advance`
@@ -299,6 +288,19 @@
   - dynamic storage objects
   - placement new expressions
   - overloading operator new() and operator delete() functions as a member function
+  
+### [STL Iterators](https://github.com/UPinar/CppLessons/tree/main/stl_iterators)
+  - iterator categories
+  - const_iterator - iterator adaptor
+
+### [STL Algorithms](https://github.com/UPinar/CppLessons/tree/main/stl_algorithms)
+  - `std::copy` in <algorithm>
+  - `std::copy` in <algorithm>
+  - `std::sort` in <algorithm> 
+  - `std::find` in <algorithm>
+  - `std::back_inserter`, `std::front_inserter` in `<iterator>`
+
+### [STL Containers](https://github.com/UPinar/CppLessons/tree/main/stl_containers)
 
 ### [Smart Pointers](https://github.com/UPinar/CppLessons/tree/main/SmartPointers)
   - `std::unique_ptr` unique pointer
